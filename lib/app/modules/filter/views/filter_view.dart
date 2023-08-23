@@ -21,9 +21,9 @@ class FilterView extends GetView<FilterController> {
           appBar: const MyCustomContainer().myAppBar(
             text: "Filters",
             isIcon: true,
-            backIconOnPressed: () => controller.clickOnCloseButton(),
+            backIconOnPressed: () => controller.clickOnCloseButton(context: context),
             buttonText: "Close",
-            buttonOnPressed: () => controller.clickOnCloseButton(),
+            buttonOnPressed: () => controller.clickOnCloseButton(context: context),
           ),
           extendBodyBehindAppBar: true,
           body: Obx(() {
@@ -54,7 +54,7 @@ class FilterView extends GetView<FilterController> {
       );
 
   Widget closeButtonView({required BuildContext context}) => TextButton(
-        onPressed: () => controller.clickOnCloseButton(),
+        onPressed: () => controller.clickOnCloseButton(context: context),
         child: Text(
           "Close",
           style: Theme.of(Get.context!)

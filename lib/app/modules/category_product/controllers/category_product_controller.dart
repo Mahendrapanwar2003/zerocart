@@ -52,7 +52,7 @@ class CategoryProductController extends GetxController {
 
     searchPageValue = Get.parameters['searchPage'];
     appBarTitleFromSearchPage = Get.parameters['appBarTitleFromSearchPage'];
-    if(searchPageValue == 'searchPage') {
+    if (searchPageValue == 'searchPage') {
       await getSearchProductListApi(
           searchString: appBarTitleFromSearchPage.toString());
       scrollController.addListener(() async {
@@ -71,7 +71,8 @@ class CategoryProductController extends GetxController {
         if (scrollController.position.pixels ==
             scrollController.position.maxScrollExtent) {
           isLoading.value = true;
-          await callCategoryProductApi(categoryId: categoryId,
+          await callCategoryProductApi(
+              categoryId: categoryId,
               isChat: isChatOption,
               filterData: filterDataJson,
               wantReload: false);
@@ -222,10 +223,13 @@ class CategoryProductController extends GetxController {
   }) async {
     if (!isChatOption) {
       absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
-      await Get.toNamed(Routes.FILTER,
+      var value = await Get.toNamed(Routes.FILTER,
           arguments: [categoryId ?? "", filterDataMap]);
-      FilterController filterController = Get.find();
-      filterDataMap = filterController.filterData;
+      if (value != null) {
+        filterDataMap = value['filterData'];
+      } else {
+        filterDataMap = {};
+      }
       filterDataList = filterDataMap.values.toList();
       filterDataJson = json.encode(filterDataMap);
       count.value++;
@@ -252,7 +256,6 @@ class CategoryProductController extends GetxController {
     filterKeyList.removeAt(index);
     filterDataList.removeAt(index);
     filterDataJson = json.encode(filterDataMap);
-
     offset = 0;
     await callCategoryProductApi(
         categoryId: categoryId,
