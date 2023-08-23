@@ -4,7 +4,7 @@ import 'package:ui_library/ui_library.dart';
 import 'package:zerocart/app/common_widgets/common_widgets.dart';
 import 'package:zerocart/app/custom/custom_outline_button.dart';
 import 'package:zerocart/app/custom/custom_gradient_text.dart';
-import 'package:zerocart/progress_bar.dart';
+import '../../../../model_progress_bar/model_progress_bar.dart';
 import '../../../custom/custom_appbar.dart';
 import '../controllers/measurements_controller.dart';
 

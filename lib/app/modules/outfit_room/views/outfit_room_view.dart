@@ -6,7 +6,7 @@ import 'package:zerocart/app/common_widgets/common_widgets.dart';
 import 'package:zerocart/app/custom/custom_appbar.dart';
 import 'package:zerocart/app/custom/scroll_splash_gone.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
-import 'package:zerocart/progress_bar.dart';
+import '../../../../model_progress_bar/model_progress_bar.dart';
 import '../controllers/outfit_room_controller.dart';
 
 class OutfitRoomView extends GetView<OutfitRoomController> {

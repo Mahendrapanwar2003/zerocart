@@ -6,7 +6,7 @@ import 'package:zerocart/app/constant/zconstant.dart';
 import 'package:zerocart/app/custom/scroll_splash_gone.dart';
 import 'package:zerocart/app/modules/category/controllers/category_controller.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
-import 'package:zerocart/progress_bar.dart';
+import '../../../../model_progress_bar/model_progress_bar.dart';
 import '../../../common_widgets/common_widgets.dart';
 import '../../../custom/custom_appbar.dart';
 

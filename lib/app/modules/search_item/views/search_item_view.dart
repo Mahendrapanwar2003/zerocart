@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:ui_library/ui_library.dart';
 import 'package:zerocart/app/constant/zconstant.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
-import 'package:zerocart/progress_bar.dart';
+import '../../../../model_progress_bar/model_progress_bar.dart';
 import '../../../apis/api_modals/get_categories_modal.dart';
 import '../../../common_widgets/common_widgets.dart';
 import '../../../custom/custom_appbar.dart';

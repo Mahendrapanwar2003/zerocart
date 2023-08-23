@@ -11,7 +11,7 @@ import 'package:zerocart/app/custom/dropdown_zerocart.dart';
 import 'package:zerocart/app/custom/scroll_splash_gone.dart';
 import 'package:zerocart/app/validator/form_validator.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
-import 'package:zerocart/progress_bar.dart';
+import '../../../../model_progress_bar/model_progress_bar.dart';
 import '../controllers/edit_profile_controller.dart';
 
 class EditProfileView extends GetView<EditProfileController> {

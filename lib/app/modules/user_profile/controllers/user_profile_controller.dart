@@ -50,7 +50,6 @@ class UserProfileController extends GetxController {
     }
   }
 
-
   String getMonthOfYearSuffix(int monthNum) {
     if(!(monthNum >= 1 && monthNum <= 12)) {
       throw Exception('Invalid month of Year');

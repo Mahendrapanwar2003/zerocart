@@ -8,7 +8,7 @@ import 'package:zerocart/app/constant/zconstant.dart';
 import 'package:zerocart/app/custom/custom_gradient_text.dart';
 import 'package:zerocart/app/custom/custom_outline_button.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
-import '../../../../progress_bar.dart';
+import '../../../../model_progress_bar/model_progress_bar.dart';
 import '../../../custom/custom_appbar.dart';
 import '../controllers/my_orders_controller.dart';
 

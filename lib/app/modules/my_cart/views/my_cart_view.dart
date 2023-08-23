@@ -10,7 +10,7 @@ import 'package:zerocart/app/custom/custom_appbar.dart';
 import 'package:zerocart/app/custom/custom_gradient_text.dart';
 import 'package:zerocart/app/custom/my_dropdown_menu.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
-import '../../../../progress_bar.dart';
+import '../../../../model_progress_bar/model_progress_bar.dart';
 import '../controllers/my_cart_controller.dart';
 import 'package:http/http.dart' as http;
 

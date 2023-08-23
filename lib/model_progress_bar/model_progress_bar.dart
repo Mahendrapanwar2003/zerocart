@@ -8,6 +8,8 @@ import 'dart:ui';
 ///
 /// HUD=Heads Up Display
 ///
+///
+// ignore: must_be_immutable
 class ModalProgress extends StatelessWidget {
   /// A required [bool]to toggle the loading animation.
   final bool inAsyncCall;
@@ -20,7 +22,7 @@ class ModalProgress extends StatelessWidget {
 
   /// A [Widget] which is shown at the center of the modal loading barrier,
   /// defaults to the standard android spinny animation.
-   Widget? progressIndicator;
+  Widget? progressIndicator;
 
   /// An [Offset] object which is applied to the [progressIndicator] when specified.
   final Offset? offset;
@@ -34,7 +36,7 @@ class ModalProgress extends StatelessWidget {
   /// A [double] value specifying the amount of background blur of the progress.
   final double blur;
 
-   ModalProgress({
+  ModalProgress({
     Key? key,
     required this.inAsyncCall,
     this.opacity = 0.5,
@@ -48,14 +50,10 @@ class ModalProgress extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if(progressIndicator==null)
-      {
-        progressIndicator=CircularProgressIndicator(
+      progressIndicator ??= CircularProgressIndicator(
           backgroundColor: const Color(0xff7C7C7C).withOpacity(.5),
           strokeWidth: 3,
         );
-      }
-
     if (!inAsyncCall) return child;
 
     Widget layOutProgressIndicator;
@@ -68,11 +66,10 @@ class ModalProgress extends StatelessWidget {
         child: progressIndicator!,
       );
     }
-
     return Stack(
       children: [
         child,
-            BackdropFilter(
+        BackdropFilter(
           filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
           child: Opacity(
             opacity: opacity,
