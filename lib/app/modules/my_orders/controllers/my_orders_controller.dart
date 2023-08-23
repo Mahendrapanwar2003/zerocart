@@ -51,13 +51,10 @@ class MyOrdersController extends CommonMethods {
     super.onInit();
     inAsyncCall.value=true;
     if(await MyCommonMethods.internetConnectionCheckerMethod())
-      {
-        try{
-          await getOrderListApiCalling();
-        }catch(e){
-          responseCode=1;
-        }
-      }
+    {
+      await getOrderListApiCalling();
+
+    }
     inAsyncCall.value=false;
   }
 
@@ -92,7 +89,7 @@ class MyOrdersController extends CommonMethods {
     String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
     authorization = {"Authorization": token!};
     queryParametersForGetOrderListApi = {
-      ApiKeyConstant.orderStatus: orderStatusList[int.parse(orderFilterType.value)].toString().replaceAll(" ", ""),
+      ApiKeyConstant.orderStatus: orderFilterType.value!="-1"?orderStatusList[int.parse(orderFilterType.value)].toString().replaceAll(" ", ""):"",
       ApiKeyConstant.limit: limit,
       ApiKeyConstant.offset:offset.toString(),
       ApiKeyConstant.searchSrting: searchOrderController.text.trim().toString(),
@@ -112,9 +109,9 @@ class MyOrdersController extends CommonMethods {
     if (getOrderListModal!= null) {
       if (getOrderListModal?.orderList != null) {
         if(offset==0)
-          {
-            orderList.clear();
-          }
+        {
+          orderList.clear();
+        }
         getOrderListModal?.orderList?.forEach((element) {
           orderList.add(element);
         });

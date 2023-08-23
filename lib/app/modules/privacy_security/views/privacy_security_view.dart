@@ -32,7 +32,7 @@ class PrivacySecurityView extends GetView<PrivacySecurityController> {
                   return CommonWidgets.commonRefreshIndicator(
                     onRefresh: () => controller.onRefresh(),
                     child: ListView(
-                      physics: const BouncingScrollPhysics(),
+                      physics: const AlwaysScrollableScrollPhysics(),
                       children: [
                         Padding(
                           padding: EdgeInsets.only(

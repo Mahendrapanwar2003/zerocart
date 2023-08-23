@@ -19,7 +19,6 @@ class CommonWidgets {
     );
   }
 
-
   static Widget zeroCartImage() {
     return Image.asset(
       Theme.of(Get.context!).brightness == Brightness.dark
@@ -29,10 +28,26 @@ class CommonWidgets {
     );
   }
 
+  static Widget mySizeBox({double? height}) {
+    return SizedBox(
+      height: height ?? 2.h,
+      width: double.infinity,
+    );
+  }
+
+  static Widget commonDisForError({required String dis}) {
+    return Text(
+      dis,
+      textAlign: TextAlign.center,
+      style: Theme.of(Get.context!).textTheme.titleMedium,
+    );
+  }
+
   static Widget commonRefreshIndicator(
       {required Widget child, required RefreshCallback onRefresh}) {
     return RefreshIndicator(onRefresh: onRefresh, child: child);
   }
+
   static Widget commonNoInternetImage({required RefreshCallback onRefresh}) {
     return RefreshIndicator(
       onRefresh: () async {
@@ -48,14 +63,14 @@ class CommonWidgets {
             hasScrollBody: true,
             child: Center(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Image.asset(Zconstant.imageNoInternetConnection),
-                    commonTitleForError(title: Zconstant.textNoInternetTitle),
-                    commonDisForError(dis: Zconstant.textNoInternetDis)
-                  ],
-                )),
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Image.asset(Zconstant.imageNoInternetConnection),
+                commonTitleForError(title: Zconstant.textNoInternetTitle),
+                commonDisForError(dis: Zconstant.textNoInternetDis)
+              ],
+            )),
           ),
         ],
       ),
@@ -73,14 +88,14 @@ class CommonWidgets {
             hasScrollBody: true,
             child: Center(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Image.asset(Zconstant.imageNoDataFound),
-                    commonTitleForError(title: Zconstant.textNoDataTitle),
-                    commonDisForError(dis: Zconstant.textNoDataDis)
-                  ],
-                )),
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Image.asset(Zconstant.imageNoDataFound),
+                commonTitleForError(title: Zconstant.textNoDataTitle),
+                commonDisForError(dis: Zconstant.textNoDataDis)
+              ],
+            )),
           ),
         ],
       ),
@@ -115,35 +130,14 @@ class CommonWidgets {
     );
   }
 
-
   static Widget commonTitleForError({required String title}) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 15.px),
       child: Text(
         title,
         textAlign: TextAlign.center,
-        style: Theme
-            .of(Get.context!)
-            .textTheme
-            .displayLarge,
+        style: Theme.of(Get.context!).textTheme.displayLarge,
       ),
-    );
-  }
-
-  static Widget commonDisForError({required String dis}) {
-    return Text(
-      dis,
-      textAlign: TextAlign.center,
-      style: Theme
-          .of(Get.context!)
-          .textTheme
-          .titleMedium,
-    );
-  }
-  static Widget mySizeBox({double? height}) {
-    return SizedBox(
-      height: height ?? 2.h,
-      width: double.infinity,
     );
   }
 
@@ -332,7 +326,7 @@ class CommonWidgets {
       TextEditingController? controller,
       bool autofocus = false,
       GestureTapCallback? onTap,
-        EdgeInsetsGeometry? contentPadding,
+      EdgeInsetsGeometry? contentPadding,
       bool obscureText = false}) {
     return iconVisible
         ? TextFormField(
@@ -484,15 +478,16 @@ class CommonWidgets {
         ),
       );
 
-  static Widget buttonProgressBarView({double? height, double? width}) => SizedBox(
-    height: height ?? 25.px,
-    width: width ?? 25.px,
-    child: CircularProgressIndicator(
+  static Widget buttonProgressBarView({double? height, double? width}) =>
+      SizedBox(
+        height: height ?? 25.px,
+        width: width ?? 25.px,
+        child: CircularProgressIndicator(
           backgroundColor: MyColorsLight().textGrayColor,
           color: MyColorsLight().secondary,
           strokeWidth: 4.px,
         ),
-  );
+      );
 
   static Widget registrationOtpButtonProgressBar() => SizedBox(
         height: 15.px,
@@ -504,18 +499,16 @@ class CommonWidgets {
         ),
       );
 
-  static Widget progressBarView({double? height,double? width}) => Center(
+  static Widget progressBarView({double? height, double? width}) => Center(
         child: SizedBox(
           height: height,
-          width:width ,
+          width: width,
           child: CircularProgressIndicator(
             backgroundColor: MyColorsLight().textGrayColor.withOpacity(.5),
             strokeWidth: 3.px,
           ),
         ),
       );
-
-
 
   static Widget myPadding({required Widget child, double? top}) {
     return Padding(padding: EdgeInsets.only(top: top ?? 17.8.h), child: child);
@@ -582,9 +575,8 @@ class CommonWidgets {
         borderRadius: BorderRadius.circular(5.px),
         border: valueForValidation == true
             ? Border(
-          bottom: BorderSide(color: MyColorsLight().error),
-
-        )
+                bottom: BorderSide(color: MyColorsLight().error),
+              )
             : const Border(),
       ),
       child: Padding(
@@ -594,7 +586,7 @@ class CommonWidgets {
           style: Theme.of(Get.context!).textTheme.subtitle2?.copyWith(
               fontSize: 16.px,
               color:
-              Theme.of(Get.context!).colorScheme.onSurface.withOpacity(.4)),
+                  Theme.of(Get.context!).colorScheme.onSurface.withOpacity(.4)),
         ),
       ),
     );

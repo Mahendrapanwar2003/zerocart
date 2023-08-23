@@ -16,23 +16,23 @@ class UserProfileView extends GetView<UserProfileController> {
   @override
   Widget build(BuildContext context) {
     return Obx(() => ModalProgress(
-          inAsyncCall: controller.inAsyncCall.value,
-          child: WillPopScope(
-            onWillPop: () => controller.onWillPop(context: context),
-            child: Scaffold(
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-              appBar: const MyCustomContainer().myAppBar(
-                  isIcon: true,
-                  backIconOnPressed: () =>
-                      controller.clickOnBackIcon(context: context),
-                  text: 'User Profile'),
-              body: Obx(() {
-                if(CommonMethods.isConnect.value)
+      inAsyncCall: controller.inAsyncCall.value,
+      child: WillPopScope(
+        onWillPop: () => controller.onWillPop(context: context),
+        child: Scaffold(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            appBar: const MyCustomContainer().myAppBar(
+                isIcon: true,
+                backIconOnPressed: () =>
+                    controller.clickOnBackIcon(context: context),
+                text: 'User Profile'),
+            body: Obx(() {
+              if(CommonMethods.isConnect.value)
+              {
+                if(controller.userDataMap.isNotEmpty)
                 {
-                  if(controller.userDataMap.isNotEmpty)
-                  {
 
-                    return CommonWidgets.commonRefreshIndicator(
+                  return CommonWidgets.commonRefreshIndicator(
                     onRefresh: () => controller.onRefresh(),
                     child:  ListView(
                       physics: const AlwaysScrollableScrollPhysics(),
@@ -95,81 +95,81 @@ class UserProfileView extends GetView<UserProfileController> {
                     ),
                   );
 
-                  }
-                  else
-                  {
-                    return CommonWidgets.commonNoDataFoundImage(onRefresh: () => controller.onRefresh(),);
-                  }
                 }
                 else
                 {
-                  return CommonWidgets.commonNoInternetImage(onRefresh: () => controller.onRefresh(),);
+                  return CommonWidgets.commonNoDataFoundImage(onRefresh: () => controller.onRefresh(),);
                 }
-              })
-            ),
-          ),
-        ));
+              }
+              else
+              {
+                return CommonWidgets.commonNoInternetImage(onRefresh: () => controller.onRefresh(),);
+              }
+            })
+        ),
+      ),
+    ));
   }
 
   Widget backIconView({required BuildContext context}) => Material(
-        color: Colors.transparent,
-        child: IconButton(
-          onPressed: () => controller.clickOnBackIcon(context: context),
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: Theme.of(Get.context!).textTheme.subtitle1?.color,
-          ),
-          splashRadius: 24.px,
-          iconSize: 18.px,
-        ),
-      );
+    color: Colors.transparent,
+    child: IconButton(
+      onPressed: () => controller.clickOnBackIcon(context: context),
+      icon: Icon(
+        Icons.arrow_back_ios_new_rounded,
+        color: Theme.of(Get.context!).textTheme.subtitle1?.color,
+      ),
+      splashRadius: 24.px,
+      iconSize: 18.px,
+    ),
+  );
 
   Widget userProfileTextView() => Text(
-        "User Profile",
-        style: Theme.of(Get.context!).textTheme.subtitle1,
-      );
+    "User Profile",
+    style: Theme.of(Get.context!).textTheme.subtitle1,
+  );
 
   Widget userProfilePicView() => SizedBox(
-        height: 158.px,
-        child: Container(
-          width: 158.px,
-          height: 138.px,
-          decoration: BoxDecoration(
-            border:
-                Border.all(width: 0.5.px, color: MyColorsLight().borderColor),
-            borderRadius: BorderRadius.circular(80.px),
-            image: DecorationImage(
-              image: (controller.userDataMap[UserDataKeyConstant.profilePicture] !=
-                          null &&
-                      controller.userDataMap[UserDataKeyConstant.profilePicture]
-                          .toString()
-                          .isNotEmpty
-                  ? NetworkImage(CommonMethods.imageUrl(
-                      url: controller
-                          .userDataMap[UserDataKeyConstant.profilePicture]))
-                  : CommonWidgets.defaultProfilePicture()) as ImageProvider,
-              fit: BoxFit.contain,
-            ),
-          ),
+    height: 158.px,
+    child: Container(
+      width: 158.px,
+      height: 138.px,
+      decoration: BoxDecoration(
+        border:
+        Border.all(width: 0.5.px, color: MyColorsLight().borderColor),
+        borderRadius: BorderRadius.circular(80.px),
+        image: DecorationImage(
+          image: (controller.userDataMap[UserDataKeyConstant.profilePicture] !=
+              null &&
+              controller.userDataMap[UserDataKeyConstant.profilePicture]
+                  .toString()
+                  .isNotEmpty
+              ? NetworkImage(CommonMethods.imageUrl(
+              url: controller
+                  .userDataMap[UserDataKeyConstant.profilePicture]))
+              : CommonWidgets.defaultProfilePicture()) as ImageProvider,
+          fit: BoxFit.contain,
         ),
-      );
+      ),
+    ),
+  );
 
   Widget infoTitlesTextView({required String text}) => Text(
-        text,
-        style: Theme.of(Get.context!).textTheme.caption,
-      );
+    text,
+    style: Theme.of(Get.context!).textTheme.caption,
+  );
 
   Widget infoContentTextVIew({required String text}) => Text(
-        text,
-        textAlign: TextAlign.right,
-        style: Theme.of(Get.context!)
-            .textTheme
-            .subtitle1
-            ?.copyWith(fontSize: 14.px),
-      );
+    text,
+    textAlign: TextAlign.right,
+    style: Theme.of(Get.context!)
+        .textTheme
+        .subtitle1
+        ?.copyWith(fontSize: 14.px),
+  );
 
   Widget userDetailView(
-          {required String userInfoTitle, required String userInfoContent}) =>
+      {required String userInfoTitle, required String userInfoContent}) =>
       Padding(
         padding: EdgeInsets.symmetric(
           vertical: 1.25.h,

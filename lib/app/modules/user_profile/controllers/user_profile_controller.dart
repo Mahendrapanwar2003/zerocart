@@ -35,10 +35,10 @@ class UserProfileController extends CommonMethods {
     connectivity.onConnectivityChanged.listen((event) async {
       if ( await MyCommonMethods.internetConnectionCheckerMethod()) {
         if(load==0)
-          {
-            load=1;
-            await onInit();
-          }
+        {
+          load=1;
+          await onInit();
+        }
       } else {
         load=0;
       }

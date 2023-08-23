@@ -143,33 +143,33 @@ class PrivacySecurityController extends CommonMethods {
   }
 
   Widget titleTextView() => Text(
-        "Delete Account",
-        style: Theme.of(Get.context!)
-            .textTheme
-            .subtitle1
-            ?.copyWith(fontSize: 20.px),
-      );
+    "Delete Account",
+    style: Theme.of(Get.context!)
+        .textTheme
+        .subtitle1
+        ?.copyWith(fontSize: 20.px),
+  );
 
   Widget contentTextView() => Text(
-        "Are you sure you want to delete your account? This action cannot be undone and all your data will be lost.To confirm the deletion, we will send a one-time password (OTP) to your registered mobile number. Please enter the OTP in the prompt that follows to verify your identity and complete the account deletion process.",
-        style: Theme.of(Get.context!).textTheme.subtitle2,
-      );
+    "Are you sure you want to delete your account? This action cannot be undone and all your data will be lost.To confirm the deletion, we will send a one-time password (OTP) to your registered mobile number. Please enter the OTP in the prompt that follows to verify your identity and complete the account deletion process.",
+    style: Theme.of(Get.context!).textTheme.subtitle2,
+  );
 
   Widget cancelTextButtonView() => Text(
-        "Cancel",
-        style: Theme.of(Get.context!)
-            .textTheme
-            .subtitle2
-            ?.copyWith(color: MyColorsLight().textGrayColor),
-      );
+    "Cancel",
+    style: Theme.of(Get.context!)
+        .textTheme
+        .subtitle2
+        ?.copyWith(color: MyColorsLight().textGrayColor),
+  );
 
   Widget deleteTextButtonView() => Text(
-        "Delete",
-        style: Theme.of(Get.context!)
-            .textTheme
-            .subtitle2
-            ?.copyWith(color: MyColorsLight().error),
-      );
+    "Delete",
+    style: Theme.of(Get.context!)
+        .textTheme
+        .subtitle2
+        ?.copyWith(color: MyColorsLight().error),
+  );
 
   void clickOnCancelButton() {
     Get.back();
@@ -177,23 +177,23 @@ class PrivacySecurityController extends CommonMethods {
 
   Future<void> clickOnDialogDeleteButton() async {
     Get.back();
-     inAsyncCall.value=true;
-   if(await sendOtpApiCalling(type: "deleteAccount"))
-     {
-       Get.toNamed(Routes.VERIFICATION, arguments: [
-         4,
-         "Delete",
-         sendOtpApiResponseMap[ApiKeyConstant.otp],
-         "deleteAccount",
-         mobile
-       ]);
-     }
+    inAsyncCall.value=true;
+    if(await sendOtpApiCalling(type: "deleteAccount"))
+    {
+      Get.toNamed(Routes.VERIFICATION, arguments: [
+        4,
+        "Delete",
+        sendOtpApiResponseMap[ApiKeyConstant.otp],
+        "deleteAccount",
+        mobile
+      ]);
+    }
     inAsyncCall.value=false;
 
   }
 
 
- /* lastUpdate() {
+  /* lastUpdate() {
     // "${controller.dateTime?.year}-${controller.dateTime?.month}-${controller.dateTime?.day}"
   }*/
 
@@ -256,12 +256,12 @@ class PrivacySecurityController extends CommonMethods {
       search += myString[i];
     }
     if(search == '+91 ')
-      {
-        return userDataMap[UserDataKeyConstant.securityPhone];
-      }
+    {
+      return userDataMap[UserDataKeyConstant.securityPhone];
+    }
     else
-      {
-        return "+91 ${userDataMap[UserDataKeyConstant.securityPhone]}";
-      }
+    {
+      return "+91 ${userDataMap[UserDataKeyConstant.securityPhone]}";
+    }
   }
 }

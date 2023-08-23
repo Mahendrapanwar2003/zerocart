@@ -4,29 +4,27 @@ import 'package:zerocart/app/apis/api_constant/api_constant.dart';
 import 'package:zerocart/app/apis/api_modals/get_filter_list_modal.dart';
 import 'package:zerocart/app/apis/common_apis/common_apis.dart';
 import 'package:zerocart/app/common_methods/common_methods.dart';
-import 'package:zerocart/app/modules/category/controllers/category_controller.dart';
 import 'package:zerocart/app/modules/category_product/controllers/category_product_controller.dart';
 
 class FilterController extends GetxController {
   final count = 0.obs;
   final absorbing = false.obs;
   PageController pageController = PageController();
-  String categoryId= Get.arguments[0];
   final getFilter = Rxn<GetFilterModal?>();
   final filter = Rxn<List<FilterList>?>();
   Map<String, dynamic> queryParametersForFilter = {};
   final getFilterList = Rxn<GetFilterListModal?>();
   final filterDetailList = Rxn<List<FilterDetailList>?>();
   Map<String, dynamic> queryParametersForFilterList = {};
-  final isFilterUpdate=false.obs;
+  final isFilterUpdate = false.obs;
+  String categoryId = Get.arguments[0];
   Map<String, dynamic> filterData = Get.arguments[1];
-
   final initialIndex = 0.obs;
 
   @override
   Future<void> onInit() async {
     super.onInit();
-   await  getFilterApiCalling(categoryId: categoryId);
+    await getFilterApiCalling(categoryId: categoryId);
   }
 
   @override
@@ -41,46 +39,47 @@ class FilterController extends GetxController {
 
   void increment() => count.value++;
 
-  void clickOnCloseButton() {
-     CategoryProductController categoryProductController = Get.find();
-      print("njcsndnsndks:::::::::${categoryProductController.filterDataMap==filterData}");
-      print("njcsndnsndks:::::::::${categoryProductController.filterDataMap}");
-      print("njcsndnsndks:::::::::${filterData}");
-      if(categoryProductController.filterDataMap==filterData)
-        {
-          Get.back();
-        }
-      else
-        {
-          filterData = {};
-          Get.back();
-        }
-
+  void clickOnCloseButton({required BuildContext context}) {
+    CategoryProductController categoryProductController = Get.find();
+     print("njcsndnsndks:::::::::${categoryProductController.filterDataMap}");
+    print("njcsndnsndks:::::::::${filterData}");
+     if (filterData == categoryProductController.filterDataMap) {
+      Get.back(canPop: true, result: {'filterData': filterData});
+    } else {
+      Get.back(canPop: true);
+    }
   }
 
   Future<void> getFilterApiCalling({String? categoryId}) async {
     if (categoryId != null) {
       queryParametersForFilter = {ApiKeyConstant.categoryId: categoryId};
-      getFilter.value = await CommonApis.getCategoryProductFilterApi(queryParameters: queryParametersForFilter);
-      if ((getFilter.value != null) && (getFilter.value?.filterList != null && getFilter.value!.filterList!.isNotEmpty)) {
+      getFilter.value = await CommonApis.getCategoryProductFilterApi(
+          queryParameters: queryParametersForFilter);
+      if ((getFilter.value != null) &&
+          (getFilter.value?.filterList != null &&
+              getFilter.value!.filterList!.isNotEmpty)) {
         filter.value = getFilter.value!.filterList;
-        await getFilterListApiCalling(filterId: filter.value![initialIndex.value].filterId);
+        await getFilterListApiCalling(
+            filterId: filter.value![initialIndex.value].filterId);
       }
     }
   }
 
   Future<void> getFilterListApiCalling({String? filterId}) async {
-    absorbing.value=CommonMethods.changeTheAbsorbingValueTrue();
+    absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
     filterDetailList.value = null;
     if (filterId != null) {
       queryParametersForFilterList = {ApiKeyConstant.filterCatId: filterId};
-      getFilterList.value = await CommonApis.getCategoryProductFilterListApi(queryParameters: queryParametersForFilterList);
+      getFilterList.value = await CommonApis.getCategoryProductFilterListApi(
+          queryParameters: queryParametersForFilterList);
 
-      if ((getFilterList.value != null) && (getFilterList.value?.filterDetailList != null && getFilterList.value!.filterDetailList!.isNotEmpty)) {
+      if ((getFilterList.value != null) &&
+          (getFilterList.value?.filterDetailList != null &&
+              getFilterList.value!.filterDetailList!.isNotEmpty)) {
         filterDetailList.value = getFilterList.value!.filterDetailList;
       }
     }
-    absorbing.value=CommonMethods.changeTheAbsorbingValueFalse();
+    absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();
   }
 
   Future<void> clickOnParticularFilterButton({required int index}) async {
@@ -90,7 +89,9 @@ class FilterController extends GetxController {
   }
 
   void clickOnFilterList({required int index}) {
-    isFilterUpdate.value=!isFilterUpdate.value;
+    isFilterUpdate.value = !isFilterUpdate.value;
+    CategoryProductController categoryProductController = Get.find();
+    categoryProductController.filterDataMap = {};
     if (filter.value![initialIndex.value].filterId != null &&
         filterDetailList.value![index].filterValue != null) {
       filterData[filter.value![initialIndex.value].filterId.toString()] =
@@ -98,7 +99,7 @@ class FilterController extends GetxController {
     }
   }
 
- void clickOnApplyFilterButton({required BuildContext context}) {
-   Get.back();
- }
+  void clickOnApplyFilterButton({required BuildContext context}) {
+    Get.back(canPop: true, result: {'filterData': filterData});
+  }
 }
