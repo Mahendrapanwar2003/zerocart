@@ -1,14 +1,13 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:core';
-
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:ui_library/ui_library.dart';
 import 'package:zerocart/app/apis/api_constant/api_constant.dart';
 import 'package:zerocart/app/apis/api_modals/get_order_list_modal.dart';
-import 'package:zerocart/app/apis/common_apis/common_apis.dart';
 import 'package:zerocart/app/common_methods/common_methods.dart';
 import 'package:zerocart/app/modules/my_orders/views/cancel_bottom_sheet.dart';
 import 'package:zerocart/app/modules/my_orders/views/orders_filter_bottom_sheet.dart';
@@ -16,26 +15,14 @@ import 'package:zerocart/app/modules/my_orders/views/tracking_bottomsheet.dart';
 import 'package:zerocart/app/routes/app_pages.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
 
-class MyOrdersController extends GetxController {
+class MyOrdersController extends CommonMethods {
 
   final count = 0.obs;
-  bool globalWantEmpty = false;
-  bool globalWantFilter = false;
-  bool globalWantSearchFilter = false;
-  bool globalWantSimple=false;
-  String limit = "10";
-  int offset = 0;
-  Timer? searchOnStoppedTyping;
-  final response = false.obs;
-  final isLoading = false.obs;
-  final scrollController=ScrollController();
+  int responseCode = 0;
+  int load = 0;
+  final inAsyncCall=false.obs;
   final searchOrderController = TextEditingController();
-  final totalTrackStep = 4.obs;
-  final currentTrackStep = 2.obs;
-  final isClicked = true.obs;
-  final orderFilterType = "-1".obs;
-  final isClearFiltersButtonClicked = false.obs;
-  final isApplyButtonClicked = false.obs;
+
   List orderStatusList = [
     "Pending",
     "Shipped",
@@ -43,100 +30,95 @@ class MyOrdersController extends GetxController {
     "Delivered",
     "Canceled",
   ];
+  final orderFilterType = "-1".obs;
+  final isClearFiltersButtonClicked = false.obs;
+  final isApplyButtonClicked = false.obs;
+  String limit = "10";
+  int offset = 0;
   Map<String, dynamic> queryParametersForGetOrderListApi = {};
-  final getOrderListModal = Rxn<GetOrderListApiModal?>();
-  final orderList = [].obs;
-  final orderListObject = Rxn<OrderList?>();
+  GetOrderListApiModal? getOrderListModal ;
+  List<OrderList> orderList = [];
+
+  final totalTrackStep = 4.obs;
+  final currentTrackStep = 2.obs;
+
+  Timer? searchOnStoppedTyping;
   DateTime? dateTime;
   DateFormat? dateFormat;
 
   @override
   Future<void> onInit() async {
     super.onInit();
-    response.value=true;
-    await getOrderListApiCalling(wantSimple: true);
-    response.value=false;
-    scrollController.addListener(
-            () async {
-          if(scrollController.position.isScrollingNotifier.value&&ScrollDirection.reverse==scrollController.position.userScrollDirection)
-          {
-            isLoading.value=true;
-          }
-          if ( scrollController.position.pixels ==
-              scrollController.position.maxScrollExtent) {
-            await getOrderListApiCalling(wantSimple: globalWantSimple,wantEmpty: false,wantFilter: globalWantFilter,wantSearchFilter: globalWantSearchFilter);
-            isLoading.value=false;
-          }
+    inAsyncCall.value=true;
+    if(await MyCommonMethods.internetConnectionCheckerMethod())
+      {
+        try{
+          await getOrderListApiCalling();
+        }catch(e){
+          responseCode=1;
         }
-    );
-  }
-
-  @override
-  void onReady() {
-    super.onReady();
-  }
-
-  @override
-  void onClose() {
-    super.onClose();
+      }
+    inAsyncCall.value=false;
   }
 
   void increment() => count.value++;
 
-  Future<void> getOrderListApiCalling(
-      {bool wantEmpty = false,
-      bool wantFilter = false,
-      bool wantSearchFilter = false,
-      bool wantSimple=false}) async {
 
-    globalWantEmpty=wantEmpty;
-    globalWantFilter=wantFilter;
-    globalWantSearchFilter=wantSearchFilter;
-    globalWantSimple=wantSimple;
 
-    queryParametersForGetOrderListApi.clear();
-    if (wantFilter) {
-      queryParametersForGetOrderListApi = {
-        ApiKeyConstant.orderStatus: orderStatusList[int.parse(orderFilterType.value)].toString().replaceAll(" ", ""),
-        ApiKeyConstant.limit: limit,
-        ApiKeyConstant.offset:offset.toString()
-      };
-    }
-
-    if (wantSearchFilter) {
-      queryParametersForGetOrderListApi = {
-        ApiKeyConstant.searchSrting: searchOrderController.text.trim().toString(),
-        ApiKeyConstant.limit: limit,
-        ApiKeyConstant.offset:offset.toString()
-      };
-    }
-
-    if(wantSimple)
-      {
-        queryParametersForGetOrderListApi = {
-          ApiKeyConstant.limit: limit,
-          ApiKeyConstant.offset:offset.toString()
-        };
+  void onReload()
+  {
+    connectivity.onConnectivityChanged.listen((event) async {
+      if ( await MyCommonMethods.internetConnectionCheckerMethod()) {
+        if(load==0)
+        {
+          load=1;
+          offset=0;
+          await onInit();
+        }
+      } else {
+        load=0;
       }
+    });
+  }
 
-    // offset=offset+10;
+  Future<void> onRefresh() async {
+    offset=0;
+    await onInit();
+  }
 
-    getOrderListModal.value = await CommonApis.getOrderListApi(queryParameters: queryParametersForGetOrderListApi);
-    if (getOrderListModal.value != null) {
-      if (getOrderListModal.value?.orderList != null) {
-        if(wantEmpty)
+  Future<void> getOrderListApiCalling() async {
+    queryParametersForGetOrderListApi.clear();
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
+    queryParametersForGetOrderListApi = {
+      ApiKeyConstant.orderStatus: orderStatusList[int.parse(orderFilterType.value)].toString().replaceAll(" ", ""),
+      ApiKeyConstant.limit: limit,
+      ApiKeyConstant.offset:offset.toString(),
+      ApiKeyConstant.searchSrting: searchOrderController.text.trim().toString(),
+    };
+    http.Response? response = await MyHttp.getMethodForParams(
+        context: Get.context!,
+        queryParameters: queryParametersForGetOrderListApi,
+        authorization: authorization,
+        baseUri: ApiConstUri.baseUrlForGetMethod,
+        endPointUri: ApiConstUri.endPointGetOrderListApi);
+    if (response != null) {
+      responseCode=response.statusCode;
+      if (await CommonMethods.checkResponse(response: response)) {
+        getOrderListModal = GetOrderListApiModal.fromJson(jsonDecode(response.body));
+      }
+    }
+    if (getOrderListModal!= null) {
+      if (getOrderListModal?.orderList != null) {
+        if(offset==0)
           {
             orderList.clear();
           }
-        getOrderListModal.value?.orderList?.forEach((element) {
+        getOrderListModal?.orderList?.forEach((element) {
           orderList.add(element);
         });
-
-        if(getOrderListModal.value?.orderList != null && getOrderListModal.value!.orderList!.isNotEmpty){
-          print("offset::::::   $offset");
-          offset=offset+10;
-        }
-
+        offset=offset+10;
       }
     }
   }
@@ -163,16 +145,34 @@ class MyOrdersController extends GetxController {
 
   Future<void> onChangeSearchTextField({String? value}) async {
     if (value != null) {
-
       const duration = Duration(milliseconds:800); // set the duration that you want call search() after that.
       if (searchOnStoppedTyping != null) {
         searchOnStoppedTyping?.cancel(); // clear timer
       }
       searchOnStoppedTyping =  Timer(duration, () async {
         offset=0;
-        await getOrderListApiCalling(wantSearchFilter: true,wantEmpty: true);
+        await getOrderListApiCalling();
       });
     }
+  }
+
+  void clickOnClearFilterButton() {
+    isClearFiltersButtonClicked.value = true;
+    orderFilterType.value = "-1";
+  }
+
+  void clickOnOrderStatus({required int index}) {
+    orderFilterType.value = "$index";
+    isClearFiltersButtonClicked.value = false;
+  }
+
+  Future<void> clickOnApplyButton({required BuildContext context}) async {
+    searchOrderController.text="";
+    Get.back();
+    offset = 0;
+    if (orderFilterType.value == "-1") {
+      await getOrderListApiCalling();}
+
   }
 
   void clickOnTrackButton() {
@@ -189,8 +189,7 @@ class MyOrdersController extends GetxController {
         builder: (context) => const TrackingBottomSheet());
   }
 
-  void clickOnCancelButton(
-      {required BuildContext context, required int index}) {
+  void clickOnCancelButton({required BuildContext context, required int index}) {
 
     showModalBottomSheet(
         isScrollControlled: true,
@@ -225,29 +224,6 @@ class MyOrdersController extends GetxController {
     Get.back();
   }
 
-  void clickOnClearFilterButton() {
-    isClearFiltersButtonClicked.value = true;
-    orderFilterType.value = "-1";
-  }
-
-  void clickOnOrderStatus({required int index}) {
-    orderFilterType.value = "$index";
-    isClearFiltersButtonClicked.value = false;
-  }
-
-  Future<void> clickOnApplyButton({required BuildContext context}) async {
-    response.value = CommonMethods.changeTheAbsorbingValueTrue();
-    searchOrderController.text="";
-    Get.back();
-    offset = 0;
-    if (orderFilterType.value == "-1") {
-      await getOrderListApiCalling(wantSimple: true,wantEmpty: true);
-    } else {
-      await getOrderListApiCalling(wantFilter: true,wantEmpty: true);
-    }
-    response.value = CommonMethods.changeTheAbsorbingValueFalse();
-  }
-
   void clickOnCancelFiltersBottomSheetButton() {
     Get.back();
   }
@@ -260,18 +236,4 @@ class MyOrdersController extends GetxController {
     Get.toNamed(Routes.MY_ORDER_DETAILS,arguments:productId);
   }
 
-/*clickOnTheWayButton() {
-    orderFilterType.value = "OnTheWay";
-  }
-
-  clickOnDelivered() {
-    orderFilterType.value = "Delivered";
-  }
-  clickOnCancelled() {
-    orderFilterType.value = "Cancelled";
-  }
-
-  clickOnReturned() {
-    orderFilterType.value = "Returned";
-  }*/
 }

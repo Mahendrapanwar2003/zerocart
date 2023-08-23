@@ -13,27 +13,37 @@ import 'package:zerocart/my_colors/my_colors.dart';
 import 'package:http/http.dart' as http;
 
 
-class PrivacySecurityController extends GetxController {
-  final userData = {}.obs;
-  DateTime? dateTime;
-  String? mobile;
-  int? differance;
-  Map<String, dynamic> apiResponseMap = {};
+class PrivacySecurityController extends CommonMethods {
   List buttonContent = [
     "Change Password",
     "Deactivate Account",
   ];
 
+  int load=0;
+  final inAsyncCall = false.obs;
+  final userDataMap = {}.obs;
+
+  DateTime? dateTime;
+  String? mobile;
+  int? differance;
+
+  Map<String, dynamic> bodyParamsForSendOtpApi = {};
+  Map<String, dynamic> sendOtpApiResponseMap = {};
+
+
   @override
   Future<void> onInit() async {
     super.onInit();
+    inAsyncCall.value=true;
     await getUserData();
+    inAsyncCall.value=false;
+    onReload();
   }
 
   Future<void> getUserData() async {
-    userData.value = await CommonMethods.getUserData() ?? {};
-    dateTime = DateTime.parse(userData[UserDataKeyConstant.lastUpdate]);
-    mobile = userData[UserDataKeyConstant.mobile];
+    userDataMap.value = await CommonMethods.getUserData() ?? {};
+    dateTime = DateTime.parse(userDataMap[UserDataKeyConstant.lastUpdate]);
+    mobile = userDataMap[UserDataKeyConstant.mobile];
   }
 
   @override
@@ -46,8 +56,49 @@ class PrivacySecurityController extends GetxController {
     super.onClose();
   }
 
+  void onReload()
+  {
+    connectivity.onConnectivityChanged.listen((event) async {
+      if ( await MyCommonMethods.internetConnectionCheckerMethod()) {
+        if(load==0)
+        {
+          load=1;
+          await onInit();
+        }
+      } else {
+        load=0;
+      }
+    });
+  }
+
+  Future<void> onRefresh() async {
+    await onInit();
+  }
+
+  Future<bool> sendOtpApiCalling({required String type}) async {
+    bodyParamsForSendOtpApi = {
+      ApiKeyConstant.mobile: mobile.toString(),
+      ApiKeyConstant.countryCode: "+91",
+      ApiKeyConstant.type: type,
+    };
+    http.Response? response =
+    await CommonApis.sendOtpApi(bodyParams: bodyParamsForSendOtpApi);
+    if (response != null) {
+      sendOtpApiResponseMap = jsonDecode(response.body);
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+
+
+
   void clickOnBackIcon({required BuildContext context}) {
+    inAsyncCall.value=true;
     Get.back();
+    inAsyncCall.value=false;
   }
 
   onWillPop({required BuildContext context}) {
@@ -56,11 +107,14 @@ class PrivacySecurityController extends GetxController {
 
   Future<void> clickOnButton(
       {required int buttonIndex, required BuildContext context}) async {
+    inAsyncCall.value=true;
     if (buttonIndex == 0) {
       Get.toNamed(Routes.CHANGE_PASSWORD);
     } else {
       showAlertDialog();
     }
+    inAsyncCall.value=false;
+
   }
 
   void showAlertDialog() {
@@ -122,33 +176,26 @@ class PrivacySecurityController extends GetxController {
   }
 
   Future<void> clickOnDialogDeleteButton() async {
-    await sendOtpApiCalling(type: "deleteAccount");
     Get.back();
+     inAsyncCall.value=true;
+   if(await sendOtpApiCalling(type: "deleteAccount"))
+     {
+       Get.toNamed(Routes.VERIFICATION, arguments: [
+         4,
+         "Delete",
+         sendOtpApiResponseMap[ApiKeyConstant.otp],
+         "deleteAccount",
+         mobile
+       ]);
+     }
+    inAsyncCall.value=false;
+
   }
 
-  Future<void> sendOtpApiCalling({required String type}) async {
-    apiResponseMap = {
-       ApiKeyConstant.mobile: mobile.toString(),
-      ApiKeyConstant.countryCode: "+91",
-      ApiKeyConstant.type: type,
-    };
-    http.Response? response =
-    await CommonApis.sendOtpApi(bodyParams: apiResponseMap);
-    if (response != null) {
-      apiResponseMap = jsonDecode(response.body);
-     await Get.toNamed(Routes.VERIFICATION, arguments: [
-        4,
-        "Delete",
-        apiResponseMap[ApiKeyConstant.otp],
-        "deleteAccount",
-        mobile
-      ]);
-    }
-  }
 
-  lastUpdate() {
+ /* lastUpdate() {
     // "${controller.dateTime?.year}-${controller.dateTime?.month}-${controller.dateTime?.day}"
-  }
+  }*/
 
   String getDayOfMonthSuffix(int dayNum) {
     if(!(dayNum >= 1 && dayNum <= 31)) {
@@ -210,11 +257,11 @@ class PrivacySecurityController extends GetxController {
     }
     if(search == '+91 ')
       {
-        return userData[UserDataKeyConstant.securityPhone];
+        return userDataMap[UserDataKeyConstant.securityPhone];
       }
     else
       {
-        return "+91 ${userData[UserDataKeyConstant.securityPhone]}";
+        return "+91 ${userDataMap[UserDataKeyConstant.securityPhone]}";
       }
   }
 }

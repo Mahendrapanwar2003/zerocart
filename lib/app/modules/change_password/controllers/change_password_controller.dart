@@ -37,6 +37,29 @@ class ChangePasswordController extends GetxController {
   }
 
 
+  Future<void> changePasswordApiCalling({required BuildContext context}) async {
+    bodyParams = {
+      ApiKeyConstant.oldPassword:
+      currentPasswordController.text.trim().toString(),
+      ApiKeyConstant.newPassword: passwordController.text.trim().toString(),
+    };
+    http.Response? response =
+    await CommonApis.changePasswordApi(bodyParams: bodyParams);
+    if (response != null) {
+      responseMap = jsonDecode(response.body);
+      absorbing.value=CommonMethods.changeTheAbsorbingValueFalse();
+      isContinueButtonClicked.value=false;
+      // ignore: use_build_context_synchronously
+      clickOnBackIcon(context: context);
+    }
+    else
+    {
+      absorbing.value=CommonMethods.changeTheAbsorbingValueFalse();
+      isContinueButtonClicked.value=false;
+    }
+
+  }
+
   void clickOnBackIcon({required BuildContext context}) async {
     Get.back();
   }
@@ -67,28 +90,6 @@ class ChangePasswordController extends GetxController {
     absorbing.value=CommonMethods.changeTheAbsorbingValueFalse();
   }
 
-  Future<void> changePasswordApiCalling({required BuildContext context}) async {
-    bodyParams = {
-      ApiKeyConstant.oldPassword:
-          currentPasswordController.text.trim().toString(),
-      ApiKeyConstant.newPassword: passwordController.text.trim().toString(),
-    };
-    http.Response? response =
-        await CommonApis.changePasswordApi(bodyParams: bodyParams);
-    if (response != null) {
-      responseMap = jsonDecode(response.body);
-      absorbing.value=CommonMethods.changeTheAbsorbingValueFalse();
-      isContinueButtonClicked.value=false;
-       // ignore: use_build_context_synchronously
-       clickOnBackIcon(context: context);
-    }
-    else
-      {
-        absorbing.value=CommonMethods.changeTheAbsorbingValueFalse();
-        isContinueButtonClicked.value=false;
-      }
-
-  }
 
 
 }

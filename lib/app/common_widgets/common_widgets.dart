@@ -19,6 +19,7 @@ class CommonWidgets {
     );
   }
 
+
   static Widget zeroCartImage() {
     return Image.asset(
       Theme.of(Get.context!).brightness == Brightness.dark
@@ -28,6 +29,117 @@ class CommonWidgets {
     );
   }
 
+  static Widget commonRefreshIndicator(
+      {required Widget child, required RefreshCallback onRefresh}) {
+    return RefreshIndicator(onRefresh: onRefresh, child: child);
+  }
+  static Widget commonNoInternetImage({required RefreshCallback onRefresh}) {
+    return RefreshIndicator(
+      onRefresh: () async {
+        await Future.delayed(const Duration(seconds: 1));
+      },
+      child: CustomScrollView(
+        slivers: <Widget>[
+          /*SliverToBoxAdapter(
+            child: Container(color: Colors.red,),
+          ),
+          */
+          SliverFillRemaining(
+            hasScrollBody: true,
+            child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Image.asset(Zconstant.imageNoInternetConnection),
+                    commonTitleForError(title: Zconstant.textNoInternetTitle),
+                    commonDisForError(dis: Zconstant.textNoInternetDis)
+                  ],
+                )),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static Widget commonNoDataFoundImage({required RefreshCallback onRefresh}) {
+    return RefreshIndicator(
+      onRefresh: () async {
+        await Future.delayed(const Duration(seconds: 1));
+      },
+      child: CustomScrollView(
+        slivers: <Widget>[
+          SliverFillRemaining(
+            hasScrollBody: true,
+            child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Image.asset(Zconstant.imageNoDataFound),
+                    commonTitleForError(title: Zconstant.textNoDataTitle),
+                    commonDisForError(dis: Zconstant.textNoDataDis)
+                  ],
+                )),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static Widget commonSomethingWentWrongImage(
+      {required RefreshCallback onRefresh}) {
+    return RefreshIndicator(
+      onRefresh: () async {
+        await Future.delayed(const Duration(seconds: 1));
+      },
+      child: CustomScrollView(
+        slivers: <Widget>[
+          SliverFillRemaining(
+            hasScrollBody: true,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Image.asset(Zconstant.imageSomethingWentWrong),
+                  commonTitleForError(
+                      title: Zconstant.textSomethingWentWrongTitle),
+                  commonDisForError(dis: Zconstant.textSomethingWentWrongDis)
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+  static Widget commonTitleForError({required String title}) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 15.px),
+      child: Text(
+        title,
+        textAlign: TextAlign.center,
+        style: Theme
+            .of(Get.context!)
+            .textTheme
+            .displayLarge,
+      ),
+    );
+  }
+
+  static Widget commonDisForError({required String dis}) {
+    return Text(
+      dis,
+      textAlign: TextAlign.center,
+      style: Theme
+          .of(Get.context!)
+          .textTheme
+          .titleMedium,
+    );
+  }
   static Widget mySizeBox({double? height}) {
     return SizedBox(
       height: height ?? 2.h,
@@ -403,13 +515,7 @@ class CommonWidgets {
         ),
       );
 
-  static Widget commonRefreshIndicator(
-      {required Widget child, required RefreshCallback onRefresh}) {
-    return RefreshIndicator(
-      onRefresh: onRefresh,
-      child: child,
-    );
-  }
+
 
   static Widget myPadding({required Widget child, double? top}) {
     return Padding(padding: EdgeInsets.only(top: top ?? 17.8.h), child: child);

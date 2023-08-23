@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ui_library/ui_library.dart';
 import 'package:zerocart/app/apis/api_constant/api_constant.dart';
+import 'package:zerocart/app/common_methods/common_methods.dart';
 import 'package:zerocart/app/constant/zconstant.dart';
+import 'package:zerocart/model_progress_bar/model_progress_bar.dart';
 import '../../../common_widgets/common_widgets.dart';
 import '../../../custom/custom_appbar.dart';
 import '../controllers/privacy_security_controller.dart';
@@ -12,47 +14,90 @@ class PrivacySecurityView extends GetView<PrivacySecurityController> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () => controller.onWillPop(context: context),
-      child: Scaffold(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        appBar: const MyCustomContainer().myAppBar(
-            isIcon: true,backIconOnPressed: () => controller.clickOnBackIcon(context: context),
-            text: 'Privacy & Security'),
-        body: Obx(() {
-          if (controller.userData.isNotEmpty) {
-            return ListView(
-              physics: const BouncingScrollPhysics(),
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(
-                    top: Zconstant.margin,
-                    left: Zconstant.margin,
-                    right: Zconstant.margin,
-                  ),
-                  child: Column(
-                    children: [
-                      if (controller.userData[UserDataKeyConstant.lastUpdate] != null &&
-                          controller.userData[UserDataKeyConstant.lastUpdate].toString().isNotEmpty)
-                        userDetailView(userInfoTitle: 'Last Updated', userInfoContent: controller.timeAgo(controller.dateTime!)),
-                      if (controller.userData[UserDataKeyConstant.securityEmail] != null &&
-                          controller.userData[UserDataKeyConstant.securityEmail].toString().isNotEmpty)
-                        userDetailView(userInfoTitle: 'Security Email', userInfoContent: controller.userData[UserDataKeyConstant.securityEmail]),
-                      if (controller.userData[UserDataKeyConstant.securityPhoneCountryCode] != null &&
-                          controller.userData[UserDataKeyConstant.securityPhoneCountryCode].toString().isNotEmpty)
-                        userDetailView(userInfoTitle: 'Security Phone',
-                            userInfoContent: controller.checkString(myString: controller.userData[UserDataKeyConstant.securityPhone])),
-                    ],
-                  ),
-                ),
-                listOfButtonView(),
-                SizedBox(height: 8.h),
-              ],
-            );
-          } else {
-            return CommonWidgets.progressBarView();
-          }
-        }),
+    return Obx(
+      () => ModalProgress(
+        inAsyncCall: controller.inAsyncCall.value,
+        child: WillPopScope(
+          onWillPop: () => controller.onWillPop(context: context),
+          child: Scaffold(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            appBar: const MyCustomContainer().myAppBar(
+                isIcon: true,
+                backIconOnPressed: () =>
+                    controller.clickOnBackIcon(context: context),
+                text: 'Privacy & Security'),
+            body: Obx(() {
+              if (CommonMethods.isConnect.value) {
+                if (controller.userDataMap.isNotEmpty) {
+                  return CommonWidgets.commonRefreshIndicator(
+                    onRefresh: () => controller.onRefresh(),
+                    child: ListView(
+                      physics: const BouncingScrollPhysics(),
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(
+                            top: Zconstant.margin,
+                            left: Zconstant.margin,
+                            right: Zconstant.margin,
+                          ),
+                          child: Column(
+                            children: [
+                              if (controller.userDataMap[
+                                          UserDataKeyConstant.lastUpdate] !=
+                                      null &&
+                                  controller.userDataMap[
+                                          UserDataKeyConstant.lastUpdate]
+                                      .toString()
+                                      .isNotEmpty)
+                                userDetailView(
+                                    userInfoTitle: 'Last Updated',
+                                    userInfoContent: controller
+                                        .timeAgo(controller.dateTime!)),
+                              if (controller.userDataMap[
+                                          UserDataKeyConstant.securityEmail] !=
+                                      null &&
+                                  controller.userDataMap[
+                                          UserDataKeyConstant.securityEmail]
+                                      .toString()
+                                      .isNotEmpty)
+                                userDetailView(
+                                    userInfoTitle: 'Security Email',
+                                    userInfoContent: controller.userDataMap[
+                                        UserDataKeyConstant.securityEmail]),
+                              if (controller.userDataMap[UserDataKeyConstant
+                                          .securityPhoneCountryCode] !=
+                                      null &&
+                                  controller.userDataMap[UserDataKeyConstant
+                                          .securityPhoneCountryCode]
+                                      .toString()
+                                      .isNotEmpty)
+                                userDetailView(
+                                    userInfoTitle: 'Security Phone',
+                                    userInfoContent: controller.checkString(
+                                        myString: controller.userDataMap[
+                                            UserDataKeyConstant
+                                                .securityPhone])),
+                            ],
+                          ),
+                        ),
+                        listOfButtonView(),
+                        SizedBox(height: 8.h),
+                      ],
+                    ),
+                  );
+                } else {
+                  return CommonWidgets.commonNoDataFoundImage(
+                    onRefresh: () => controller.onRefresh(),
+                  );
+                }
+              } else {
+                return CommonWidgets.commonNoInternetImage(
+                  onRefresh: () => controller.onRefresh(),
+                );
+              }
+            }),
+          ),
+        ),
       ),
     );
   }
@@ -119,13 +164,15 @@ class PrivacySecurityView extends GetView<PrivacySecurityController> {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: controller.buttonContent.length,
-         padding: EdgeInsets.zero,
+        padding: EdgeInsets.zero,
       );
 
   Widget textButtonView({required int index, required BuildContext context}) =>
       ListTile(
-        onTap: () => controller.clickOnButton(buttonIndex: index, context: context),
-        contentPadding: EdgeInsets.symmetric(horizontal: Zconstant.margin,vertical:0 ),
+        onTap: () =>
+            controller.clickOnButton(buttonIndex: index, context: context),
+        contentPadding:
+            EdgeInsets.symmetric(horizontal: Zconstant.margin, vertical: 0),
         leading: buttonTextView(index: index),
         trailing: arrowIconView(),
         visualDensity: VisualDensity(vertical: -3.px),
@@ -136,8 +183,9 @@ class PrivacySecurityView extends GetView<PrivacySecurityController> {
         style: Theme.of(Get.context!).textTheme.caption,
       );
 
-  Widget arrowIconView() =>
-      Icon(Icons.arrow_forward_ios_rounded,color: Theme.of(Get.context!).textTheme.caption?.color,size: 18.px,);
-
-
+  Widget arrowIconView() => Icon(
+        Icons.arrow_forward_ios_rounded,
+        color: Theme.of(Get.context!).textTheme.caption?.color,
+        size: 18.px,
+      );
 }
