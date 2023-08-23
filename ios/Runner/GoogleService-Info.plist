@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>777331500532-btcqnldb6e4obnrjgjgkgqki40aft6qg.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.777331500532-btcqnldb6e4obnrjgjgkgqki40aft6qg</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDeoz-a1W7Bqyvc3RW28trE4lt8wT13CdA</string>
+	<key>GCM_SENDER_ID</key>
+	<string>777331500532</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.zerocart</string>
+	<key>PROJECT_ID</key>
+	<string>zerocart-aca66</string>
+	<key>STORAGE_BUCKET</key>
+	<string>zerocart-aca66.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:777331500532:ios:05c3a3390d180c56ab45a1</string>
+	<key>DATABASE_URL</key>
+	<string>https://zerocart-aca66-default-rtdb.firebaseio.com</string>
+</dict>
+</plist>
