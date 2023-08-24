@@ -7,6 +7,7 @@ import 'package:zerocart/app/common_widgets/common_widgets.dart';
 import 'package:zerocart/app/constant/zconstant.dart';
 import 'package:zerocart/app/custom/custom_gradient_text.dart';
 import 'package:zerocart/app/custom/custom_outline_button.dart';
+import 'package:zerocart/load_more/load_more.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
 import '../../../../model_progress_bar/model_progress_bar.dart';
 import '../../../custom/custom_appbar.dart';
@@ -18,104 +19,111 @@ class MyOrdersView extends GetView<MyOrdersController> {
   @override
   Widget build(BuildContext context) {
     return Obx(
-            () => ModalProgress(
-          inAsyncCall:controller.inAsyncCall.value,
-          child: GestureDetector(
-            onTap: () => MyCommonMethods.unFocsKeyBoard(),
-            child: Scaffold(
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-              appBar: const MyCustomContainer().myAppBar(
-                  isIcon: true,
-                  backIconOnPressed: () =>
-                      controller.clickOnBackIcon(context: context),
-                  text: 'My Previous Orders',
-                  buttonText: CommonMethods.isConnect.value?"Filter":null,
-                  buttonOnPressed: () => controller.clickOnFilterButton(),
-                  buttonIcon: Icons.keyboard_arrow_down_rounded),
-              body: Obx(() {
-                if(CommonMethods.isConnect.value)
-                {
-                  return Padding(
-                    padding: EdgeInsets.symmetric(horizontal: Zconstant.margin16),
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          height: Zconstant.margin / 2,
-                        ),
-                        Theme.of(context).brightness == Brightness.dark
-                            ? Container(
-                          height: 36.px,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20.px),
-                            color: Colors.white,
-                          ),
-                          child: searchTextFieldView(),
-                        )
-                            : Container(
-                          height: 36.px,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20.px),
-                            color: Colors.white,
-                            gradient:
-                            CommonWidgets.commonLinearGradientView(),
-                          ),
-                          child: Container(
-                            height: 36.px,
-                            margin: EdgeInsets.all(1.px),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20.px),
-                              color: Colors.white,
-                            ),
-                            child: searchTextFieldView(),
-                          ),
-                        ),
-                        SizedBox(height: Zconstant.margin / 2),
-                        CommonWidgets.profileMenuDash(),
-                        Obx(() {
-                          controller.count.value;
-                          if (controller.getOrderListModal != null && controller.responseCode==200) {
-                            if (controller.orderList.isNotEmpty) {
-                              return Expanded(
-                                child: ListView(
-                                  physics: const BouncingScrollPhysics(),
-                                  padding: EdgeInsets.zero,
-                                  shrinkWrap: true,
-                                  children: [
-                                    SizedBox(
-                                        height: Zconstant.margin16 / 2),
-                                    listOfOrder(),
-                                    SizedBox(height: Zconstant.margin16),
-
-                                    SizedBox(
-                                      height: Zconstant.margin16,
-                                    ),
-                                  ],
+            () {
+              controller.count.value;
+              return ModalProgress(
+                inAsyncCall:controller.inAsyncCall.value,
+                child: GestureDetector(
+                  onTap: () => MyCommonMethods.unFocsKeyBoard(),
+                  child: Scaffold(
+                    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                    appBar: const MyCustomContainer().myAppBar(
+                        isIcon: true,
+                        backIconOnPressed: () =>
+                            controller.clickOnBackIcon(context: context),
+                        text: 'My Previous Orders',
+                        buttonText: CommonMethods.isConnect.value?"Filter":null,
+                        buttonOnPressed: () => controller.clickOnFilterButton(),
+                        buttonIcon: Icons.keyboard_arrow_down_rounded),
+                    body: Obx(() {
+                      if(CommonMethods.isConnect.value)
+                      {
+                        return Padding(
+                          padding: EdgeInsets.symmetric(horizontal: Zconstant.margin16),
+                          child: Column(
+                            children: [
+                              SizedBox(
+                                height: Zconstant.margin / 2,
+                              ),
+                              Theme.of(context).brightness == Brightness.dark
+                                  ? Container(
+                                height: 36.px,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20.px),
+                                  color: Colors.white,
                                 ),
-                              );
-                            } else {
-                              return Expanded(child: CommonWidgets.commonNoDataFoundImage(onRefresh: () => controller.onRefresh(),));
-                            }
-                          } else {
-                            if(controller.responseCode==0)
-                            {
-                              return const SizedBox();
-                            }
-                            return Expanded(child: CommonWidgets.commonSomethingWentWrongImage(onRefresh: () => controller.onRefresh(),));
-                          }
+                                child: searchTextFieldView(),
+                              )
+                                  : Container(
+                                height: 36.px,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20.px),
+                                  color: Colors.white,
+                                  gradient:
+                                  CommonWidgets.commonLinearGradientView(),
+                                ),
+                                child: Container(
+                                  height: 36.px,
+                                  margin: EdgeInsets.all(1.px),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20.px),
+                                    color: Colors.white,
+                                  ),
+                                  child: searchTextFieldView(),
+                                ),
+                              ),
+                              SizedBox(height: Zconstant.margin / 2),
+                              CommonWidgets.profileMenuDash(),
+                              Obx(() {
+                                controller.count.value;
+                                if (controller.getOrderListModal != null && controller.responseCode==200) {
+                                  if (controller.orderList.isNotEmpty) {
+                                    return Expanded(
+                                      child: CommonWidgets.commonRefreshIndicator(
+                                        onRefresh:() => controller.onRefresh(),
+                                        child: RefreshLoadMore(
+                                          isLastPage: controller.isLastPage.value,
+                                          onLoadMore: () =>controller.onLoadMore(),
+                                          child: ListView(
+                                            physics: const NeverScrollableScrollPhysics(),
+                                            padding: EdgeInsets.zero,
+                                            shrinkWrap: true,
+                                            children: [
+                                              SizedBox(
+                                                  height: Zconstant.margin16 / 2),
+                                              listOfOrder(),
+                                              SizedBox(height: Zconstant.margin16),
 
-                        }),
-                      ],
-                    ),
-                  );
-                }
-                else
-                {
-                  return CommonWidgets.commonNoInternetImage(onRefresh: () => controller.onRefresh(),);
-                }
-              }),
-            ),
-          ),
-        ));
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  } else {
+                                    return Expanded(child: CommonWidgets.commonNoDataFoundImage(onRefresh: () => controller.onRefresh(),));
+                                  }
+                                } else {
+                                  if(controller.responseCode==0)
+                                  {
+                                    return const SizedBox();
+                                  }
+                                  return Expanded(child: CommonWidgets.commonSomethingWentWrongImage(onRefresh: () => controller.onRefresh(),));
+                                }
+
+                              }),
+                            ],
+                          ),
+                        );
+                      }
+                      else
+                      {
+                        return CommonWidgets.commonNoInternetImage(onRefresh: () => controller.onRefresh(),);
+                      }
+                    }),
+                  ),
+                ),
+              );
+            });
   }
 
   Widget searchTextFieldView() => TextFormField(

@@ -8,7 +8,6 @@ import 'package:zerocart/app/apis/common_apis/common_apis.dart';
 import 'package:zerocart/app/common_methods/common_methods.dart';
 import 'package:zerocart/app/modules/my_cart/controllers/my_cart_controller.dart';
 import 'package:zerocart/app/modules/navigator_bottom_bar/controllers/navigator_bottom_bar_controller.dart';
-import 'package:zerocart/app/routes/app_pages.dart';
 
 class OutfitRoomController extends GetxController {
   final count = 0.obs;

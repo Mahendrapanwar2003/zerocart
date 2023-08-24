@@ -1,149 +1,162 @@
 import 'dart:async';
-
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:ui_library/ui_library.dart';
 import 'package:zerocart/app/apis/api_constant/api_constant.dart';
 import 'package:zerocart/app/apis/api_modals/get_wallet_history_modal.dart';
-import 'package:zerocart/app/apis/common_apis/common_apis.dart';
 import 'package:zerocart/app/common_methods/common_methods.dart';
 
-class ZerocartWalletController extends CommonMethods with GetSingleTickerProviderStateMixin {
-  final test=false.obs;
+class ZerocartWalletController extends CommonMethods
+    with GetSingleTickerProviderStateMixin {
   final count = 0.obs;
   final absorbing = false.obs;
-  final inAsyncCall= false.obs;
-  final isWillPop=false.obs;
-  final addMoneyController = TextEditingController();
-  final getWalletHistoryModel = Rxn<GetWalletHistoryModel?>();
-  final listOfWalletHistory = [];
-  final walletHistoryModel = Rxn<WalletHistory?>();
-  late AnimationController rotationController;
+  final inAsyncCall = false.obs;
+  final isLastPage = false.obs;
+  bool isAnimation = false;
+
+  int load = 0;
+  int responseCode = 0;
+
+
+  GetWalletHistoryModel? getWalletHistoryModel;
+  List<WalletHistory> listOfWalletHistory = [];
+  WalletHistory? walletHistoryModel;
   int offset = 0;
-  final isLoading=false.obs;
+  String limit = "10";
+
+  Timer? searchOnStoppedTyping;
+  final addMoneyController = TextEditingController();
+  late AnimationController rotationController;
   Map<String, dynamic> queryParametersForGetWalletApi = {};
   DateTime? dateTime;
-  final scrollController=ScrollController();
-  Timer? searchOnStoppedTyping;
 
   final isAddedMoney = false.obs;
-
 
   @override
   Future<void> onInit() async {
     super.onInit();
-    inAsyncCall.value=CommonMethods.changeTheAbsorbingValueTrue();
-    absorbing.value=CommonMethods.changeTheAbsorbingValueTrue();
-    response.value = false;
-    isWillPop.value=true;
-    rotationController = AnimationController(duration: const Duration(milliseconds: 30000), vsync: this);
-    await getUserProfileApiCalling();
-    await getCustomerWalletHistoryApiCalling();
-    inAsyncCall.value=CommonMethods.changeTheAbsorbingValueFalse();
-    response.value = true;
+    onReload();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueTrue();
+    absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
+    rotationController = AnimationController(
+        duration: const Duration(milliseconds: 30000), vsync: this);
+    try {
+      await getUserProfileApiCalling();
+    } catch (e) {}
+    try {
+      await getCustomerWalletHistoryApiCalling();
+    } catch (e) {
+      responseCode = 100;
+      MyCommonMethods.showSnackBar(
+          message: "Something went wrong", context: Get.context!);
+    }
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueFalse();
+    isAnimation = true;
     rotationController.forward(from: 0.0); // it starts the animation
     await Future.delayed(const Duration(seconds: 1));
     rotationController.stop();
-    isWillPop.value=false;
-    absorbing.value=CommonMethods.changeTheAbsorbingValueFalse();
+    isAnimation = false;
+    absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();
+  }
 
-    scrollController.addListener(
-            () async {
-              if(scrollController.position.isScrollingNotifier.value&&ScrollDirection.reverse==scrollController.position.userScrollDirection)
-                {
-                  isLoading.value=true;
-                }
-          if ( scrollController.position.pixels ==
-              scrollController.position.maxScrollExtent) {
-           await getCustomerWalletHistoryApiCalling(wantEmpty: false);
-            isLoading.value=false;
-          }
+  void onReload() {
+    connectivity.onConnectivityChanged.listen((event) async {
+      if (await MyCommonMethods.internetConnectionCheckerMethod()) {
+        if (load == 0) {
+          load = 1;
+          offset = 0;
+          await onInit();
         }
-    );
+      } else {
+        load = 0;
+      }
+    });
   }
 
-  @override
-  void onReady() {
-    super.onReady();
+  Future<void> onRefresh() async {
+    offset = 0;
+    await onInit();
   }
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  Future<void>  getCustomerWalletHistoryApiCalling({
-    bool wantEmpty = true,
-  }) async {
-    if (wantEmpty) {
-      getWalletHistoryModel.value = null;
-      offset=0;
+  Future<void> onLoadMore() async {
+    offset = offset + 10;
+    try {
+      await getCustomerWalletHistoryApiCalling();
+    } catch (e) {
+      responseCode = 100;
+      MyCommonMethods.showSnackBar(
+          message: "Something went wrong", context: Get.context!);
     }
+  }
+
+  Future<void> getCustomerWalletHistoryApiCalling() async {
+    queryParametersForGetWalletApi.clear();
     queryParametersForGetWalletApi = {
-      ApiKeyConstant.limit: 10.toString(),
+      ApiKeyConstant.limit: limit,
       ApiKeyConstant.offset: offset.toString()
     };
-    // offset = offset + 10;
-    getWalletHistoryModel.value = await CommonApis.getCustomerWalletHistoryApi(
-        queryParameters: queryParametersForGetWalletApi);
-    if (getWalletHistoryModel.value != null) {
-      if (getWalletHistoryModel.value?.walletHistory != null &&
-          getWalletHistoryModel.value!.walletHistory!.isNotEmpty) {
-        if(wantEmpty)
-          {
-            listOfWalletHistory.clear();
-          }
-         getWalletHistoryModel.value?.walletHistory?.forEach((element) {
-           listOfWalletHistory.add(element);
-         });
 
-        if(getWalletHistoryModel.value?.walletHistory != null && getWalletHistoryModel.value!.walletHistory!.isNotEmpty){
-          print("offset::::::   $offset");
-          offset=offset+10;
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    Map<String, String> authorization = {"Authorization": token!};
+    http.Response? response = await MyHttp.getMethodForParams(
+        context: Get.context!,
+        authorization: authorization,
+        queryParameters: queryParametersForGetWalletApi,
+        baseUri: ApiConstUri.baseUrlForGetMethod,
+        endPointUri: ApiConstUri.endPointGetCustomerWalletHistoryApi);
+    responseCode = response?.statusCode ?? 0;
+    if (response != null) {
+      if (await CommonMethods.checkResponse(response: response)) {
+        getWalletHistoryModel =
+            GetWalletHistoryModel.fromJson(jsonDecode(response.body));
+        if (offset == 0) {
+          listOfWalletHistory.clear();
         }
-
+        if (getWalletHistoryModel != null) {
+          if (getWalletHistoryModel?.walletHistory != null &&
+              getWalletHistoryModel!.walletHistory!.isNotEmpty) {
+            isLastPage.value = false;
+            getWalletHistoryModel?.walletHistory?.forEach((element) {
+              listOfWalletHistory.add(element);
+            });
+          } else {
+            isLastPage.value = true;
+          }
+        }
       }
     }
-    queryParametersForGetWalletApi.clear();
-
   }
 
   void increment() => count.value++;
 
-   clickOnBackIcon({required BuildContext context}) {
-
-   if(!isWillPop.value)
-     {
-       Get.back();
-     }
-
+  clickOnBackIcon({required BuildContext context}) {
+    inAsyncCall.value = true;
+    if (!isAnimation) {
+      Get.back();
+    }
+    inAsyncCall.value = false;
   }
 
-   onWillPop() {
-     clickOnBackIcon(context: Get.context!);
-   }
+  onWillPop() {
+    clickOnBackIcon(context: Get.context!);
+  }
 
   Future<void> clickOnRotateIcon() async {
-    isWillPop.value=true;
-    absorbing.value=CommonMethods.changeTheAbsorbingValueTrue();
+    isAnimation = true;
+    absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
     rotationController.forward(from: 0.0); // it starts the animation
     await getUserProfileApiCalling();
     await Future.delayed(const Duration(seconds: 2));
     rotationController.stop();
-    isWillPop.value=false;
-    absorbing.value=CommonMethods.changeTheAbsorbingValueFalse();
+    absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();
+    isAnimation = false;
   }
 
   void clickOnArrowIcon() {
-    absorbing.value=CommonMethods.changeTheAbsorbingValueTrue();
-
-  if (addMoneyController.value.text.trim().toString().isNotEmpty) {
+    absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
+    if (addMoneyController.value.text.trim().toString().isNotEmpty) {
       openGateway(
           type: OpenGetWayType.addMoneyWallet,
           price: int.parse(addMoneyController.value.text.trim().toString()),
@@ -154,10 +167,8 @@ class ZerocartWalletController extends CommonMethods with GetSingleTickerProvide
       MyCommonMethods.showSnackBar(
           message: "Please enter amount!", context: Get.context!);
     }
-  absorbing.value=CommonMethods.changeTheAbsorbingValueFalse();
-
+    absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();
   }
 
   void clickOnParticularTransection({required int index}) {}
-
 }

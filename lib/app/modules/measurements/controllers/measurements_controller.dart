@@ -7,9 +7,12 @@ import 'package:zerocart/app/apis/api_constant/api_constant.dart';
 import 'package:zerocart/app/apis/api_modals/get_customer_measurement_api_model.dart';
 import 'package:zerocart/app/apis/common_apis/common_apis.dart';
 import 'package:http/http.dart' as http;
+import 'package:zerocart/app/common_methods/common_methods.dart';
 
-class MeasurementsController extends GetxController {
+class MeasurementsController extends CommonMethods {
   final inAsyncCall = false.obs;
+  int responseCode = 0;
+  int load = 0;
 
   final count = 0.obs;
 
@@ -39,21 +42,132 @@ class MeasurementsController extends GetxController {
   @override
   Future<void> onInit() async {
     super.onInit();
-    await getCustomerMeasurementApi();
+    onReload();
+    inAsyncCall.value = true;
+    if (await MyCommonMethods.internetConnectionCheckerMethod()) {
+      try {
+        await getCustomerMeasurementApi();
+      } catch (e) {
+        responseCode = 100;
+        MyCommonMethods.showSnackBar(message: "Something went wrong", context: Get.context!);
+      }
+    }
+    inAsyncCall.value = false;
   }
 
-  Future<void> createOrder() async {}
-
-  void clickOnBackIcon({required BuildContext context}) {
-    Get.back();
+  void onReload() {
+    connectivity.onConnectivityChanged.listen((event) async {
+      if (await MyCommonMethods.internetConnectionCheckerMethod()) {
+        if (load == 0) {
+          load = 1;
+          await onInit();
+        }
+      } else {
+        load = 0;
+      }
+    });
   }
+
+
+  Future<void> onRefresh() async {
+    await onInit();
+  }
+
+
+  Future<void> getCustomerMeasurementApi() async {
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
+    http.Response? response = await MyHttp.getMethod(
+        url: ApiConstUri.endPointGetCustomerMeasurementApi,
+        token: authorization,
+        context: Get.context!);
+    responseCode=response?.statusCode??0;
+    if (response != null) {
+      if (await CommonMethods.checkResponse(response: response)) {
+        getCustomerMeasurementApiModel =
+            GetCustomerMeasurementApiModel.fromJson(jsonDecode(response.body));
+        if (getCustomerMeasurementApiModel != null) {
+          if (getCustomerMeasurementApiModel!.measurement != null) {
+            measurement = getCustomerMeasurementApiModel!.measurement!;
+            if (measurement != null) {
+              if (measurement!.chest != null &&
+                  measurement!.arm != null &&
+                  measurement!.shoulder != null &&
+                  measurement!.waist != null &&
+                  measurement!.neck != null &&
+                  measurement!.height != null &&
+                  measurement!.weight != null &&
+                  measurement!.bMI != null) {
+                chest = measurement!.chest!.toDouble();
+                arm = measurement!.arm!.toDouble();
+                shoulder = measurement!.shoulder!.toDouble();
+                waist = measurement!.waist!.toDouble();
+                neck = measurement!.neck!.toDouble();
+                height = measurement!.height!.toDouble();
+                weight = measurement!.weight!.toDouble();
+                bMI = measurement!.bMI!.toDouble();
+                chestBackUp = measurement!.chest!.toDouble();
+                armBackUp = measurement!.arm!.toDouble();
+                shoulderBackUp = measurement!.shoulder!.toDouble();
+                waistBackUp = measurement!.waist!.toDouble();
+                neckBackUp = measurement!.neck!.toDouble();
+                heightBackUp = measurement!.height!.toDouble();
+                weightBackUp = measurement!.weight!.toDouble();
+                bMIBackUp = measurement!.bMI!.toDouble();
+              }
+            }
+          }
+        }
+
+      }
+    }
+
+  }
+
+
+  Future<bool> updateApiCalling() async {
+    Map<String, double> measurement = {
+      "Chest": chest.toDouble(),
+      "Arm": arm.toDouble(),
+      "Shoulder": shoulder.toDouble(),
+      "Waist": waist.toDouble(),
+      "Neck": neck.toDouble(),
+      "Height": height.toDouble(),
+      "Weight": weight.toDouble(),
+      "BMI": bMI.toDouble(),
+    };
+    await MyCommonMethods.setString(
+        key: 'measurement', value: json.encode(measurement));
+    bodyParamsForUpdateApi = {
+      ApiKeyConstant.measurement: json.encode(measurement),
+    };
+    http.Response? response =
+    await CommonApis.updateUserProfile(bodyParams: bodyParamsForUpdateApi);
+    if (response != null) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+
+
 
   void increment() {
     count.value++;
   }
 
+  Future<void> createOrder() async {}
+
+  void clickOnBackIcon({required BuildContext context}) {
+    inAsyncCall.value = true;
+    Get.back();
+    inAsyncCall.value = false;
+  }
+
   void clickOnAddIconView({required int index}) {
-    increment();
+    inAsyncCall.value = true;
     if (index == 0) {
       chest += 0.1;
     }
@@ -83,10 +197,13 @@ class MeasurementsController extends GetxController {
         measurementWeight: weight.toString(),
       );
     }
+    inAsyncCall.value = false;
+    increment();
   }
 
   void clickOnSubtractIconView({required int index}) {
-    increment();
+    inAsyncCall.value = true;
+
     if (index == 0) {
       chest -= 0.1;
     }
@@ -116,10 +233,12 @@ class MeasurementsController extends GetxController {
         measurementWeight: weight.toString(),
       );
     }
+    increment();
+    inAsyncCall.value = false;
   }
 
   void clickOnResetButton({required int index}) {
-    increment();
+    inAsyncCall.value = true;
     if (index == 0) {
       chest = chestBackUp;
     }
@@ -149,32 +268,16 @@ class MeasurementsController extends GetxController {
         measurementWeight: weight.toString(),
       );
     }
+    increment();
+    inAsyncCall.value = false;
   }
 
   void clickOnAddVrScanTextViewButton() {}
 
-  clickOnConfirmButton() async {
-    Map<String, double> measurement = {
-      "Chest": chest.toDouble(),
-      "Arm": arm.toDouble(),
-      "Shoulder": shoulder.toDouble(),
-      "Waist": waist.toDouble(),
-      "Neck": neck.toDouble(),
-      "Height": height.toDouble(),
-      "Weight": weight.toDouble(),
-      "BMI": bMI.toDouble(),
-    };
-    await MyCommonMethods.setString(key: 'measurement', value: json.encode(measurement));
-    bodyParamsForUpdateApi = {
-      ApiKeyConstant.measurement: json.encode(measurement),
-    };
+  Future<void> clickOnConfirmButton() async {
     inAsyncCall.value = true;
-    http.Response? response =
-        await CommonApis.updateUserProfile(bodyParams: bodyParamsForUpdateApi);
-    if (response != null) {
-      Get.back();
-      inAsyncCall.value = false;
-    }
+
+    await updateApiCalling();
     inAsyncCall.value = false;
   }
 
@@ -186,43 +289,4 @@ class MeasurementsController extends GetxController {
     bMI = weight / heightSquare;
   }
 
-  Future<void> getCustomerMeasurementApi() async {
-    inAsyncCall.value = true;
-    getCustomerMeasurementApiModel =
-        await CommonApis.getCustomerMeasurementApi();
-    if (getCustomerMeasurementApiModel != null) {
-      if (getCustomerMeasurementApiModel!.measurement != null) {
-        measurement = getCustomerMeasurementApiModel!.measurement!;
-        if (measurement != null) {
-          if (measurement!.chest != null &&
-              measurement!.arm != null &&
-              measurement!.shoulder != null &&
-              measurement!.waist != null &&
-              measurement!.neck != null &&
-              measurement!.height != null &&
-              measurement!.weight != null &&
-              measurement!.bMI != null) {
-            chest = measurement!.chest!.toDouble();
-            arm = measurement!.arm!.toDouble();
-            shoulder = measurement!.shoulder!.toDouble();
-            waist = measurement!.waist!.toDouble();
-            neck = measurement!.neck!.toDouble();
-            height = measurement!.height!.toDouble();
-            weight = measurement!.weight!.toDouble();
-            bMI = measurement!.bMI!.toDouble();
-            chestBackUp = measurement!.chest!.toDouble();
-            armBackUp = measurement!.arm!.toDouble();
-            shoulderBackUp = measurement!.shoulder!.toDouble();
-            waistBackUp = measurement!.waist!.toDouble();
-            neckBackUp = measurement!.neck!.toDouble();
-            heightBackUp = measurement!.height!.toDouble();
-            weightBackUp = measurement!.weight!.toDouble();
-            bMIBackUp = measurement!.bMI!.toDouble();
-          }
-        }
-      }
-      inAsyncCall.value = false;
-    }
-    inAsyncCall.value = false;
-  }
 }
