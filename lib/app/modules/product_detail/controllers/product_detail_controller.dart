@@ -15,6 +15,7 @@ import 'package:zerocart/app/apis/common_apis/common_apis.dart';
 import 'package:zerocart/app/common_methods/common_methods.dart';
 import 'package:zerocart/app/common_widgets/common_widgets.dart';
 import 'package:zerocart/app/modules/my_cart/controllers/my_cart_controller.dart';
+import 'package:zerocart/app/modules/outfit_room/controllers/outfit_room_controller.dart';
 import 'package:zerocart/app/modules/product_detail/views/rating_alert_dialog.dart';
 import 'package:http/http.dart' as http;
 import 'package:zerocart/app/routes/app_pages.dart';
@@ -27,11 +28,12 @@ class ProductDetailController extends CommonMethods {
   final absorbing = false.obs;
   final bannerValue = true.obs;
   final addToCartButtonStateId =
-  Rxn<AddToCartButtonStateId>(AddToCartButtonStateId.idle);
+      Rxn<AddToCartButtonStateId>(AddToCartButtonStateId.idle);
   late final easyEmbeddedImageProvider =
-  MultiImageProvider(bannerImagesListView);
+      MultiImageProvider(bannerImagesListView);
   String randomValue = "";
   final isViewToCartVisible = false.obs;
+  final isViewToOutfitRoomVisible = false.obs;
   final isClickOnAddToWishList = false.obs;
   final isClickOnAddToCart = false.obs;
   final currentIndexOfDotIndicator = 0.obs;
@@ -63,7 +65,7 @@ class ProductDetailController extends CommonMethods {
   List<String> bannerImagesList = [];
   List<ImageProvider> bannerImagesListView = [];
   CarouselController myController =
-  CarouselController() as CarouselControllerImpl;
+      CarouselController() as CarouselControllerImpl;
   final getReviewModal = Rxn<GetReviewModal?>();
   final bestReview = Rxn<BestReview?>();
   final reviewList = Rxn<List<ReviewList>?>();
@@ -107,7 +109,7 @@ class ProductDetailController extends CommonMethods {
     });
     await Future.delayed(
       const Duration(seconds: 5),
-          () => bannerValue.value = false,
+      () => bannerValue.value = false,
     );
   }
 
@@ -132,7 +134,7 @@ class ProductDetailController extends CommonMethods {
   Future<void> getProductDetailRecentApi2() async {
     getProductDetailRecentApiValue.value = true;
     customerId =
-    await MyCommonMethods.getString(key: ApiKeyConstant.customerId);
+        await MyCommonMethods.getString(key: ApiKeyConstant.customerId);
     getProductApiModel.value = await CommonApis.getProductDetailRecentApi2(
         queryParameters: {'pId': productId.toString()});
     if (getProductApiModel.value != null) {
@@ -213,9 +215,9 @@ class ProductDetailController extends CommonMethods {
 
   Future<void> callCategoryProductDetailApi(
       {String? productId,
-        String? categoryId,
-        String? isChat,
-        required String randomValue}) async {
+      String? categoryId,
+      String? isChat,
+      required String randomValue}) async {
     bannerImagesList.clear();
     getProductDetailsModel.value = null;
     queryParametersForGetProductDetail = {'productId': productId};
@@ -234,7 +236,7 @@ class ProductDetailController extends CommonMethods {
           productDetails: getProductDetailsModel.value!.productDetails!);
       productDetail.value = getProductDetailsModel.value?.productDetails;
       categoryId = productDetail.value?.categoryId;
-      isAddedCartOrWishList();
+      isAddedCartOrWishListAndInOutfitRoom();
       sellerDescription.value = productDetail.value?.sellerDescription ?? "";
       whenProductDetailIsNotNull();
     }
@@ -315,13 +317,21 @@ class ProductDetailController extends CommonMethods {
     }
   }*/
 
-  void isAddedCartOrWishList() {
+  void isAddedCartOrWishListAndInOutfitRoom() {
     if ((productDetail.value?.inCart != null &&
-        productDetail.value!.inCart!.isNotEmpty) &&
+            productDetail.value!.inCart!.isNotEmpty) &&
         (productDetail.value?.inCart?.toLowerCase() == "yes")) {
       isViewToCartVisible.value = true;
     } else {
       isViewToCartVisible.value = false;
+    }
+
+    if ((productDetail.value?.inOutfitRoom != null &&
+            productDetail.value!.inOutfitRoom!.isNotEmpty) &&
+        (productDetail.value?.inOutfitRoom?.toLowerCase() == "yes")) {
+      isViewToOutfitRoomVisible.value = true;
+    } else {
+      isViewToOutfitRoomVisible.value = false;
     }
   }
 
@@ -352,7 +362,7 @@ class ProductDetailController extends CommonMethods {
       }
       listOfInventoryArr.value = productDetail.value!.inventoryArr;
       inventoryArr.value =
-      listOfInventoryArr.value![initialIndexOfInventoryArray.value];
+          listOfInventoryArr.value![initialIndexOfInventoryArray.value];
       whenInventoryArrayListListIsNotNullOrNotEmpty();
     }
   }
@@ -434,11 +444,11 @@ class ProductDetailController extends CommonMethods {
 
   void setTheValueOfPriceOrOfferPriceOrProductDescription(
       {required String isOffer,
-        required String offerPrice,
-        required String sellPrice,
-        required String percentageDis,
-        required String productDescription,
-        String? inventoryId}) {
+      required String offerPrice,
+      required String sellPrice,
+      required String percentageDis,
+      required String productDescription,
+      String? inventoryId}) {
     print("inventoryId:::::::::${inventoryId}");
     this.isOffer.value = isOffer;
     this.offerPrice.value = offerPrice;
@@ -479,7 +489,7 @@ class ProductDetailController extends CommonMethods {
       variant.value = listOfVariant.value![initialIndexOfVariantList.value];
       if ((variant.value != null)) {
         if ((variant.value?.inventoryId != null &&
-            variant.value!.inventoryId!.isNotEmpty) &&
+                variant.value!.inventoryId!.isNotEmpty) &&
             productId.isNotEmpty) {
           bodyParams = {
             "inventoryId": variant.value?.inventoryId.toString(),
@@ -665,7 +675,7 @@ class ProductDetailController extends CommonMethods {
     isViewCartValue.value = false;
     await Get.delete<MyCartController>();
     Get.lazyPut<MyCartController>(
-          () => MyCartController(),
+      () => MyCartController(),
     );
     await Get.toNamed(Routes.MY_CART, arguments: true);
     await callCategoryProductDetailApi(productId: productId, randomValue: '');
@@ -681,7 +691,7 @@ class ProductDetailController extends CommonMethods {
         ApiKeyConstant.cartQty: "1",
       };
       http.Response? response =
-      await CommonApis.manageCartApi(bodyParams: bodyParamsForAddToCartApi);
+          await CommonApis.manageCartApi(bodyParams: bodyParamsForAddToCartApi);
       if (response != null) {
         MyCommonMethods.showSnackBar(message: "Success", context: Get.context!);
         addToCartButtonStateId.value = AddToCartButtonStateId.done;
@@ -795,44 +805,22 @@ class ProductDetailController extends CommonMethods {
       ApiKeyConstant.inventoryId: inventoryId.toString(),
     };
     http.Response? response =
-    await CommonApis.addToOutfitRoomApi(bodyParams: bodyParams);
+        await CommonApis.addToOutfitRoomApi(bodyParams: bodyParams);
     if (response != null) {
-      MyCommonMethods.showSnackBar(message: 'Success', context: Get.context!);
+      MyCommonMethods.showSnackBar(
+          message: 'Successfully added outfit room', context: Get.context!);
+      isViewToOutfitRoomVisible.value = true;
     }
   }
+
+  clickOnViewOutfitButton() async {
+    await Get.delete<OutfitRoomController>();
+    Get.lazyPut<OutfitRoomController>(
+      () => OutfitRoomController(),
+    );
+    Get.toNamed(Routes.OUTFIT_ROOM, arguments: 0.0);
+  }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /*
 import 'dart:io';
@@ -899,7 +887,7 @@ class ProductDetailController extends CommonMethods {
   var inventoryArr = Rxn<InventoryArr?>();
 */
 /*  final listOfVariant = Rxn<List<VarientList>?>();
-  final variant = Rxn<VarientList?>();*//*
+  final variant = Rxn<VarientList?>();*/ /*
 
   List<ImageProvider> bannerImagesListView = [];
   CarouselController myController =
@@ -1016,7 +1004,7 @@ class ProductDetailController extends CommonMethods {
   }
 
   void setTheValueOfIndicatorIndex() {}
-*//*
+*/ /*
 
 
   Future<void> clickOnWishListIconButton(
@@ -1030,7 +1018,7 @@ class ProductDetailController extends CommonMethods {
 */
 /*  Future<void> clickOnRemoveWishListIconButton({required BuildContext context}) async {
 
-  }*//*
+  }*/ /*
 
 
   Future<void> clickOnRemoveWishListIconButton() async {
@@ -1038,7 +1026,7 @@ class ProductDetailController extends CommonMethods {
 /*absorbing.value=CommonMethods.changeTheAbsorbingValueTrue();
     isClickOnAddToWishList.value = false;
     removeWishlistItemApiCalling();
-    absorbing.value=CommonMethods.changeTheAbsorbingValueFalse();*//*
+    absorbing.value=CommonMethods.changeTheAbsorbingValueFalse();*/ /*
 
   }
 
@@ -1162,7 +1150,7 @@ class ProductDetailController extends CommonMethods {
         products = getProductListApiModel.value!.products;
       }
     }
-  }*//*
+  }*/ /*
 
 
   void isAddedCartOrWishList() {
@@ -1199,7 +1187,7 @@ class ProductDetailController extends CommonMethods {
         */
 /*reviewAvg.value =
             double.parse(productDetail.value!.totalRating.toString()) /
-                double.parse(productDetail.value!.totalReview.toString());*//*
+                double.parse(productDetail.value!.totalReview.toString());*/ /*
 
       }
       listOfInventoryArr.value = productDetail.value!.inventoryArr;
@@ -1241,7 +1229,7 @@ class ProductDetailController extends CommonMethods {
         addBannerImage(productImageList: variant.value!.productImage!);
       }
     }
-  }*//*
+  }*/ /*
 
 
   void whenInventoryArrayIsNotNullOrIsVariantFalseOrIsColorFalse() {
@@ -1256,7 +1244,7 @@ class ProductDetailController extends CommonMethods {
 /*if (inventoryArr.value?.productImageList != null &&
         inventoryArr.value!.productImageList!.isNotEmpty) {
       addBannerImage(productImageList: inventoryArr.value!.productImageList!);
-    }*//*
+    }*/ /*
 
   }
 
@@ -1272,7 +1260,7 @@ class ProductDetailController extends CommonMethods {
 /*if (inventoryArr.value?.productImageList != null &&
         inventoryArr.value!.productImageList!.isNotEmpty) {
       addBannerImage(productImageList: inventoryArr.value!.productImageList!);
-    }*//*
+    }*/ /*
 
   }
 
@@ -1288,7 +1276,7 @@ class ProductDetailController extends CommonMethods {
 /*if (inventoryArr.value?.productImageList != null &&
         inventoryArr.value!.productImageList!.isNotEmpty) {
       addBannerImage(productImageList: inventoryArr.value!.productImageList!);
-    }*//*
+    }*/ /*
 
   }
 
@@ -1354,7 +1342,7 @@ class ProductDetailController extends CommonMethods {
           addBannerImage(productImageList: variant.value!.productImage!);
         }
       }
-    }*//*
+    }*/ /*
 
   }
 
@@ -1371,7 +1359,7 @@ class ProductDetailController extends CommonMethods {
 /*if ((inventoryArr.value?.productImageList != null &&
         inventoryArr.value!.productImageList!.isNotEmpty)) {
       addBannerImage(productImageList: inventoryArr.value!.productImageList!);
-    }*//*
+    }*/ /*
 
   }
 
@@ -1384,7 +1372,7 @@ class ProductDetailController extends CommonMethods {
     print("clickOnSizeButton::::$index2::::${sizes[index]['sellPrice']}::::::::::::::::::${index} ${inventoryId.toString()}");
     print("clickOnSizeButton::::::::${sizes[index]['isOffer']}::::::::::::::::::${index} ${inventoryId.toString()}");
     print("clickOnSizeButton::::::::${sizes[index]['offerPrice']}::::::::::::::::::${index} ${inventoryId.toString()}");
-*//*
+*/ /*
       sellPrice.value =
       sizes[index]['sellPrice'];
       isOffer.value = sizes[index]['isOffer'];
@@ -1410,7 +1398,7 @@ class ProductDetailController extends CommonMethods {
           };
         }
       }
-    }*//*
+    }*/ /*
 
 
     if (isColor.value == "1" && isVariant.value == "1") {
@@ -1442,7 +1430,7 @@ class ProductDetailController extends CommonMethods {
           addBannerImage(productImageList: variant.value!.productImage!);
         }
       }
-    }*//*
+    }*/ /*
 
   }
 
@@ -1461,7 +1449,7 @@ class ProductDetailController extends CommonMethods {
 /*if ((inventoryArr.value?.productImageList != null &&
           inventoryArr.value!.productImageList!.isNotEmpty)) {
         addBannerImage(productImageList: inventoryArr.value!.productImageList!);
-      }*//*
+      }*/ /*
 
     }
   }
@@ -1581,7 +1569,7 @@ class ProductDetailController extends CommonMethods {
       builder: (BuildContext context) {
         return const RatingAlertDialog();
       },
-    );*//*
+    );*/ /*
 
   }
 
@@ -1635,7 +1623,7 @@ class ProductDetailController extends CommonMethods {
     String randomValue = random.nextInt(9999).toString();
     */
 /*absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
-    absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();*//*
+    absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();*/ /*
 
   }
 

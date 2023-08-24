@@ -16,11 +16,11 @@ import 'package:zerocart/app/routes/app_pages.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
 
 class MyOrdersController extends CommonMethods {
-
   final count = 0.obs;
   int responseCode = 0;
   int load = 0;
-  final inAsyncCall=false.obs;
+  final inAsyncCall = false.obs;
+  final isLastPage = false.obs;
   final searchOrderController = TextEditingController();
 
   List orderStatusList = [
@@ -33,10 +33,12 @@ class MyOrdersController extends CommonMethods {
   final orderFilterType = "-1".obs;
   final isClearFiltersButtonClicked = false.obs;
   final isApplyButtonClicked = false.obs;
+
   String limit = "10";
   int offset = 0;
   Map<String, dynamic> queryParametersForGetOrderListApi = {};
-  GetOrderListApiModal? getOrderListModal ;
+  GetOrderListApiModal? getOrderListModal;
+
   List<OrderList> orderList = [];
 
   final totalTrackStep = 4.obs;
@@ -49,38 +51,48 @@ class MyOrdersController extends CommonMethods {
   @override
   Future<void> onInit() async {
     super.onInit();
-    inAsyncCall.value=true;
-    if(await MyCommonMethods.internetConnectionCheckerMethod())
-    {
-      await getOrderListApiCalling();
-
+    onReload();
+    inAsyncCall.value = true;
+    if (await MyCommonMethods.internetConnectionCheckerMethod()) {
+      try {
+        await getOrderListApiCalling();
+      } catch (e) {
+        MyCommonMethods.showSnackBar(message: "Something went wrong", context: Get.context!);
+        responseCode = 100;
+      }
     }
-    inAsyncCall.value=false;
+    inAsyncCall.value = false;
   }
 
   void increment() => count.value++;
 
-
-
-  void onReload()
-  {
+  void onReload() {
     connectivity.onConnectivityChanged.listen((event) async {
-      if ( await MyCommonMethods.internetConnectionCheckerMethod()) {
-        if(load==0)
-        {
-          load=1;
-          offset=0;
+      if (await MyCommonMethods.internetConnectionCheckerMethod()) {
+        if (load == 0) {
+          load = 1;
+          offset = 0;
           await onInit();
         }
       } else {
-        load=0;
+        load = 0;
       }
     });
   }
 
   Future<void> onRefresh() async {
-    offset=0;
+    offset = 0;
     await onInit();
+  }
+
+  Future<void> onLoadMore() async {
+    offset = offset + 10;
+    try {
+      await getOrderListApiCalling();
+    } catch (e) {
+      responseCode = 100;
+      MyCommonMethods.showSnackBar(message: "Something went wrong", context: Get.context!);
+    }
   }
 
   Future<void> getOrderListApiCalling() async {
@@ -89,9 +101,13 @@ class MyOrdersController extends CommonMethods {
     String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
     authorization = {"Authorization": token!};
     queryParametersForGetOrderListApi = {
-      ApiKeyConstant.orderStatus: orderFilterType.value!="-1"?orderStatusList[int.parse(orderFilterType.value)].toString().replaceAll(" ", ""):"",
+      ApiKeyConstant.orderStatus: orderFilterType.value != "-1"
+          ? orderStatusList[int.parse(orderFilterType.value)]
+              .toString()
+              .replaceAll(" ", "")
+          : "",
       ApiKeyConstant.limit: limit,
-      ApiKeyConstant.offset:offset.toString(),
+      ApiKeyConstant.offset: offset.toString(),
       ApiKeyConstant.searchSrting: searchOrderController.text.trim().toString(),
     };
     http.Response? response = await MyHttp.getMethodForParams(
@@ -100,28 +116,35 @@ class MyOrdersController extends CommonMethods {
         authorization: authorization,
         baseUri: ApiConstUri.baseUrlForGetMethod,
         endPointUri: ApiConstUri.endPointGetOrderListApi);
+    responseCode = response?.statusCode??0;
     if (response != null) {
-      responseCode=response.statusCode;
       if (await CommonMethods.checkResponse(response: response)) {
-        getOrderListModal = GetOrderListApiModal.fromJson(jsonDecode(response.body));
-      }
-    }
-    if (getOrderListModal!= null) {
-      if (getOrderListModal?.orderList != null) {
-        if(offset==0)
-        {
-          orderList.clear();
+        getOrderListModal =
+            GetOrderListApiModal.fromJson(jsonDecode(response.body));
+        if (getOrderListModal != null) {
+          if (offset == 0) {
+            orderList.clear();
+          }
+          if (getOrderListModal?.orderList != null &&
+              getOrderListModal!.orderList!.isNotEmpty) {
+            isLastPage.value = false;
+            getOrderListModal?.orderList?.forEach((element) {
+              orderList.add(element);
+            });
+          } else {
+            isLastPage.value = true;
+          }
         }
-        getOrderListModal?.orderList?.forEach((element) {
-          orderList.add(element);
-        });
-        offset=offset+10;
+
       }
     }
+    increment();
   }
 
   void clickOnBackIcon({required BuildContext context}) {
+    inAsyncCall.value = true;
     Get.back();
+    inAsyncCall.value = false;
   }
 
   void clickOnFilterButton() {
@@ -142,34 +165,38 @@ class MyOrdersController extends CommonMethods {
 
   Future<void> onChangeSearchTextField({String? value}) async {
     if (value != null) {
-      const duration = Duration(milliseconds:800); // set the duration that you want call search() after that.
+      const duration = Duration(
+          milliseconds:
+              800); // set the duration that you want call search() after that.
       if (searchOnStoppedTyping != null) {
         searchOnStoppedTyping?.cancel(); // clear timer
       }
-      searchOnStoppedTyping =  Timer(duration, () async {
-        offset=0;
+      searchOnStoppedTyping = Timer(duration, () async {
+        offset = 0;
         await getOrderListApiCalling();
       });
     }
   }
 
   void clickOnClearFilterButton() {
+    inAsyncCall.value = true;
+
     isClearFiltersButtonClicked.value = true;
     orderFilterType.value = "-1";
+    inAsyncCall.value = false;
   }
 
   void clickOnOrderStatus({required int index}) {
+    inAsyncCall.value = true;
     orderFilterType.value = "$index";
     isClearFiltersButtonClicked.value = false;
+    inAsyncCall.value = false;
   }
 
   Future<void> clickOnApplyButton({required BuildContext context}) async {
-    searchOrderController.text="";
     Get.back();
     offset = 0;
-    if (orderFilterType.value == "-1") {
-      await getOrderListApiCalling();}
-
+    await onInit();
   }
 
   void clickOnTrackButton() {
@@ -186,8 +213,8 @@ class MyOrdersController extends CommonMethods {
         builder: (context) => const TrackingBottomSheet());
   }
 
-  void clickOnCancelButton({required BuildContext context, required int index}) {
-
+  void clickOnCancelButton(
+      {required BuildContext context, required int index}) {
     showModalBottomSheet(
         isScrollControlled: true,
         backgroundColor: MyColorsLight().secondary,
@@ -199,38 +226,54 @@ class MyOrdersController extends CommonMethods {
         ),
         context: Get.context!,
         builder: (context) {
-          OrderList orderListObject=orderList[index];
-          double price=0.0;
+          OrderList orderListObject = orderList[index];
+          double price = 0.0;
           /*for(int i=1;i<=int.parse(orderListObject.productQty??"1");i++)
           {
 
           }*/
-          if(orderListObject.isOffer=="1")
-          {
-            price=price+double.parse(double.parse(orderListObject.productDisPrice!).toStringAsFixed(2));
+          if (orderListObject.isOffer == "1") {
+            price = price +
+                double.parse(double.parse(orderListObject.productDisPrice!)
+                    .toStringAsFixed(2));
+          } else {
+            price = price +
+                double.parse(double.parse(orderListObject.productPrice!)
+                    .toStringAsFixed(2));
           }
-          else
-          {
-            price=price+double.parse(double.parse(orderListObject.productPrice!).toStringAsFixed(2));
-          }
-          return  MyOrdersCancelBottomSheet(index: index,price: price,);
+          return MyOrdersCancelBottomSheet(
+            index: index,
+            price: price,
+          );
         });
   }
 
   void clickOnDoNotCancelButton() {
+    inAsyncCall.value = true;
     Get.back();
+    inAsyncCall.value = false;
   }
 
   void clickOnCancelFiltersBottomSheetButton() {
+    inAsyncCall.value = true;
     Get.back();
+    inAsyncCall.value = false;
   }
 
-  void clickOnCancelOrderButton({required BuildContext context,required int index}) {
-    Get.offNamed(Routes.CANCEL_ORDER,arguments: {"orderList[index]":orderList[index]},);
+  void clickOnCancelOrderButton(
+      {required BuildContext context, required int index}) {
+    inAsyncCall.value = true;
+    Get.offNamed(
+      Routes.CANCEL_ORDER,
+      arguments: {"orderList[index]": orderList[index]},
+    );
+    inAsyncCall.value = false;
   }
 
   void clickOnOrderDetails({required String productId}) {
-    Get.toNamed(Routes.MY_ORDER_DETAILS,arguments:productId);
-  }
+    inAsyncCall.value = true;
 
+    Get.toNamed(Routes.MY_ORDER_DETAILS, arguments: productId);
+    inAsyncCall.value = false;
+  }
 }

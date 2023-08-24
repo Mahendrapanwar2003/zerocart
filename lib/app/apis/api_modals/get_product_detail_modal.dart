@@ -28,6 +28,7 @@ class ProductDetails {
   bool isVariantAvailable = false;
   String? inWishlist;
   String? inCart;
+  String? inOutfitRoom;
   String? uuid;
   String? productId;
   String? productUuid;
@@ -56,6 +57,7 @@ class ProductDetails {
   ProductDetails(
       {this.inWishlist,
       this.inCart,
+      this.inOutfitRoom,
       this.uuid,
       this.productId,
       this.productUuid,
@@ -86,6 +88,7 @@ class ProductDetails {
     isVariantAvailable = json["isVariant"] == "1";
     inWishlist = json['inWishlist'];
     inCart = json['inCart'];
+    inOutfitRoom = json['inOutfitRoom'];
     uuid = json['uuid'];
     productId = json['productId'];
     productUuid = json['productUuid'];
@@ -121,6 +124,7 @@ class ProductDetails {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['inWishlist'] = inWishlist;
     data['inCart'] = inCart;
+    data['inOutfitRoom'] = inOutfitRoom;
     data['uuid'] = uuid;
     data['productId'] = productId;
     data['productUuid'] = productUuid;

@@ -5,6 +5,7 @@ import 'package:zerocart/app/common_methods/common_methods.dart';
 import 'package:zerocart/app/common_widgets/common_widgets.dart';
 import 'package:zerocart/app/constant/zconstant.dart';
 import 'package:zerocart/app/custom/custom_appbar.dart';
+import 'package:zerocart/load_more/load_more.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
 import '../../../../model_progress_bar/model_progress_bar.dart';
 import '../controllers/address_controller.dart';
@@ -16,69 +17,68 @@ class AddressView extends GetView<AddressController> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () => controller.onWillPop(context: context),
-      child:Obx(() =>  ModalProgress(
-        inAsyncCall: controller.response.value&&CommonMethods.isConnect.value,
-        child: Scaffold(
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            appBar: const MyCustomContainer().myAppBar(
-                isIcon: true,backIconOnPressed: () => controller.clickOnBackIcon(context: context), text: 'My Addresses'),
-            body:
-            Obx(
-                  () {
-                 if(CommonMethods.isConnect.value)
-                   {
-                     if (controller.getCustomerAddresses.value != null) {
-                       if (controller.listOfAddress.isNotEmpty) {
-                         return ListView(
-                           controller: controller.scrollController,
-                           physics: const BouncingScrollPhysics(),
-                           children: [
-                             Padding(
-                               padding: EdgeInsets.only(top: Zconstant.margin16/2),
-                               child: listOfAddresses(),
-                             ),
-                             SizedBox(height: 2.5.h),
-                             Obx(() {
-                               if(controller.isLoading.value)
-                               {
-                                 return CommonWidgets.progressBarView();
-                               }
-                               else if(controller.getCustomerAddresses.value?.addresses?.isEmpty ?? false)
-                               {
-                                 return CommonWidgets.noDataTextView(text: "No more data!");
-                               }
-                               else
-                               {
-                                 return const SizedBox();
-                               }
-                             }),
-                             SizedBox(height: 2.5.h,),
-                             Column(
-                               children: [
-                                 addNewAddressButtonView(context: context),
-                               ],
-                             ),
-                             SizedBox(height: Zconstant.margin),
-                           ],
-                         );
-
-                       } else {
-                         return Center(
-                             child: addAddressButtonView(context: context)
-                         );
-                       }
-                     } else {
-                       return CommonWidgets.somethingWentWrongTextView();
-                     }
-                   }
-                 else
-                   {
-                    return  CommonWidgets.noInternetTextView();
-                   }
-              },
-            )
+      child: Obx(
+        () => ModalProgress(
+          inAsyncCall: controller.inAsyncCall.value,
+          child: Scaffold(
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              appBar: const MyCustomContainer().myAppBar(
+                  isIcon: true,
+                  backIconOnPressed: () =>
+                      controller.clickOnBackIcon(context: context),
+                  text: 'My Addresses'),
+              body: Obx(
+                () {
+                  controller.count.value;
+                  if (CommonMethods.isConnect.value) {
+                    if (controller.getCustomerAddresses != null &&
+                        controller.responseCode == 200) {
+                      if (controller.listOfAddress.isNotEmpty) {
+                        return CommonWidgets.commonRefreshIndicator(
+                          onRefresh: () => controller.onRefresh(),
+                          child: RefreshLoadMore(
+                            isLastPage: controller.isLastPage.value,
+                            onLoadMore: () => controller.onLoadMore(),
+                            child: ListView(
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              children: [
+                                Padding(
+                                  padding:
+                                      EdgeInsets.only(top: Zconstant.margin16 / 2,bottom: Zconstant.margin),
+                                  child: listOfAddresses(),
+                                ),
+                                Column(
+                                  children: [
+                                    addNewAddressButtonView(context: context),
+                                  ],
+                                ),
+                                SizedBox(height: Zconstant.margin),
+                              ],
+                            ),
+                          ),
+                        );
+                      } else {
+                        return Center(
+                            child: addAddressButtonView(context: context));
+                      }
+                    } else {
+                      if(controller.responseCode==0)
+                        {
+                          return const SizedBox();
+                        }
+                      return CommonWidgets.commonSomethingWentWrongImage(
+                        onRefresh: () => controller.onRefresh(),
+                      );
+                    }
+                  } else {
+                    return CommonWidgets.commonNoInternetImage(
+                      onRefresh: () => controller.onRefresh(),
+                    );
+                  }
+                },
+              )),
         ),
-      ),
       ),
     );
   }
@@ -102,16 +102,16 @@ class AddressView extends GetView<AddressController> {
       );
 
   Widget listOfAddresses() => ListView.builder(
-      itemCount: controller.listOfAddress?.length,
+      itemCount: controller.listOfAddress.length,
       physics: const BouncingScrollPhysics(),
       shrinkWrap: true,
       itemBuilder: (BuildContext context, int index) {
-        controller.addresses = controller.listOfAddress![index];
+        controller.addresses = controller.listOfAddress[index];
         return Column(
           children: [
             InkWell(
               onTap: () => controller.clickOnParticularAddress(
-                  addresses: controller.listOfAddress![index],
+                  addresses: controller.listOfAddress[index],
                   context: context),
               child: Padding(
                 padding: EdgeInsets.symmetric(
@@ -141,11 +141,14 @@ class AddressView extends GetView<AddressController> {
                           child: addressDescriptionTextView(),
                         ),
                         const SizedBox(width: 40),
-                        (controller.listOfAddress![index].isDefaultAddress != controller.isDefaultAddress && controller.listOfAddress!.length != 1)
+                        (controller.listOfAddress[index].isDefaultAddress !=
+                                    controller.isDefaultAddress &&
+                                controller.listOfAddress.length != 1)
                             ? Row(
                                 children: [
                                   InkWell(
-                                      onTap: () => controller.clickOnDeleteButton(index: index),
+                                      onTap: () => controller
+                                          .clickOnDeleteButton(index: index),
                                       splashColor: MyColorsLight().primary,
                                       borderRadius: BorderRadius.circular(4.px),
                                       child: Container(
@@ -200,7 +203,8 @@ class AddressView extends GetView<AddressController> {
 
   Widget addressDescriptionTextView() => Text(
         "${controller.addresses?.colony},${controller.addresses?.city},${controller.addresses?.state},${controller.addresses?.pinCode} ",
-        style: Theme.of(Get.context!).textTheme.caption?.copyWith(fontSize: 12.px),
+        style:
+            Theme.of(Get.context!).textTheme.caption?.copyWith(fontSize: 12.px),
       );
 
   Widget deleteTextView() => Text(
@@ -218,10 +222,9 @@ class AddressView extends GetView<AddressController> {
 
   Widget selectedTextView() => Text(
         "Selected",
-    style:
-    Theme.of(Get.context!).textTheme.caption?.copyWith(fontSize: 12.px),
-
-  );
+        style:
+            Theme.of(Get.context!).textTheme.caption?.copyWith(fontSize: 12.px),
+      );
 
   Widget addNewAddressButtonView({required BuildContext context}) =>
       CommonWidgets.myOutlinedButton(
@@ -231,9 +234,8 @@ class AddressView extends GetView<AddressController> {
           onPressed: () =>
               controller.clickOnAddNewAddressButton(context: context),
           height: 40.px,
-        margin: EdgeInsets.zero,
-        padding: EdgeInsets.symmetric(horizontal: Zconstant.margin)
-          );
+          margin: EdgeInsets.zero,
+          padding: EdgeInsets.symmetric(horizontal: Zconstant.margin));
 
   Widget addNewAddressTextView() => Text(
         "ADD NEW ADDRESS",
@@ -250,12 +252,11 @@ class AddressView extends GetView<AddressController> {
           width: 60.w);
 
   Widget addAddressTextView() => Text(
-    "ADD ADDRESS",
-    style: Theme.of(Get.context!).textTheme.headline3,
-  );
+        "ADD ADDRESS",
+        style: Theme.of(Get.context!).textTheme.headline3,
+      );
 
-  Widget emptyAddressImage()
-  {
+  Widget emptyAddressImage() {
     return Image.asset("assets/address_empty.png");
   }
 }

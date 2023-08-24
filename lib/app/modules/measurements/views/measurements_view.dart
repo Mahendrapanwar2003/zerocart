@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ui_library/ui_library.dart';
+import 'package:zerocart/app/common_methods/common_methods.dart';
 import 'package:zerocart/app/common_widgets/common_widgets.dart';
 import 'package:zerocart/app/custom/custom_outline_button.dart';
 import 'package:zerocart/app/custom/custom_gradient_text.dart';
@@ -24,412 +25,438 @@ class MeasurementsView extends GetView<MeasurementsController> {
               backIconOnPressed: () =>
                   controller.clickOnBackIcon(context: context),
               text: 'Measurements'),
-          body: ListView(
-            physics: const BouncingScrollPhysics(),
-            padding: EdgeInsets.symmetric(horizontal: 7.w),
-            children: [
-              Column(
-                children: [
-                  SizedBox(height: 2.h),
-                  addVrScanAndConfirmButtonView(text: "ADD VR SCAN"),
-                  SizedBox(height: 3.h),
-                    Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.only(right: 2.w),
-                                child: measurementItemTextView(text: 'Chest'),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 30.px,
-                              width: 42.w,
-                              child: UnicornOutline(
-                                strokeWidth: 1,
-                                radius: 2,
-                                gradient:
-                                    CommonWidgets.commonLinearGradientView(),
-                                child: Expanded(
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: [
-                                      subtractIconVIew(index: 0),
-                                      Expanded(
-                                        flex: 1,
-                                        child: sizeTextView(
-                                          text: controller.chest
-                                              .toDouble()
-                                              .toStringAsFixed(2)
-                                              .toString(),
+          body: Obx(() {
+            if (CommonMethods.isConnect.value) {
+              if (controller.getCustomerMeasurementApiModel != null &&
+                  controller.responseCode == 200) {
+                return CommonWidgets.commonRefreshIndicator(
+                  onRefresh: () => controller.onRefresh(),
+                  child: ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: EdgeInsets.symmetric(horizontal: 7.w),
+                    children: [
+                      Column(
+                        children: [
+                          SizedBox(height: 2.h),
+                          addVrScanAndConfirmButtonView(text: "ADD VR SCAN"),
+                          SizedBox(height: 3.h),
+                          Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Padding(
+                                      padding: EdgeInsets.only(right: 2.w),
+                                      child:
+                                          measurementItemTextView(text: 'Chest'),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 30.px,
+                                    width: 42.w,
+                                    child: UnicornOutline(
+                                      strokeWidth: 1,
+                                      radius: 2,
+                                      gradient: CommonWidgets
+                                          .commonLinearGradientView(),
+                                      child: Expanded(
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          children: [
+                                            subtractIconVIew(index: 0),
+                                            Expanded(
+                                              flex: 1,
+                                              child: sizeTextView(
+                                                text: controller.chest
+                                                    .toDouble()
+                                                    .toStringAsFixed(2)
+                                                    .toString(),
+                                              ),
+                                            ),
+                                            addIconView(index: 0),
+                                          ],
                                         ),
                                       ),
-                                      addIconView(index: 0),
-                                    ],
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  resetButtonView(index: 0),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        resetButtonView(index: 0),
+                                      ],
+                                    ),
+                                  ),
                                 ],
                               ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 3.h),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.only(right: 2.w),
-                                child: measurementItemTextView(text: 'Arm'),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 30.px,
-                              width: 42.w,
-                              child: UnicornOutline(
-                                strokeWidth: 1,
-                                radius: 2,
-                                gradient:
-                                    CommonWidgets.commonLinearGradientView(),
-                                child: Expanded(
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: [
-                                      subtractIconVIew(index: 1),
-                                      Expanded(
-                                        flex: 1,
-                                        child: sizeTextView(
-                                          text: controller.arm
-                                              .toDouble()
-                                              .toStringAsFixed(2)
-                                              .toString(),
+                              SizedBox(height: 3.h),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Padding(
+                                      padding: EdgeInsets.only(right: 2.w),
+                                      child: measurementItemTextView(text: 'Arm'),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 30.px,
+                                    width: 42.w,
+                                    child: UnicornOutline(
+                                      strokeWidth: 1,
+                                      radius: 2,
+                                      gradient: CommonWidgets
+                                          .commonLinearGradientView(),
+                                      child: Expanded(
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          children: [
+                                            subtractIconVIew(index: 1),
+                                            Expanded(
+                                              flex: 1,
+                                              child: sizeTextView(
+                                                text: controller.arm
+                                                    .toDouble()
+                                                    .toStringAsFixed(2)
+                                                    .toString(),
+                                              ),
+                                            ),
+                                            addIconView(index: 1),
+                                          ],
                                         ),
                                       ),
-                                      addIconView(index: 1),
-                                    ],
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  resetButtonView(index: 1),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        resetButtonView(index: 1),
+                                      ],
+                                    ),
+                                  ),
                                 ],
                               ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 3.h),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.only(right: 2.w),
-                                child:
-                                    measurementItemTextView(text: 'Shoulder'),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 30.px,
-                              width: 42.w,
-                              child: UnicornOutline(
-                                strokeWidth: 1,
-                                radius: 2,
-                                gradient:
-                                    CommonWidgets.commonLinearGradientView(),
-                                child: Expanded(
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: [
-                                      subtractIconVIew(index: 2),
-                                      Expanded(
-                                        flex: 1,
-                                        child: sizeTextView(
-                                          text: controller.shoulder
-                                              .toDouble()
-                                              .toStringAsFixed(2)
-                                              .toString(),
+                              SizedBox(height: 3.h),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Padding(
+                                      padding: EdgeInsets.only(right: 2.w),
+                                      child: measurementItemTextView(
+                                          text: 'Shoulder'),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 30.px,
+                                    width: 42.w,
+                                    child: UnicornOutline(
+                                      strokeWidth: 1,
+                                      radius: 2,
+                                      gradient: CommonWidgets
+                                          .commonLinearGradientView(),
+                                      child: Expanded(
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          children: [
+                                            subtractIconVIew(index: 2),
+                                            Expanded(
+                                              flex: 1,
+                                              child: sizeTextView(
+                                                text: controller.shoulder
+                                                    .toDouble()
+                                                    .toStringAsFixed(2)
+                                                    .toString(),
+                                              ),
+                                            ),
+                                            addIconView(index: 2),
+                                          ],
                                         ),
                                       ),
-                                      addIconView(index: 2),
-                                    ],
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  resetButtonView(index: 2),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        resetButtonView(index: 2),
+                                      ],
+                                    ),
+                                  ),
                                 ],
                               ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 3.h),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.only(right: 2.w),
-                                child: measurementItemTextView(text: 'Waist'),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 30.px,
-                              width: 42.w,
-                              child: UnicornOutline(
-                                strokeWidth: 1,
-                                radius: 2,
-                                gradient:
-                                    CommonWidgets.commonLinearGradientView(),
-                                child: Expanded(
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: [
-                                      subtractIconVIew(index: 3),
-                                      Expanded(
-                                        flex: 1,
-                                        child: sizeTextView(
-                                          text: controller.waist
-                                              .toDouble()
-                                              .toStringAsFixed(2)
-                                              .toString(),
+                              SizedBox(height: 3.h),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Padding(
+                                      padding: EdgeInsets.only(right: 2.w),
+                                      child:
+                                          measurementItemTextView(text: 'Waist'),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 30.px,
+                                    width: 42.w,
+                                    child: UnicornOutline(
+                                      strokeWidth: 1,
+                                      radius: 2,
+                                      gradient: CommonWidgets
+                                          .commonLinearGradientView(),
+                                      child: Expanded(
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          children: [
+                                            subtractIconVIew(index: 3),
+                                            Expanded(
+                                              flex: 1,
+                                              child: sizeTextView(
+                                                text: controller.waist
+                                                    .toDouble()
+                                                    .toStringAsFixed(2)
+                                                    .toString(),
+                                              ),
+                                            ),
+                                            addIconView(index: 3),
+                                          ],
                                         ),
                                       ),
-                                      addIconView(index: 3),
-                                    ],
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  resetButtonView(index: 3),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        resetButtonView(index: 3),
+                                      ],
+                                    ),
+                                  ),
                                 ],
                               ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 3.h),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.only(right: 2.w),
-                                child: measurementItemTextView(text: 'Neck'),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 30.px,
-                              width: 42.w,
-                              child: UnicornOutline(
-                                strokeWidth: 1,
-                                radius: 2,
-                                gradient:
-                                    CommonWidgets.commonLinearGradientView(),
-                                child: Expanded(
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: [
-                                      subtractIconVIew(index: 4),
-                                      Expanded(
-                                        flex: 1,
-                                        child: sizeTextView(
-                                          text: controller.neck
-                                              .toDouble()
-                                              .toStringAsFixed(2)
-                                              .toString(),
+                              SizedBox(height: 3.h),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Padding(
+                                      padding: EdgeInsets.only(right: 2.w),
+                                      child:
+                                          measurementItemTextView(text: 'Neck'),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 30.px,
+                                    width: 42.w,
+                                    child: UnicornOutline(
+                                      strokeWidth: 1,
+                                      radius: 2,
+                                      gradient: CommonWidgets
+                                          .commonLinearGradientView(),
+                                      child: Expanded(
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          children: [
+                                            subtractIconVIew(index: 4),
+                                            Expanded(
+                                              flex: 1,
+                                              child: sizeTextView(
+                                                text: controller.neck
+                                                    .toDouble()
+                                                    .toStringAsFixed(2)
+                                                    .toString(),
+                                              ),
+                                            ),
+                                            addIconView(index: 4),
+                                          ],
                                         ),
                                       ),
-                                      addIconView(index: 4),
-                                    ],
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  resetButtonView(index: 4),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        resetButtonView(index: 4),
+                                      ],
+                                    ),
+                                  ),
                                 ],
                               ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 3.h),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.only(right: 2.w),
-                                child:
-                                    measurementItemTextView(text: 'Height(cm)'),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 30.px,
-                              width: 42.w,
-                              child: UnicornOutline(
-                                strokeWidth: 1,
-                                radius: 2,
-                                gradient:
-                                    CommonWidgets.commonLinearGradientView(),
-                                child: Expanded(
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: [
-                                      subtractIconVIew(index: 5),
-                                      Expanded(
-                                        flex: 1,
-                                        child: sizeTextView(
-                                          text: controller.height
-                                              .toDouble()
-                                              .toStringAsFixed(2)
-                                              .toString(),
+                              SizedBox(height: 3.h),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Padding(
+                                      padding: EdgeInsets.only(right: 2.w),
+                                      child: measurementItemTextView(
+                                          text: 'Height(cm)'),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 30.px,
+                                    width: 42.w,
+                                    child: UnicornOutline(
+                                      strokeWidth: 1,
+                                      radius: 2,
+                                      gradient: CommonWidgets
+                                          .commonLinearGradientView(),
+                                      child: Expanded(
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          children: [
+                                            subtractIconVIew(index: 5),
+                                            Expanded(
+                                              flex: 1,
+                                              child: sizeTextView(
+                                                text: controller.height
+                                                    .toDouble()
+                                                    .toStringAsFixed(2)
+                                                    .toString(),
+                                              ),
+                                            ),
+                                            addIconView(index: 5),
+                                          ],
                                         ),
                                       ),
-                                      addIconView(index: 5),
-                                    ],
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  resetButtonView(index: 5),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        resetButtonView(index: 5),
+                                      ],
+                                    ),
+                                  ),
                                 ],
                               ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 3.h),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.only(right: 2.w),
-                                child:
-                                    measurementItemTextView(text: 'Weight(kg)'),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 30.px,
-                              width: 42.w,
-                              child: UnicornOutline(
-                                strokeWidth: 1,
-                                radius: 2,
-                                gradient:
-                                    CommonWidgets.commonLinearGradientView(),
-                                child: Expanded(
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: [
-                                      subtractIconVIew(index: 6),
-                                      Expanded(
-                                        flex: 1,
-                                        child: sizeTextView(
-                                          text: controller.weight
-                                              .toDouble()
-                                              .toStringAsFixed(2)
-                                              .toString(),
+                              SizedBox(height: 3.h),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Padding(
+                                      padding: EdgeInsets.only(right: 2.w),
+                                      child: measurementItemTextView(
+                                          text: 'Weight(kg)'),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 30.px,
+                                    width: 42.w,
+                                    child: UnicornOutline(
+                                      strokeWidth: 1,
+                                      radius: 2,
+                                      gradient: CommonWidgets
+                                          .commonLinearGradientView(),
+                                      child: Expanded(
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          children: [
+                                            subtractIconVIew(index: 6),
+                                            Expanded(
+                                              flex: 1,
+                                              child: sizeTextView(
+                                                text: controller.weight
+                                                    .toDouble()
+                                                    .toStringAsFixed(2)
+                                                    .toString(),
+                                              ),
+                                            ),
+                                            addIconView(index: 6),
+                                          ],
                                         ),
                                       ),
-                                      addIconView(index: 6),
-                                    ],
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  resetButtonView(index: 6),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        resetButtonView(index: 6),
+                                      ],
+                                    ),
+                                  ),
                                 ],
                               ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 3.h),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.only(right: 2.w),
-                                child: measurementItemTextView(text: "BMI"),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 30.px,
-                              width: 42.w,
-                              child: UnicornOutline(
-                                strokeWidth: 1,
-                                radius: 2,
-                                gradient:
-                                    CommonWidgets.commonLinearGradientView(),
-                                child: Expanded(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Expanded(
-                                        flex: 1,
-                                        child: sizeTextView(
-                                          text:  controller.height==0.0 &&  controller.weight == 0.0?"0.0":controller.bMI
-                                              .toDouble()
-                                              .toStringAsFixed(2)
-                                              .toString(),
+                              SizedBox(height: 3.h),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Padding(
+                                      padding: EdgeInsets.only(right: 2.w),
+                                      child: measurementItemTextView(text: "BMI"),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 30.px,
+                                    width: 42.w,
+                                    child: UnicornOutline(
+                                      strokeWidth: 1,
+                                      radius: 2,
+                                      gradient: CommonWidgets
+                                          .commonLinearGradientView(),
+                                      child: Expanded(
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Expanded(
+                                              flex: 1,
+                                              child: sizeTextView(
+                                                text: controller.height == 0.0 &&
+                                                        controller.weight == 0.0
+                                                    ? "0.0"
+                                                    : controller.bMI
+                                                        .toDouble()
+                                                        .toStringAsFixed(2)
+                                                        .toString(),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                    ],
+                                    ),
                                   ),
-                                ),
+                                  const Expanded(
+                                    child: Text(""),
+                                  ),
+                                ],
                               ),
-                            ),
-                            const Expanded(
-                              child: Text(""),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  SizedBox(height: 2.h),
-                  addVrScanAndConfirmButtonView(text: "CONFIRM"),
-                ],
-              ),
-              SizedBox(height: 8.h),
-            ],
-          ),
+                            ],
+                          ),
+                          SizedBox(height: 2.h),
+                          addVrScanAndConfirmButtonView(text: "CONFIRM"),
+                        ],
+                      ),
+                      SizedBox(height: 8.h),
+                    ],
+                  ),
+                );
+              } else if (controller.responseCode == 0) {
+                return const SizedBox();
+              }
+              return CommonWidgets.commonSomethingWentWrongImage(
+                onRefresh: () => controller.onRefresh(),
+              );
+            } else {
+              return CommonWidgets.commonNoInternetImage(
+                onRefresh: () => controller.onRefresh(),
+              );
+            }
+          }),
         ),
       );
     });

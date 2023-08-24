@@ -7,6 +7,7 @@ import 'package:ui_library/ui_library.dart';
 import 'package:zerocart/app/common_methods/common_methods.dart';
 import 'package:zerocart/app/common_widgets/common_widgets.dart';
 import 'package:zerocart/app/custom/scroll_splash_gone.dart';
+import 'package:zerocart/load_more/load_more.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
 import '../../../../model_progress_bar/model_progress_bar.dart';
 import '../../../constant/zconstant.dart';
@@ -61,7 +62,8 @@ class ZerocartWalletView extends GetView<ZerocartWalletController> {
                   onTap: () => MyCommonMethods.unFocsKeyBoard(),
                   child: Obx(() {
                     if (CommonMethods.isConnect.value) {
-                      if (controller.response.value) {
+                      if (controller.getWalletHistoryModel != null &&
+                          controller.responseCode == 200) {
                         return Stack(
                           children: [
                             gradiantBackGround(),
@@ -155,28 +157,36 @@ class ZerocartWalletView extends GetView<ZerocartWalletController> {
                                   right: Zconstant.margin,
                                   top: 23.h),
                               child: Obx(() {
-                                if (controller.getWalletHistoryModel.value !=
-                                    null) {
-                                  if (controller
-                                      .listOfWalletHistory.isNotEmpty) {
-                                    return listOfTransectionView();
-                                  } else {
-                                    return CommonWidgets.noDataTextView(
-                                        text: "No Transaction History !");
-                                  }
+                                if (controller.listOfWalletHistory.isNotEmpty) {
+                                  return CommonWidgets.commonRefreshIndicator(
+                                    onRefresh: () => controller.onRefresh(),
+                                    child: RefreshLoadMore(
+                                        isLastPage: controller.isLastPage.value,
+                                        onLoadMore: () =>
+                                            controller.onLoadMore(),
+                                        child: listOfTransectionView()),
+                                  );
                                 } else {
-                                  return CommonWidgets
-                                      .somethingWentWrongTextView();
+                                  return CommonWidgets.commonNoDataFoundImage(
+                                    onRefresh: () => controller.onRefresh(),
+                                  );
                                 }
                               }),
                             )
                           ],
                         );
                       } else {
-                        return const SizedBox();
+                        if (controller.responseCode == 0) {
+                          return const SizedBox();
+                        }
+                        return CommonWidgets.commonSomethingWentWrongImage(
+                          onRefresh: () => controller.onRefresh(),
+                        );
                       }
                     } else {
-                      return CommonWidgets.noInternetTextView();
+                      return CommonWidgets.commonNoInternetImage(
+                        onRefresh: () => controller.onRefresh(),
+                      );
                     }
                   }),
                 ),
@@ -282,9 +292,6 @@ class ZerocartWalletView extends GetView<ZerocartWalletController> {
           } else {
             controller.isAddedMoney.value = false;
           }
-
-          print(
-              " controller.isAddedMoney.value :::::::::${controller.isAddedMoney.value}");
         },
         keyboardType: TextInputType.number,
         decoration: InputDecoration(
@@ -323,17 +330,17 @@ class ZerocartWalletView extends GetView<ZerocartWalletController> {
   Widget listOfTransectionView() => ScrollConfiguration(
         behavior: MyBehavior(),
         child: ListView(
-          controller: controller.scrollController,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
           children: [
             ListView.builder(
               itemBuilder: (context, index) {
-                controller.walletHistoryModel.value =
+                controller.walletHistoryModel =
                     controller.listOfWalletHistory[index];
-                if (controller.walletHistoryModel.value!.createdDate != null &&
-                    controller
-                        .walletHistoryModel.value!.createdDate!.isNotEmpty) {
+                if (controller.walletHistoryModel!.createdDate != null &&
+                    controller.walletHistoryModel!.createdDate!.isNotEmpty) {
                   controller.dateTime = DateTime.parse(
-                      controller.walletHistoryModel.value!.createdDate!);
+                      controller.walletHistoryModel!.createdDate!);
                 }
                 return ClipRRect(
                   child: BackdropFilter(
@@ -376,8 +383,8 @@ class ZerocartWalletView extends GetView<ZerocartWalletController> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
-                                      if (controller.walletHistoryModel.value
-                                              ?.transType !=
+                                      if (controller
+                                              .walletHistoryModel?.transType !=
                                           null)
                                         transectionAmountTextView(index: index),
                                     ],
@@ -398,25 +405,10 @@ class ZerocartWalletView extends GetView<ZerocartWalletController> {
               padding: EdgeInsets.zero,
               shrinkWrap: true,
               itemCount: controller.listOfWalletHistory.length,
-              physics: const BouncingScrollPhysics(),
+              physics: const NeverScrollableScrollPhysics(),
             ),
             SizedBox(
               height: 4.h,
-            ),
-            Obx(() {
-              controller.count.value;
-              if (controller.isLoading.value) {
-                return CommonWidgets.progressBarView();
-              } else if (controller
-                      .getWalletHistoryModel.value?.walletHistory?.isEmpty ??
-                  false) {
-                return CommonWidgets.noDataTextView(text: "No more data!");
-              } else {
-                return const SizedBox();
-              }
-            }),
-            SizedBox(
-              height: 7.h,
             ),
           ],
         ),
@@ -451,24 +443,24 @@ class ZerocartWalletView extends GetView<ZerocartWalletController> {
   }
 
   Widget transectionTitleTextVIew({required int index}) => Text(
-        controller.walletHistoryModel.value?.actionType ?? "",
+        controller.walletHistoryModel?.actionType ?? "",
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: Theme.of(Get.context!).textTheme.subtitle1,
       );
 
   Widget transectionAmountTextView({required int index}) => Text(
-        controller.walletHistoryModel.value?.transType == "credit"
-            ? '+  $curr${double.parse(double.parse(controller.walletHistoryModel.value!.inAmt!).toStringAsFixed(2))}' ??
+        controller.walletHistoryModel?.transType == "credit"
+            ? '+  $curr${double.parse(double.parse(controller.walletHistoryModel!.inAmt!).toStringAsFixed(2))}' ??
                 ""
-            : '-  $curr${double.parse(double.parse(controller.walletHistoryModel.value!.outAmt!).toStringAsFixed(2))}' ??
-            "",
+            : '-  $curr${double.parse(double.parse(controller.walletHistoryModel!.outAmt!).toStringAsFixed(2))}' ??
+                "",
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         textAlign: TextAlign.end,
         style: Theme.of(Get.context!).textTheme.headline2?.copyWith(
             fontSize: 16.px,
-            color: controller.walletHistoryModel.value?.transType == "credit"
+            color: controller.walletHistoryModel?.transType == "credit"
                 ? MyColorsLight().success
                 : MyColorsLight().error),
       );
