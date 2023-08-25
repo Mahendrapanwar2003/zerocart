@@ -13,6 +13,7 @@ class CancelOrderController extends GetxController {
   OrderList orderListObject = Get.arguments['orderList[index]'] ?? OrderList();
 
   ProductDetails productDetails = Get.arguments['productDetailsList'] ?? ProductDetails();
+
   String? myOrderDetailPage = Get.arguments['myOrderDetailPage'];
 
   final count = 0.obs;

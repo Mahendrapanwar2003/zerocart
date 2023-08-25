@@ -51,7 +51,7 @@ class MyOrdersController extends CommonMethods {
   @override
   Future<void> onInit() async {
     super.onInit();
-    onReload();
+      onReload();
     inAsyncCall.value = true;
     if (await MyCommonMethods.internetConnectionCheckerMethod()) {
       try {

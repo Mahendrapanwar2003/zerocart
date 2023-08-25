@@ -20,7 +20,7 @@ class MyOrderDetailsView extends GetView<MyOrderDetailsController> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: appBarView(),
       body: Obx(() {
-        if (controller.myOrderDetailsModel.value != null) {
+        if (controller.myOrderDetailsModel != null) {
           if (controller.productDetailsList != null &&
               controller.productDetailsList!.isNotEmpty) {
             return ScrollConfiguration(
@@ -52,9 +52,9 @@ class MyOrderDetailsView extends GetView<MyOrderDetailsController> {
                                   errorBuilder: (context, error, stackTrace) =>
                                       CommonWidgets.defaultImage(),
                                 )
-                              : controller.bannerValue.value
+                              : /*controller.bannerValue.value
                                   ? CommonWidgets.commonShimmerViewForImage()
-                                  : CommonWidgets.defaultImage(),
+                                  :*/ CommonWidgets.defaultImage(),
                     ),
                   ),
                   Padding(

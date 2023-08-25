@@ -18,144 +18,147 @@ class MyOrdersView extends GetView<MyOrdersController> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-            () {
-              controller.count.value;
-              return ModalProgress(
-                inAsyncCall:controller.inAsyncCall.value,
-                child: GestureDetector(
-                  onTap: () => MyCommonMethods.unFocsKeyBoard(),
-                  child: Scaffold(
-                    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                    appBar: const MyCustomContainer().myAppBar(
-                        isIcon: true,
-                        backIconOnPressed: () =>
-                            controller.clickOnBackIcon(context: context),
-                        text: 'My Previous Orders',
-                        buttonText: CommonMethods.isConnect.value?"Filter":null,
-                        buttonOnPressed: () => controller.clickOnFilterButton(),
-                        buttonIcon: Icons.keyboard_arrow_down_rounded),
-                    body: Obx(() {
-                      if(CommonMethods.isConnect.value)
-                      {
-                        return Padding(
-                          padding: EdgeInsets.symmetric(horizontal: Zconstant.margin16),
-                          child: Column(
-                            children: [
-                              SizedBox(
-                                height: Zconstant.margin / 2,
+    return Obx(() {
+      controller.count.value;
+      return ModalProgress(
+        inAsyncCall: controller.inAsyncCall.value,
+        child: GestureDetector(
+          onTap: () => MyCommonMethods.unFocsKeyBoard(),
+          child: Scaffold(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            appBar: const MyCustomContainer().myAppBar(
+                isIcon: true,
+                backIconOnPressed: () =>
+                    controller.clickOnBackIcon(context: context),
+                text: 'My Previous Orders',
+                buttonText: CommonMethods.isConnect.value ? "Filter" : null,
+                buttonOnPressed: () => controller.clickOnFilterButton(),
+                buttonIcon: Icons.keyboard_arrow_down_rounded),
+            body: Obx(() {
+              if (CommonMethods.isConnect.value) {
+                return Padding(
+                  padding: EdgeInsets.symmetric(horizontal: Zconstant.margin16),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: Zconstant.margin / 2,
+                      ),
+                      Theme.of(context).brightness == Brightness.dark
+                          ? Container(
+                              height: 36.px,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20.px),
+                                color: Colors.white,
                               ),
-                              Theme.of(context).brightness == Brightness.dark
-                                  ? Container(
+                              child: searchTextFieldView(),
+                            )
+                          : Container(
+                              height: 36.px,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20.px),
+                                color: Colors.white,
+                                gradient:
+                                    CommonWidgets.commonLinearGradientView(),
+                              ),
+                              child: Container(
                                 height: 36.px,
+                                margin: EdgeInsets.all(1.px),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(20.px),
                                   color: Colors.white,
                                 ),
                                 child: searchTextFieldView(),
-                              )
-                                  : Container(
-                                height: 36.px,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20.px),
-                                  color: Colors.white,
-                                  gradient:
-                                  CommonWidgets.commonLinearGradientView(),
-                                ),
-                                child: Container(
-                                  height: 36.px,
-                                  margin: EdgeInsets.all(1.px),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20.px),
-                                    color: Colors.white,
+                              ),
+                            ),
+                      SizedBox(height: Zconstant.margin / 2),
+                      CommonWidgets.profileMenuDash(),
+                      Obx(() {
+                        controller.count.value;
+                        if (controller.getOrderListModal != null &&
+                            controller.responseCode == 200) {
+                          if (controller.orderList.isNotEmpty) {
+                            return Expanded(
+                              child: CommonWidgets.commonRefreshIndicator(
+                                onRefresh: () => controller.onRefresh(),
+                                child: RefreshLoadMore(
+                                  isLastPage: controller.isLastPage.value,
+                                  onLoadMore: () => controller.onLoadMore(),
+                                  child: ListView(
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    padding: EdgeInsets.zero,
+                                    shrinkWrap: true,
+                                    children: [
+                                      SizedBox(height: Zconstant.margin16 / 2),
+                                      listOfOrder(),
+                                      SizedBox(height: Zconstant.margin16),
+                                    ],
                                   ),
-                                  child: searchTextFieldView(),
                                 ),
                               ),
-                              SizedBox(height: Zconstant.margin / 2),
-                              CommonWidgets.profileMenuDash(),
-                              Obx(() {
-                                controller.count.value;
-                                if (controller.getOrderListModal != null && controller.responseCode==200) {
-                                  if (controller.orderList.isNotEmpty) {
-                                    return Expanded(
-                                      child: CommonWidgets.commonRefreshIndicator(
-                                        onRefresh:() => controller.onRefresh(),
-                                        child: RefreshLoadMore(
-                                          isLastPage: controller.isLastPage.value,
-                                          onLoadMore: () =>controller.onLoadMore(),
-                                          child: ListView(
-                                            physics: const NeverScrollableScrollPhysics(),
-                                            padding: EdgeInsets.zero,
-                                            shrinkWrap: true,
-                                            children: [
-                                              SizedBox(
-                                                  height: Zconstant.margin16 / 2),
-                                              listOfOrder(),
-                                              SizedBox(height: Zconstant.margin16),
-
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  } else {
-                                    return Expanded(child: CommonWidgets.commonNoDataFoundImage(onRefresh: () => controller.onRefresh(),));
-                                  }
-                                } else {
-                                  if(controller.responseCode==0)
-                                  {
-                                    return const SizedBox();
-                                  }
-                                  return Expanded(child: CommonWidgets.commonSomethingWentWrongImage(onRefresh: () => controller.onRefresh(),));
-                                }
-
-                              }),
-                            ],
-                          ),
-                        );
-                      }
-                      else
-                      {
-                        return CommonWidgets.commonNoInternetImage(onRefresh: () => controller.onRefresh(),);
-                      }
-                    }),
+                            );
+                          } else {
+                            return Expanded(
+                                child: CommonWidgets.commonNoDataFoundImage(
+                              onRefresh: () => controller.onRefresh(),
+                            ));
+                          }
+                        } else {
+                          if (controller.responseCode == 0) {
+                            return const SizedBox();
+                          }
+                          return Expanded(
+                              child:
+                                  CommonWidgets.commonSomethingWentWrongImage(
+                            onRefresh: () => controller.onRefresh(),
+                          ));
+                        }
+                      }),
+                    ],
                   ),
-                ),
-              );
-            });
+                );
+              } else {
+                return CommonWidgets.commonNoInternetImage(
+                  onRefresh: () => controller.onRefresh(),
+                );
+              }
+            }),
+          ),
+        ),
+      );
+    });
   }
 
   Widget searchTextFieldView() => TextFormField(
-    cursorColor: MyColorsLight().primary,
-    controller: controller.searchOrderController,
-    style: Theme.of(Get.context!)
-        .textTheme
-        .caption
-        ?.copyWith(color: MyColorsLight().onText),
-    maxLines: 1,
-    onChanged: (value) => controller.onChangeSearchTextField(value: value),
-    decoration: InputDecoration(
-      border: InputBorder.none,
-      focusedBorder: InputBorder.none,
-      enabledBorder: InputBorder.none,
-      errorBorder: InputBorder.none,
-      disabledBorder: InputBorder.none,
-      hintText: "Search Order",
-      contentPadding: EdgeInsets.only(
-        left: Zconstant.margin,
-      ),
-      hintStyle: Theme.of(Get.context!)
-          .textTheme
-          .headline4
-          ?.copyWith(color: MyColorsLight().onText, fontSize: 10.px),
-      suffixIcon: Icon(
-        Icons.search,
-        color: MyColorsLight().textGrayColor,
-        size: 16.px,
-      ),
-    ),
-  );
+        cursorColor: MyColorsLight().primary,
+        controller: controller.searchOrderController,
+        style: Theme.of(Get.context!)
+            .textTheme
+            .caption
+            ?.copyWith(color: MyColorsLight().onText),
+        maxLines: 1,
+        onChanged: (value) => controller.onChangeSearchTextField(value: value),
+        decoration: InputDecoration(
+          border: InputBorder.none,
+          focusedBorder: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          errorBorder: InputBorder.none,
+          disabledBorder: InputBorder.none,
+          hintText: "Search Order",
+          contentPadding: EdgeInsets.only(
+            left: Zconstant.margin,
+          ),
+          hintStyle: Theme.of(Get.context!)
+              .textTheme
+              .headline4
+              ?.copyWith(color: MyColorsLight().onText, fontSize: 10.px),
+          suffixIcon: Icon(
+            Icons.search,
+            color: MyColorsLight().textGrayColor,
+            size: 16.px,
+          ),
+        ),
+      );
 
   Widget listOfOrder() => ListView.builder(
       itemCount: controller.orderList.length,
@@ -167,7 +170,7 @@ class MyOrdersView extends GetView<MyOrdersController> {
           controller.dateTime =
               DateTime.parse(controller.orderList[index].createdDate!);
         }
-        String? productId=controller.orderList[index].productId;
+        String? productId = controller.orderList[index].productId;
         return Container(
           padding: EdgeInsets.only(bottom: Zconstant.margin16),
           child: Column(
@@ -176,13 +179,15 @@ class MyOrdersView extends GetView<MyOrdersController> {
               if (controller.orderList[index].createdDate != null &&
                   controller.dateTime != null)
                 orderPlacedOnDateTextView(
-                    value: "Order Placed On: ${getDayOfMonthSuffix(controller.dateTime!.day)} ${DateFormat.MMMM().format(controller.dateTime!)} ${controller.dateTime?.year}"),
+                    value:
+                        "Order Placed On: ${getDayOfMonthSuffix(controller.dateTime!.day)} ${DateFormat.MMMM().format(controller.dateTime!)} ${controller.dateTime?.year}"),
               if (controller.orderList[index].ordNo != null)
                 orderNumberTextView(value: controller.orderList[index].ordNo),
               SizedBox(height: Zconstant.margin16),
               InkWell(
                 borderRadius: BorderRadius.circular(10.px),
-                onTap: ()=> controller.clickOnOrderDetails(productId:productId.toString()),
+                onTap: () => controller.clickOnOrderDetails(
+                    productId: productId.toString()),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -190,7 +195,8 @@ class MyOrdersView extends GetView<MyOrdersController> {
                       Padding(
                         padding: EdgeInsets.only(right: Zconstant.margin16),
                         child: productImageView(
-                            imageUrl: controller.orderList[index].thumbnailImage),
+                            imageUrl:
+                                controller.orderList[index].thumbnailImage),
                       ),
                     Expanded(
                       child: Column(
@@ -199,37 +205,61 @@ class MyOrdersView extends GetView<MyOrdersController> {
                           if (controller.orderList[index].productName != null &&
                               controller.orderList[index].brandName != null)
                             productDescription(
-                                productDescription: "${controller.orderList[index].brandName} ${controller.orderList[index].productName}"),
+                                productDescription:
+                                    "${controller.orderList[index].brandName} ${controller.orderList[index].productName}"),
                           SizedBox(height: 0.5.h),
                           itemPriceView(index),
-                          SizedBox(height: 0.5.h),
                           Row(
                             children: [
-                              if (controller.orderList[index].variantAbbreviation != null &&
-                                  controller.orderList[index].variantAbbreviation!.isNotEmpty)
+                              if (controller.orderList[index]
+                                          .variantAbbreviation !=
+                                      null &&
+                                  controller.orderList[index]
+                                      .variantAbbreviation!.isNotEmpty)
                                 Expanded(
                                   child: Row(
                                     children: [
                                       sizeTextView(),
                                       Expanded(
                                         child: sizeUnitTextView(
-                                            value: controller.orderList[index].variantAbbreviation),
+                                            value: controller.orderList[index]
+                                                .variantAbbreviation),
                                       )
                                     ],
                                   ),
                                 ),
-                              if (controller.orderList[index].colorCode != null &&
-                                  controller.orderList[index].colorCode!.isNotEmpty)
+                              if (controller.orderList[index].productQty !=
+                                      null &&
+                                  controller
+                                      .orderList[index].productQty!.isNotEmpty)
                                 Expanded(
                                     child: Row(
-                                      children: [
-                                        colorTextView(),
-                                        colorTypeTextView(
-                                            colorCode: int.parse(controller.orderList[index].colorCode.toString().replaceAll("#", "0xff"))),
-                                      ],
-                                    ))
+                                  children: [
+                                    quantityTextView(),
+                                    Expanded(
+                                        child: sizeUnitTextView(
+                                            value: controller
+                                                .orderList[index].productQty))
+                                  ],
+                                ))
                             ],
                           ),
+                          if (controller.orderList[index].colorCode != null &&
+                              controller.orderList[index].colorCode!.isNotEmpty)
+                            Row(
+                              children: [
+                                if (controller.orderList[index].colorCode !=
+                                        null &&
+                                    controller
+                                        .orderList[index].colorCode!.isNotEmpty)
+                                  colorTextView(),
+                                colorTypeTextView(
+                                    colorCode: int.parse(controller
+                                        .orderList[index].colorCode
+                                        .toString()
+                                        .replaceAll("#", "0xff"))),
+                              ],
+                            )
                         ],
                       ),
                     ),
@@ -256,17 +286,17 @@ class MyOrdersView extends GetView<MyOrdersController> {
       });
 
   Widget orderPlacedOnDateTextView({String? value}) => Text(
-    value ?? "",
-    style: Theme.of(Get.context!).textTheme.headline3,
-  );
+        value ?? "",
+        style: Theme.of(Get.context!).textTheme.headline3,
+      );
 
   Widget orderNumberTextView({String? value}) => Text(
-    "Order No.: $value",
-    style: Theme.of(Get.context!)
-        .textTheme
-        .headline3
-        ?.copyWith(fontSize: 10.px),
-  );
+        "Order No.: $value",
+        style: Theme.of(Get.context!)
+            .textTheme
+            .headline3
+            ?.copyWith(fontSize: 10.px),
+      );
 
   String getDayOfMonthSuffix(int dayNum) {
     if (!(dayNum >= 1 && dayNum <= 31)) {
@@ -290,23 +320,23 @@ class MyOrdersView extends GetView<MyOrdersController> {
   }
 
   Widget productImageView({String? imageUrl}) => Container(
-    height: 100.px,
-    width: 95.px,
-    decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(4.px),
-        image: DecorationImage(
-            image: NetworkImage(
-                CommonMethods.imageUrl(url: imageUrl.toString())),
-            fit: BoxFit.cover,
-            alignment: Alignment.center)),
-  );
+        height: 100.px,
+        width: 95.px,
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(4.px),
+            image: DecorationImage(
+                image: NetworkImage(
+                    CommonMethods.imageUrl(url: imageUrl.toString())),
+                fit: BoxFit.cover,
+                alignment: Alignment.center)),
+      );
 
   Widget productDescription({String? productDescription}) => Text(
-    productDescription ?? "",
-    style: Theme.of(Get.context!).textTheme.headline3,
-  );
+        productDescription ?? "",
+        style: Theme.of(Get.context!).textTheme.headline3,
+      );
 
-  Widget itemPriceView( int index) {
+  Widget itemPriceView(int index) {
     if (controller.orderList[index].isOffer != null &&
         controller.orderList[index].isOffer != "0") {
       return Column(
@@ -330,73 +360,77 @@ class MyOrdersView extends GetView<MyOrdersController> {
       return Column(
         children: [
           if (controller.orderList[index].productPrice != null)
-            itemPriceTextView(
-                value: controller.orderList[index].productPrice),
+            itemPriceTextView(value: controller.orderList[index].productPrice),
         ],
       );
     }
   }
 
   Widget itemPriceTextView({String? value}) => GradientText(
-    '$curr$value',
-    style: Theme.of(Get.context!)
-        .textTheme
-        .subtitle1
-        ?.copyWith(overflow: TextOverflow.ellipsis),
-    gradient: CommonWidgets.commonLinearGradientView(),
-  );
+        '$curr$value',
+        style: Theme.of(Get.context!)
+            .textTheme
+            .subtitle1
+            ?.copyWith(overflow: TextOverflow.ellipsis),
+        gradient: CommonWidgets.commonLinearGradientView(),
+      );
 
   Widget itemOriginalPriceTextView({String? value}) => Text("$curr$value",
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
       style:
-      Theme.of(Get.context!).textTheme.headline3?.copyWith(fontSize: 8.px));
+          Theme.of(Get.context!).textTheme.headline3?.copyWith(fontSize: 8.px));
 
   Widget howManyPercentOffTextView({String? value}) => Text(" (100% Off)",
       style:
-      Theme.of(Get.context!).textTheme.headline3?.copyWith(fontSize: 8.px));
+          Theme.of(Get.context!).textTheme.headline3?.copyWith(fontSize: 8.px));
 
   Widget sizeTextView() => Text(
-    "Size: ",
-    style: Theme.of(Get.context!).textTheme.headline3,
-  );
+        "Size: ",
+        style: Theme.of(Get.context!).textTheme.headline3,
+      );
+
+  Widget quantityTextView() => Text(
+        "Quantity: ",
+        style: Theme.of(Get.context!).textTheme.headline3,
+      );
 
   Widget sizeUnitTextView({String? value}) => Text(
-    value ?? "",
-    overflow: TextOverflow.ellipsis,
-    maxLines: 1,
-    style: Theme.of(Get.context!).textTheme.headline3,
-  );
+        value ?? "",
+        overflow: TextOverflow.ellipsis,
+        maxLines: 1,
+        style: Theme.of(Get.context!).textTheme.headline3,
+      );
 
   Widget colorTextView() => Text(
-    "Color: ",
-    style: Theme.of(Get.context!).textTheme.headline3,
-  );
+        "Color: ",
+        style: Theme.of(Get.context!).textTheme.headline3,
+      );
 
   Widget colorTypeTextView({int? colorCode}) => Container(
-    decoration: const BoxDecoration(shape: BoxShape.circle),
-    height: 20.px,
-    width: 20.px,
-    child: UnicornOutline(
-      strokeWidth: 1.5.px,
-      radius: 10.px,
-      gradient: CommonWidgets.commonLinearGradientView(),
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 2.px, horizontal: 2.px),
-        child: Container(
-          height: 30.px,
-          width: 15.px,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Color(colorCode!),
+        decoration: const BoxDecoration(shape: BoxShape.circle),
+        height: 20.px,
+        width: 20.px,
+        child: UnicornOutline(
+          strokeWidth: 1.5.px,
+          radius: 10.px,
+          gradient: CommonWidgets.commonLinearGradientView(),
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 2.px, horizontal: 2.px),
+            child: Container(
+              height: 30.px,
+              width: 15.px,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Color(colorCode!),
+              ),
+            ),
           ),
         ),
-      ),
-    ),
-  );
+      );
 
   Widget cancelOrderButtonView(
-      {required BuildContext context, required int index}) =>
+          {required BuildContext context, required int index}) =>
       CommonWidgets.myOutlinedButton(
           text: cancelOrderTextView(),
           onPressed: () =>
@@ -415,12 +449,12 @@ class MyOrdersView extends GetView<MyOrdersController> {
       radius: 5.px);
 
   Widget cancelOrderTextView() => Text(
-    "CANCEL ORDER",
-    style: Theme.of(Get.context!).textTheme.headline3,
-  );
+        "CANCEL ORDER",
+        style: Theme.of(Get.context!).textTheme.headline3,
+      );
 
   Widget trackTextView() => Text(
-    "TRACK ORDER",
-    style: Theme.of(Get.context!).textTheme.headline3,
-  );
+        "TRACK ORDER",
+        style: Theme.of(Get.context!).textTheme.headline3,
+      );
 }

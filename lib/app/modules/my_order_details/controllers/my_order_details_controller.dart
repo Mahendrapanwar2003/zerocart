@@ -17,29 +17,39 @@ import 'package:zerocart/my_colors/my_colors.dart';
 import '../../../common_methods/common_methods.dart';
 import '../../../common_widgets/common_widgets.dart';
 
-class MyOrderDetailsController extends GetxController {
+class MyOrderDetailsController extends CommonMethods {
   final count = 0.obs;
-  final isClickOnSize = 0.obs;
+  final inAsyncCall = false.obs;
+  int responseCode = 0;
+  int load = 0;
+
+  String ratingCount = "1";
   List<File> selectedImageForRating = [];
   List<XFile> xFileTypeList = [];
-  String ratingCount = "1";
-  String? productId;
   final descriptionController = TextEditingController();
   final isSubmitButtonVisible = true.obs;
   Map<String, dynamic> bodyParamsForProductFeedbackApi = {};
 
-  final bannerValue = true.obs;
-
-  final myOrderDetailsModel = Rxn<MyOrderDetailsModel>();
+  String? productId;
+  Map<String, dynamic> queryParametersForGetOrderDetailsApi = {};
+  MyOrderDetailsModel? myOrderDetailsModel ;
   List<ProductDetails>? productDetailsList;
-  Map<String, dynamic> queryParameters = {};
 
   @override
   Future<void> onInit() async {
     super.onInit();
+    onReload();
     productId = Get.arguments;
-    print("productId:::::::::::::::::: $productId");
-    await callingGetMyOrderDetailsApi();
+    inAsyncCall.value = true;
+    if (await MyCommonMethods.internetConnectionCheckerMethod()) {
+      try {
+        await callingGetMyOrderDetailsApi();
+      } catch (e) {
+        MyCommonMethods.showSnackBar(message: "Something went wrong", context: Get.context!);
+        responseCode = 100;
+      }
+    }
+    inAsyncCall.value = false;
   }
 
   @override
@@ -52,16 +62,35 @@ class MyOrderDetailsController extends GetxController {
     super.onClose();
   }
 
+
+  void onReload() {
+    connectivity.onConnectivityChanged.listen((event) async {
+      if (await MyCommonMethods.internetConnectionCheckerMethod()) {
+        if (load == 0) {
+          load = 1;
+          await onInit();
+        }
+      } else {
+        load = 0;
+      }
+    });
+  }
+
+  Future<void> onRefresh() async {
+    await onInit();
+  }
+
   void increment() => count.value++;
 
   Future<void> callingGetMyOrderDetailsApi() async {
-    queryParameters = {
+    queryParametersForGetOrderDetailsApi.clear();
+    queryParametersForGetOrderDetailsApi = {
       ApiKeyConstant.productId: productId.toString()
     };
-    myOrderDetailsModel.value = await CommonApis.getMyOrderDetailsApi(queryParameters: queryParameters);
-    if (myOrderDetailsModel.value != null) {
-      productDetailsList = myOrderDetailsModel.value?.productDetails;
-      await Future.delayed(const Duration(seconds: 5), () => bannerValue.value = false);
+    myOrderDetailsModel = await CommonApis.getMyOrderDetailsApi(queryParameters: queryParametersForGetOrderDetailsApi);
+    if (myOrderDetailsModel != null) {
+      productDetailsList = myOrderDetailsModel?.productDetails;
+      //await Future.delayed(const Duration(seconds: 5), () => bannerValue.value = false);
     }
   }
 
