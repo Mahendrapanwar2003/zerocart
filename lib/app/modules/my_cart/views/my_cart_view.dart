@@ -279,9 +279,15 @@ class MyCartView extends GetView<MyCartController> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                if (controller.checkedListItemQuantity[index] >
+                                if (controller.checkedListItemQuantity[
+                                index] ==
+                                    null ||
+                                    controller
+                                        .cartItem.value?.availability ==
+                                        "0")
+                                /*if (controller.checkedListItemQuantity[index] >
                                     int.parse(controller
-                                        .checkedListItemAvalibility[index]))
+                                        .checkedListItemAvalibility[index]))*/
                                   outOfStockTextView(),
                                 if (controller.cartItem.value?.varientList !=
                                         null &&
