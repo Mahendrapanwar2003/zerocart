@@ -701,8 +701,9 @@ class ProductDetailController extends CommonMethods {
     }
   }
 
-  void clickOnBuyNowButton() {
-    Get.toNamed(Routes.BUY_NOW, arguments: [inventoryId]);
+  Future<void> clickOnBuyNowButton() async {
+    await Get.toNamed(Routes.BUY_NOW, arguments: [inventoryId]);
+        onInit();
   }
 
   Future<void> clickOnViewAllReviews({required BuildContext context}) async {
@@ -750,7 +751,6 @@ class ProductDetailController extends CommonMethods {
   }
 
   Future<void> clickOnSubmitButton() async {
-    print('huhiguihguihuiihuihuihhuihiu');
     absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
     isSubmitButtonVisible.value = false;
     await userProductFeedbackApiCalling();
@@ -763,7 +763,6 @@ class ProductDetailController extends CommonMethods {
   }
 
   Future<void> userProductFeedbackApiCalling() async {
-    print('huhiguihguihuiihuihuihhuihiu');
     bodyParamsForProductFeedbackApi = {
       ApiKeyConstant.productId: productId,
       ApiKeyConstant.rating: ratingCount,
@@ -773,7 +772,6 @@ class ProductDetailController extends CommonMethods {
         imageList: selectedImageForRating,
         bodyParams: bodyParamsForProductFeedbackApi);
     if (response != null) {}
-    print('huhiguihguihuiihuihuihhuihiu');
   }
 
   void clickOnSeeAllProductButton() {}
@@ -1586,7 +1584,6 @@ class ProductDetailController extends CommonMethods {
   }
 
   Future<void> clickOnSubmitButton() async {
-    print('huhiguihguihuiihuihuihhuihiu');
     absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
     isSubmitButtonVisible.value = false;
     await userProductFeedbackApiCalling();
@@ -1599,7 +1596,6 @@ class ProductDetailController extends CommonMethods {
   }
 
   Future<void> userProductFeedbackApiCalling() async {
-    print('huhiguihguihuiihuihuihhuihiu');
     bodyParamsForProductFeedbackApi = {
       ApiKeyConstant.productId: productId,
       ApiKeyConstant.rating: ratingCount,
@@ -1609,7 +1605,6 @@ class ProductDetailController extends CommonMethods {
         imageList: selectedImageForRating,
         bodyParams: bodyParamsForProductFeedbackApi);
     if (response != null) {}
-    print('huhiguihguihuiihuihuihhuihiu');
   }
 
   void clickOnSeeAllProductButton() {}

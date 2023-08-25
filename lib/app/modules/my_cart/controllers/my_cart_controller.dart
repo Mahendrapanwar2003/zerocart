@@ -381,6 +381,9 @@ class MyCartController extends CommonMethods {
           }
         }
       }
+      if (!isApplyCoupon.value) {
+        clickOnApplyCouponButtonView();
+      }
       unCheckedListItemAvalibility.add(checkedListItemAvalibility[index]);
       checkedListItemAvalibility.removeAt(index);
       checkedListItemQuantity.removeAt(index);
@@ -433,10 +436,9 @@ class MyCartController extends CommonMethods {
       checkedListItemQuantity[index]--;
     }
     isApplyCoupon.value = true;
-    onInit();
+    //onInit();
     absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();
   }
-
 
   Future<void> clickOnReadyToCheckOutItemUpIcon({required int index}) async {
     MyCommonMethods.unFocsKeyBoard();
@@ -481,7 +483,7 @@ class MyCartController extends CommonMethods {
       checkedListItemQuantity[index]++;
     }
     isApplyCoupon.value = true;
-    onInit();
+    //onInit();
     absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();
   }
 
@@ -614,6 +616,9 @@ class MyCartController extends CommonMethods {
                     .toStringAsFixed(2));
           }
         }
+      }
+      if (!isApplyCoupon.value) {
+        clickOnApplyCouponButtonView();
       }
       checkedListItemAvalibility.add(unCheckedListItemAvalibility[index]);
       unCheckedListItemAvalibility.removeAt(index);

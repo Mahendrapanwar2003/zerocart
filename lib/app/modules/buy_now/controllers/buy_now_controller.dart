@@ -359,23 +359,22 @@ class BuyNowController extends CommonMethods {
             ApiKeyConstant.quantity: itemQuantity.value.toString(),
           };
           isSuccess = await placeOrderApiCalling();
-          bodyParametersForPlaceOrderApi.clear();
-          Get.back();
-          bodyParametersForPlaceOrderApi = {
-            ApiKeyConstant.transType: 'debit',
-            ApiKeyConstant.outAmt: totalPrice.value.toString(),
-          };
-          http.Response? response = await CommonApis.walletTransactionApi(
-              bodyParams: bodyParametersForPlaceOrderApi);
-          if (response != null) {
-            isSuccess = true;
-          }
-          Get.back();
           if (isSuccess) {
-            MyCommonMethods.showSnackBar(
-                message: "Your order has been placed successfully",
-                context: Get.context!);
+            bodyParametersForPlaceOrderApi.clear();
+            bodyParametersForPlaceOrderApi = {
+              ApiKeyConstant.transType: 'debit',
+              ApiKeyConstant.outAmt: totalPrice.value.toString(),
+            };
+            http.Response? response = await CommonApis.walletTransactionApi(
+                bodyParams: bodyParametersForPlaceOrderApi);
+            if (response != null) {
+              Get.back();
+              MyCommonMethods.showSnackBar(
+                  message: "Your order has been placed successfully",
+                  context: Get.context!);
+            }
           }
+          Get.back();
           bodyParametersForPlaceOrderApi.clear();
         }
         else if (paymentMethod.value.toString() == "others") {

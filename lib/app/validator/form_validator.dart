@@ -125,9 +125,16 @@ class FormValidator {
 
 
   static isAddressValid({required String? value, required String content}) {
-
     if (value == null || value.toString().trim().isEmpty) {
       return "Please enter $content";
+    }
+    else{
+      return null;
+    }
+  }
+  static isEmptyField({required String? value}) {
+    if (value == null || value.toString().trim().isEmpty) {
+      return "Please enter some description";
     }
     else{
       return null;

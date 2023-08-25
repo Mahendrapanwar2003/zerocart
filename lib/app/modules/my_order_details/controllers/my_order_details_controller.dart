@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -29,11 +30,15 @@ class MyOrderDetailsController extends CommonMethods {
   final descriptionController = TextEditingController();
   final isSubmitButtonVisible = true.obs;
   Map<String, dynamic> bodyParamsForProductFeedbackApi = {};
-
   String? productId;
+
   Map<String, dynamic> queryParametersForGetOrderDetailsApi = {};
-  MyOrderDetailsModel? myOrderDetailsModel ;
-  List<ProductDetails>? productDetailsList;
+  MyOrderDetailsModel? myOrderDetailsModel;
+  List<ProductDetails> productDetailsList = [];
+
+  final isEmpty = false.obs;
+
+  final isLastPage = false.obs;
 
   @override
   Future<void> onInit() async {
@@ -45,7 +50,8 @@ class MyOrderDetailsController extends CommonMethods {
       try {
         await callingGetMyOrderDetailsApi();
       } catch (e) {
-        MyCommonMethods.showSnackBar(message: "Something went wrong", context: Get.context!);
+        MyCommonMethods.showSnackBar(
+            message: "Something went wrong", context: Get.context!);
         responseCode = 100;
       }
     }
@@ -61,7 +67,6 @@ class MyOrderDetailsController extends CommonMethods {
   void onClose() {
     super.onClose();
   }
-
 
   void onReload() {
     connectivity.onConnectivityChanged.listen((event) async {
@@ -84,17 +89,43 @@ class MyOrderDetailsController extends CommonMethods {
 
   Future<void> callingGetMyOrderDetailsApi() async {
     queryParametersForGetOrderDetailsApi.clear();
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
     queryParametersForGetOrderDetailsApi = {
       ApiKeyConstant.productId: productId.toString()
     };
-    myOrderDetailsModel = await CommonApis.getMyOrderDetailsApi(queryParameters: queryParametersForGetOrderDetailsApi);
-    if (myOrderDetailsModel != null) {
-      productDetailsList = myOrderDetailsModel?.productDetails;
-      //await Future.delayed(const Duration(seconds: 5), () => bannerValue.value = false);
+    http.Response? response = await MyHttp.getMethodForParams(
+        baseUri: ApiConstUri.baseUrlForGetMethod,
+        endPointUri: ApiConstUri.endPointGetProductSellerDetailApi,
+        queryParameters: queryParametersForGetOrderDetailsApi,
+        authorization: authorization,
+        context: Get.context!);
+    responseCode = response?.statusCode ?? 0;
+    if (response != null) {
+      if (await CommonMethods.checkResponse(response: response)) {
+        myOrderDetailsModel =
+            MyOrderDetailsModel.fromJson(jsonDecode(response.body));
+        if (myOrderDetailsModel != null) {
+          if (myOrderDetailsModel!.productDetails != null && myOrderDetailsModel!.productDetails!.isNotEmpty) {
+            productDetailsList = myOrderDetailsModel!.productDetails ?? [];
+            //await Future.delayed(const Duration(seconds: 5), () => bannerValue.value = false);
+          }
+        }
+      }
     }
+    increment();
+
+/*    myOrderDetailsModel = await CommonApis.getMyOrderDetailsApi(
+        queryParameters: queryParametersForGetOrderDetailsApi);
+    if (myOrderDetailsModel != null &&
+        myOrderDetailsModel!.productDetails != null) {
+      productDetailsList = myOrderDetailsModel!.productDetails ?? [];
+      //await Future.delayed(const Duration(seconds: 5), () => bannerValue.value = false);
+    }*/
   }
 
-  void clickOnBackIcon() {
+  clickOnBackIcon() {
     Get.back();
   }
 
@@ -108,7 +139,7 @@ class MyOrderDetailsController extends CommonMethods {
           actions: [
             Image.network(
               CommonMethods.imageUrl(
-                  url: productDetailsList![0].brandChartImg.toString()),
+                  url: productDetailsList[0].brandChartImg.toString()),
               errorBuilder: (context, error, stackTrace) =>
                   CommonWidgets.defaultImage(),
             )
@@ -135,12 +166,19 @@ class MyOrderDetailsController extends CommonMethods {
           ProductDetails productDetailsListObject = productDetailsList![0];
           double price = 0.0;
           if (productDetailsListObject.isOffer == "1") {
-            price = price + double.parse(double.parse(productDetailsListObject.offerPrice!).toStringAsFixed(2),);
+            price = price +
+                double.parse(
+                  double.parse(productDetailsListObject.offerPrice!)
+                      .toStringAsFixed(2),
+                );
           } else {
-            price = price + double.parse(double.parse(productDetailsListObject.productPrice!).toStringAsFixed(2));
+            price = price +
+                double.parse(
+                    double.parse(productDetailsListObject.productPrice!)
+                        .toStringAsFixed(2));
           }
           return MyOrdersCancelDetailsBottomSheet(price: price);
-        }); 
+        });
   }
 
   void clickOnTrackButton() {
@@ -186,15 +224,22 @@ class MyOrderDetailsController extends CommonMethods {
 
   Future<void> clickOnAddAttachmentIcon() async {
     xFileTypeList = await MyImagePicker.pickMultipleImages();
-    selectedImageForRating = MyImagePicker.convertXFilesToFiles(xFiles: xFileTypeList);
+    selectedImageForRating =
+        MyImagePicker.convertXFilesToFiles(xFiles: xFileTypeList);
     count.value++;
   }
 
   Future<void> clickOnSubmitButton() async {
     isSubmitButtonVisible.value = false;
-    await userProductFeedbackApiCalling();
+    MyCommonMethods.unFocsKeyBoard();
+    if (descriptionController.text.trim().isNotEmpty) {
+      isEmpty.value = false;
+      await userProductFeedbackApiCalling();
+    } else {
+      isEmpty.value = true;
+    }
     isSubmitButtonVisible.value = true;
-   /* selectedImageForRating = [];
+    /* selectedImageForRating = [];
     Get.back();
     bodyParamsForProductFeedbackApi.clear();
     descriptionController.text = "";*/
@@ -202,40 +247,46 @@ class MyOrderDetailsController extends CommonMethods {
 
   Future<void> userProductFeedbackApiCalling() async {
     if (descriptionController.text.trim().toString().isNotEmpty) {
-     if(selectedImageForRating.isNotEmpty){
-       //isSubmitButtonVisible.value = false;
-       bodyParamsForProductFeedbackApi = {
-         ApiKeyConstant.productId: productId.toString(),
-         ApiKeyConstant.rating: ratingCount.toString(),
-         ApiKeyConstant.review: descriptionController.text.trim().toString(),
-       };
-       http.Response? response = await CommonApis.userProductFeedbackApi(
-           imageList: selectedImageForRating,
-           bodyParams: bodyParamsForProductFeedbackApi);
-       if (response != null) {
-         print("response::::: $response");
-         selectedImageForRating = [];
-         Get.back();
-         bodyParamsForProductFeedbackApi.clear();
-         descriptionController.text = "";
-       }else{
-         Get.back();
-         MyCommonMethods.showSnackBar(message: "Fail", context: Get.context!);
-       }
-       //isSubmitButtonVisible.value = true;
-     } else {
-       Get.back();
-       MyCommonMethods.showSnackBar(message: "Please Post Related Product Images", context: Get.context!);
-     }
+      if (selectedImageForRating.isNotEmpty) {
+        //isSubmitButtonVisible.value = false;
+        bodyParamsForProductFeedbackApi = {
+          ApiKeyConstant.productId: productId.toString(),
+          ApiKeyConstant.rating: ratingCount.toString(),
+          ApiKeyConstant.review: descriptionController.text.trim().toString(),
+        };
+        http.Response? response = await CommonApis.userProductFeedbackApi(
+            imageList: selectedImageForRating,
+            bodyParams: bodyParamsForProductFeedbackApi);
+        if (response != null) {
+          print("response::::: $response");
+          selectedImageForRating = [];
+          Get.back();
+          bodyParamsForProductFeedbackApi.clear();
+          descriptionController.text = "";
+        } else {
+          Get.back();
+          MyCommonMethods.showSnackBar(message: "Fail", context: Get.context!);
+        }
+        //isSubmitButtonVisible.value = true;
+      } else {
+        Get.back();
+        MyCommonMethods.showSnackBar(
+            message: "Please Post Related Product Images",
+            context: Get.context!);
+      }
     } else {
       Get.back();
-      MyCommonMethods.showSnackBar(message: "Please Enter Some Description", context: Get.context!);
+      MyCommonMethods.showSnackBar(
+          message: "Please Enter Some Description", context: Get.context!);
     }
   }
 
   void clickOnOkOrderButton({required BuildContext context}) {
     Get.back();
-    Get.offNamed(Routes.CANCEL_ORDER,arguments: {'productDetailsList':productDetailsList?[0],'myOrderDetailPage':'myOrderDetailPage'});
+    Get.offNamed(Routes.CANCEL_ORDER, arguments: {
+      'productDetailsList': productDetailsList?[0],
+      'myOrderDetailPage': 'myOrderDetailPage'
+    });
     /*var snackBar = SnackBar(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -246,4 +297,6 @@ class MyOrderDetailsController extends CommonMethods {
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);*/
   }
+
+  onLoadMore() {}
 }

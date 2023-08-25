@@ -9,6 +9,7 @@ import 'package:zerocart/app/custom/scroll_splash_gone.dart';
 import 'package:zerocart/app/modules/my_order_details/controllers/my_order_details_controller.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
 import '../../../custom/custom_gradient_text.dart';
+import '../../../validator/form_validator.dart';
 
 class RatingBottomSheet extends GetView<MyOrderDetailsController> {
   const RatingBottomSheet({super.key});
@@ -74,22 +75,26 @@ class RatingBottomSheet extends GetView<MyOrderDetailsController> {
                 Row(
                   children: [
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 4.w,vertical: 5.px),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 4.w, vertical: 5.px),
                       child: reviewTextView(),
                     ),
                   ],
                 ),
                 if (controller.selectedImageForRating.isNotEmpty)
-                Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
+                  Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
                     child: Container(
                       height: 60.px,
                       padding: EdgeInsets.symmetric(horizontal: 4.px),
                       decoration: BoxDecoration(
-                        color: MyColorsDark().secondary.withOpacity(.1),
-                        border: Border.all(color: MyColorsLight().onPrimary,width: 1.px,),
-                        borderRadius: BorderRadius.circular(5.px)
-                      ),
+                          color: MyColorsDark().secondary.withOpacity(.1),
+                          border: Border.all(
+                            color: MyColorsLight().onPrimary,
+                            width: 1.px,
+                          ),
+                          borderRadius: BorderRadius.circular(5.px)),
                       child: ScrollConfiguration(
                         behavior: MyBehavior(),
                         child: ListView.builder(
@@ -99,15 +104,19 @@ class RatingBottomSheet extends GetView<MyOrderDetailsController> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 InkWell(
-                                  onTap: () => controller.clickOnRemoveReviewImage(index: index),
+                                  onTap: () => controller
+                                      .clickOnRemoveReviewImage(index: index),
                                   borderRadius: BorderRadius.circular(5.px),
                                   child: Stack(
                                     alignment: Alignment.topRight,
                                     children: [
                                       ClipRRect(
-                                        borderRadius: BorderRadius.circular(5.px),
+                                        borderRadius:
+                                            BorderRadius.circular(5.px),
                                         child: Image.file(
-                                          File(controller.selectedImageForRating[index].path),
+                                          File(controller
+                                              .selectedImageForRating[index]
+                                              .path),
                                           fit: BoxFit.cover,
                                           height: 50.px,
                                           width: 50.px,
@@ -119,7 +128,10 @@ class RatingBottomSheet extends GetView<MyOrderDetailsController> {
                                           padding: EdgeInsets.only(left: 16.px),
                                           child: Icon(
                                             Icons.cancel,
-                                            color: Theme.of(Get.context!).textTheme.subtitle2?.color,
+                                            color: Theme.of(Get.context!)
+                                                .textTheme
+                                                .subtitle2
+                                                ?.color,
                                             size: 14.px,
                                           ),
                                         ),
@@ -148,6 +160,8 @@ class RatingBottomSheet extends GetView<MyOrderDetailsController> {
                         child: TextFormField(
                           minLines: 2,
                           maxLines: 5,
+                          validator: (value) =>
+                              FormValidator.isEmptyField(value: value),
                           controller: controller.descriptionController,
                           keyboardType: TextInputType.multiline,
                           decoration: InputDecoration(
@@ -186,7 +200,13 @@ class RatingBottomSheet extends GetView<MyOrderDetailsController> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 2.h),
+                      if (controller.isEmpty.value) SizedBox(height: 2.h),
+                      Row(
+                        children: [
+                          pleaseEnterSomeDescriptionTextView(),
+                        ],
+                      ),
+                      if (controller.isEmpty.value) SizedBox(height: 2.h),
                       submitButtonView()
                     ],
                   ),
@@ -206,6 +226,14 @@ class RatingBottomSheet extends GetView<MyOrderDetailsController> {
             .textTheme
             .subtitle1
             ?.copyWith(fontSize: 16.px, fontWeight: FontWeight.normal),
+      );
+
+  Widget pleaseEnterSomeDescriptionTextView() => Text(
+        "Please Enter Some Description",
+        style: Theme.of(Get.context!).textTheme.subtitle1?.copyWith(
+            fontSize: 16.px,
+            fontWeight: FontWeight.normal,
+            color: MyColorsLight().error),
       );
 
   Widget setRatingTextView() => Text(
@@ -270,5 +298,4 @@ class RatingBottomSheet extends GetView<MyOrderDetailsController> {
             .subtitle2
             ?.copyWith(color: MyColorsLight().secondary),
       );
-
 }

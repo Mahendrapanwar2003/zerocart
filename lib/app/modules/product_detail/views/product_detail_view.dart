@@ -69,11 +69,13 @@ class ProductDetailView extends GetView<ProductDetailController> {
                                           SizedBox(height: 8.px),
                                         productSize(),
                                         SizedBox(height: 10.px),
-                                        (controller.productDetail.value!
-                                                        .inStock !=
+                                        (controller.inventoryArr.value!
+                                                        .availability !=
                                                     null &&
-                                                controller.productDetail.value!
-                                                    .inStock!.isNotEmpty)
+                                                controller.inventoryArr.value!
+                                                    .availability!.isNotEmpty &&
+                                                controller.inventoryArr.value!
+                                                    .availability!= '0')
                                             ? Column(
                                                 children: [
                                                   Row(

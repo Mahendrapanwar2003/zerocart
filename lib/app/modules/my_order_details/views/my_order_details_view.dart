@@ -6,9 +6,11 @@ import 'package:zerocart/app/common_methods/common_methods.dart';
 import 'package:zerocart/app/common_widgets/common_widgets.dart';
 import 'package:zerocart/app/constant/zconstant.dart';
 import 'package:zerocart/app/custom/custom_appbar.dart';
-import 'package:zerocart/app/custom/scroll_splash_gone.dart';
+import 'package:zerocart/model_progress_bar/model_progress_bar.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
+import '../../../../load_more/load_more.dart';
 import '../../../custom/custom_gradient_text.dart';
+import '../../../custom/scroll_splash_gone.dart';
 import '../controllers/my_order_details_controller.dart';
 
 class MyOrderDetailsView extends GetView<MyOrderDetailsController> {
@@ -16,86 +18,192 @@ class MyOrderDetailsView extends GetView<MyOrderDetailsController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: appBarView(),
-      body: Obx(() {
-        if (controller.myOrderDetailsModel != null) {
-          if (controller.productDetailsList != null &&
-              controller.productDetailsList!.isNotEmpty) {
-            return ScrollConfiguration(
-              behavior: MyBehavior(),
-              child: ListView(
-                physics: const ScrollPhysics(),
-                children: [
-                  AspectRatio(
-                    aspectRatio: 1.7,
-                    child: Container(
-                      color: MyColorsLight().onPrimary.withOpacity(.2),
-                      child:
-                          (controller.productDetailsList?[0].thumbnailImage !=
-                                      null &&
-                                  controller.productDetailsList![0]
-                                      .thumbnailImage!.isNotEmpty)
-                              ? Image.network(
-                                  CommonMethods.imageUrl(
-                                    url: controller
-                                        .productDetailsList![0].thumbnailImage
-                                        .toString(),
-                                  ),
-                                  loadingBuilder:
-                                      (context, child, loadingProgress) {
-                                    if (loadingProgress == null) return child;
-                                    return CommonWidgets
-                                        .commonShimmerViewForImage();
-                                  },
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      CommonWidgets.defaultImage(),
-                                )
-                              : /*controller.bannerValue.value
-                                  ? CommonWidgets.commonShimmerViewForImage()
-                                  :*/ CommonWidgets.defaultImage(),
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: Zconstant.margin, vertical: 2.h),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        productInfo(),
-                        productSize(),
-                        SizedBox(height: 20.px),
-                        productAndSellerDescription(),
-                        SizedBox(height: 1.h),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              vertical: Zconstant.margin16),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              cancelOrderButtonView(),
-                              trackButtonView(),
-                            ],
+    return Obx(() {
+      return ModalProgress(
+        inAsyncCall: controller.inAsyncCall.value,
+        child: Scaffold(
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          appBar: appBarView(),
+          body: Obx(() {
+            if (CommonMethods.isConnect.value) {
+              return Obx(() {
+                controller.count.value;
+                if (controller.myOrderDetailsModel != null &&
+                    controller.responseCode == 200) {
+                  if (controller.productDetailsList.isNotEmpty) {
+                    return ScrollConfiguration(
+                      behavior: MyBehavior(),
+                      child: ListView(
+                        physics: const ScrollPhysics(),
+                        children: [
+                          AspectRatio(
+                            aspectRatio: 1.7,
+                            child: Container(
+                              color: MyColorsLight().onPrimary.withOpacity(.2),
+                              child: (controller.productDetailsList[0]
+                                              .thumbnailImage !=
+                                          null &&
+                                      controller.productDetailsList[0]
+                                          .thumbnailImage!.isNotEmpty)
+                                  ? Image.network(
+                                      CommonMethods.imageUrl(
+                                        url: controller.productDetailsList[0]
+                                            .thumbnailImage
+                                            .toString(),
+                                      ),
+                                      loadingBuilder:
+                                          (context, child, loadingProgress) {
+                                        if (loadingProgress == null)
+                                          return child;
+                                        return CommonWidgets
+                                            .commonShimmerViewForImage();
+                                      },
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              CommonWidgets.defaultImage(),
+                                    )
+                                  : /*controller.bannerValue.value
+                                ? CommonWidgets.commonShimmerViewForImage()
+                                :*/
+                                  CommonWidgets.defaultImage(),
+                            ),
                           ),
-                        ),
-                        rateButton(),
-                        SizedBox(height: 20.px),
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            );
-          } else {
-            return CommonWidgets.noDataTextView();
-          }
-        } else {
-          return CommonWidgets.progressBarView();
-        }
-      }),
-    );
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: Zconstant.margin, vertical: 2.h),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                productInfo(),
+                                productSize(),
+                                SizedBox(height: 20.px),
+                                productAndSellerDescription(),
+                                SizedBox(height: 1.h),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: Zconstant.margin16),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      cancelOrderButtonView(),
+                                      trackButtonView(),
+                                    ],
+                                  ),
+                                ),
+                                rateButton(),
+                                SizedBox(height: 20.px),
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    );
+                  } else {
+                    return Expanded(
+                      child: CommonWidgets.commonNoDataFoundImage(
+                        onRefresh: () => controller.onRefresh(),
+                      ),
+                    );
+                  }
+                } else {
+                  if (controller.responseCode == 0) {
+                    return const SizedBox();
+                  }
+                  return Expanded(
+                      child: CommonWidgets.commonSomethingWentWrongImage(
+                    onRefresh: () => controller.onRefresh(),
+                  ));
+                }
+              });
+            } else {
+              return CommonWidgets.commonNoInternetImage(
+                onRefresh: () => controller.onRefresh(),
+              );
+            }
+          }),
+        ),
+      );
+    });
   }
+
+/*  controller.count.value;
+  if (controller.myOrderDetailsModel != null) {
+  if (controller.productDetailsList != null &&
+  controller.productDetailsList!.isNotEmpty) {
+  return ScrollConfiguration(
+  behavior: MyBehavior(),
+  child: ListView(
+  physics: const ScrollPhysics(),
+  children: [
+  AspectRatio(
+  aspectRatio: 1.7,
+  child: Container(
+  color: MyColorsLight().onPrimary.withOpacity(.2),
+  child: (controller.productDetailsList?[0]
+      .thumbnailImage !=
+  null &&
+  controller.productDetailsList![0]
+      .thumbnailImage!.isNotEmpty)
+  ? Image.network(
+  CommonMethods.imageUrl(
+  url: controller
+      .productDetailsList![0].thumbnailImage
+      .toString(),
+  ),
+  loadingBuilder:
+  (context, child, loadingProgress) {
+  if (loadingProgress == null) return child;
+  return CommonWidgets
+      .commonShimmerViewForImage();
+  },
+  errorBuilder:
+  (context, error, stackTrace) =>
+  CommonWidgets.defaultImage(),
+  )
+      : */ /*controller.bannerValue.value
+                                    ? CommonWidgets.commonShimmerViewForImage()
+                                    :*/ /*
+  CommonWidgets.defaultImage(),
+  ),
+  ),
+  Padding(
+  padding: EdgeInsets.symmetric(
+  horizontal: Zconstant.margin, vertical: 2.h),
+  child: Column(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+  productInfo(),
+  productSize(),
+  SizedBox(height: 20.px),
+  productAndSellerDescription(),
+  SizedBox(height: 1.h),
+  Padding(
+  padding: EdgeInsets.symmetric(
+  vertical: Zconstant.margin16),
+  child: Row(
+  mainAxisAlignment:
+  MainAxisAlignment.spaceBetween,
+  children: [
+  cancelOrderButtonView(),
+  trackButtonView(),
+  ],
+  ),
+  ),
+  rateButton(),
+  SizedBox(height: 20.px),
+  ],
+  ),
+  )
+  ],
+  ),
+  );
+  } else {
+  return CommonWidgets.noDataTextView();
+  }
+  } else {
+  return CommonWidgets.progressBarView();
+  }*/
 
   PreferredSizeWidget appBarView() => const MyCustomContainer().myAppBar(
       isIcon: true,

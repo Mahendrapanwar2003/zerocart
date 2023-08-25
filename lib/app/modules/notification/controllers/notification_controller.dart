@@ -1,11 +1,12 @@
-import 'package:flutter/src/widgets/framework.dart';
+import 'dart:convert';
+
 import 'package:get/get.dart';
 import 'package:ui_library/ui_library.dart';
 import 'package:zerocart/app/apis/api_constant/api_constant.dart';
 import 'package:zerocart/app/apis/api_modals/get_notification_api_model.dart';
 import 'package:zerocart/app/apis/common_apis/common_apis.dart';
-
 import '../../../common_methods/common_methods.dart';
+import 'package:http/http.dart' as http;
 
 class NotificationController extends CommonMethods {
   final count = 0.obs;
@@ -17,15 +18,24 @@ class NotificationController extends CommonMethods {
   int offset = 0;
   Map<String, dynamic> queryParameters = {};
 
-  final notificationList = Rxn<List<NotificationList>?>();
-  final getNotificationApiModel = Rxn<GetNotificationApiModel?>();
+  GetNotificationApiModel? getNotificationApiModel;
+  List<NotificationList> notificationList = [];
+  final isLastPage = false.obs;
 
   @override
   Future<void> onInit() async {
     super.onInit();
     onReload();
     inAsyncCall.value = true;
-    await getNotification();
+    if (await MyCommonMethods.internetConnectionCheckerMethod()) {
+      try {
+        await getNotification();
+      } catch (e) {
+        MyCommonMethods.showSnackBar(
+            message: "Something went wrong", context: Get.context!);
+        responseCode = 100;
+      }
+    }
     inAsyncCall.value = false;
   }
 
@@ -60,21 +70,45 @@ class NotificationController extends CommonMethods {
   }
 
   Future<void> getNotification() async {
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
     queryParameters = {
-      ApiKeyConstant.limit: limit,
-      ApiKeyConstant.offset: offset,
+      ApiKeyConstant.limit: limit.toString(),
+      ApiKeyConstant.offset: offset.toString(),
     };
-    getNotificationApiModel.value =
-        await CommonApis.getNotificationApi(queryParameters: queryParameters);
-    if (getNotificationApiModel.value != null) {
-      if (getNotificationApiModel.value!.notificationList != null) {
-        notificationList.value =
-            getNotificationApiModel.value?.notificationList;
+    http.Response? response = await MyHttp.getMethodForParams(
+        context: Get.context!,
+        queryParameters: queryParameters,
+        authorization: authorization,
+        baseUri: ApiConstUri.baseUrlForGetMethod,
+        endPointUri: ApiConstUri.endPointGetNotificationApi);
+    responseCode = response?.statusCode ?? 0;
+    print("responseCode::::::${responseCode}");
+    if (response != null) {
+      if (await CommonMethods.checkResponse(response: response)) {
+        getNotificationApiModel =
+            GetNotificationApiModel.fromJson(jsonDecode(response.body));
+        if (getNotificationApiModel != null) {
+          if (offset == 0) {
+            notificationList.clear();
+          }
+          if (getNotificationApiModel?.notificationList != null &&
+              getNotificationApiModel!.notificationList!.isNotEmpty) {
+            isLastPage.value = false;
+            getNotificationApiModel?.notificationList?.forEach((element) {
+              notificationList.add(element);
+            });
+          } else {
+            isLastPage.value = true;
+          }
+        }
       }
     }
+    increment();
   }
 
-  onRefresh() async {
+  Future<void> onRefresh() async {
     offset = 0;
     await onInit();
   }

@@ -91,13 +91,13 @@ class ApiConstUri {
 
   static var endPointPlaceOrderApi="${baseUrl}placeOrderApi";
 
+  static const endPointWalletTransactionApi="${baseUrl}walletTransactionApi";
+
   static const endPointGetOrderListApi="/getOrderListApi";
 
   static const endPointGetNotificationApi="/getNotificationApi";
 
   static const endPointGetCustomerWalletHistoryApi="/getCustomerWalletHistoryApi";
-
-  static const endPointWalletTransactionApi="$baseUrl/walletTransactionApi";
 
   static const endPointGetRecentProductApi="/get_order_history_based";
 

@@ -250,14 +250,14 @@ class MyCustomContainer extends GetView<HomeController> {
       shadowColor:
           Theme.of(Get.context!).scaffoldBackgroundColor.withOpacity(.4),
       centerTitle: false,
-      leadingWidth: isIcon ? 24.px : 0.px,
+      leadingWidth: isIcon ? null/*24.px*/ : 0.px,
       backgroundColor: Theme.of(Get.context!).scaffoldBackgroundColor,
       leading: isIcon
           ? backIconView(onPressed: backIconOnPressed ?? () {})
-          : const SizedBox(),
+          : null,
       title: (text != null && text.isNotEmpty)
           ? yourTextView(text: text)
-          : const SizedBox(),
+          : null,
       actions: [
         buttonText != null && buttonText.isNotEmpty
             ? filterButtonView(

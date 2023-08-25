@@ -129,7 +129,6 @@ class HomeController extends CommonMethods {
     await getTopTrendingProduct();
     await getTopTrendingProduct2();
     isShimmer.value=false;
-
     updateFcmIdApiCalling();
   }
 
