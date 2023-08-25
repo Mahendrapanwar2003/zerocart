@@ -31,7 +31,6 @@ class UserProfileView extends GetView<UserProfileController> {
               {
                 if(controller.userDataMap.isNotEmpty)
                 {
-
                   return CommonWidgets.commonRefreshIndicator(
                     onRefresh: () => controller.onRefresh(),
                     child:  ListView(
@@ -94,7 +93,6 @@ class UserProfileView extends GetView<UserProfileController> {
                       ],
                     ),
                   );
-
                 }
                 else
                 {

@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
 import 'package:ui_library/ui_library.dart';
-import 'package:zerocart/app/apis/api_constant/api_constant.dart';
 import 'package:zerocart/app/common_methods/common_methods.dart';
 import 'package:zerocart/app/common_widgets/common_widgets.dart';
 import 'package:zerocart/app/custom/custom_appbar.dart';
 import 'package:zerocart/app/custom/custom_gradient_text.dart';
 import 'package:zerocart/app/custom/custom_outline_button.dart';
+import 'package:zerocart/model_progress_bar/model_progress_bar.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
-
 import '../controllers/buy_now_controller.dart';
 
 class BuyNowView extends GetView<BuyNowController> {
@@ -17,8 +15,8 @@ class BuyNowView extends GetView<BuyNowController> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => AbsorbPointer(
-          absorbing: controller.absorbing.value,
+    return Obx(() => ModalProgress(
+          inAsyncCall: controller.absorbing.value,
           child: GestureDetector(
             onTap: () => MyCommonMethods.unFocsKeyBoard(),
             child: Scaffold(
@@ -66,7 +64,10 @@ class BuyNowView extends GetView<BuyNowController> {
                             Center(
                               child: applyCouponView(context),
                             ),
-                            SizedBox(height: 27.px),
+                            SizedBox(height: 20.px),
+                            if(!controller.isCouponRange.value)
+                            couponRangeText(),
+                            SizedBox(height: 10.px),
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 5.w),
                               child: CommonWidgets.profileMenuDash(),
@@ -84,12 +85,12 @@ class BuyNowView extends GetView<BuyNowController> {
                     return CommonWidgets.noDataTextView();
                   }
                 } else {
-                  return CommonWidgets.progressBarView();
+                  return const SizedBox();
                 }
               }),
             ),
           ),
-        ));
+        ),);
   }
 
   Widget deliverToTextView() {
@@ -508,7 +509,7 @@ class BuyNowView extends GetView<BuyNowController> {
           ? controller.clickOnIncreaseQuantityButton()
           : null,
       color: (controller.itemQuantity.value <
-          int.parse(controller.productDetail.value!.availability!))
+              int.parse(controller.productDetail.value!.availability!))
           ? Theme.of(Get.context!).colorScheme.onSurface
           : Theme.of(Get.context!).colorScheme.onSurface.withOpacity(0.2),
       child: increaseQuantityOfItemView());
@@ -516,7 +517,7 @@ class BuyNowView extends GetView<BuyNowController> {
   Widget increaseQuantityOfItemView() => Icon(
         Icons.add,
         color: (controller.itemQuantity.value <
-            int.parse(controller.productDetail.value!.availability!))
+                int.parse(controller.productDetail.value!.availability!))
             ? Theme.of(Get.context!).colorScheme.onSurface
             : Theme.of(Get.context!).colorScheme.onSurface.withOpacity(0.2),
         size: 22.px,
@@ -524,7 +525,8 @@ class BuyNowView extends GetView<BuyNowController> {
 
   Widget elevatedButtonForItemList(
           {required VoidCallback onPressed,
-          required Widget child, Color? color,
+          required Widget child,
+          Color? color,
           double? height}) =>
       Container(
         height: height ?? 3.5.h,
@@ -563,16 +565,20 @@ class BuyNowView extends GetView<BuyNowController> {
             Obx(() {
               if (controller.isClickOnApplyCouponVisible.value) {
                 return InkWell(
-                  onTap: () => controller.isClickOnApplyCoupon.value
-                      ? null
-                      : controller.clickOnApplyCouponButtonView(
+                  onTap: () => controller.isApplyCoupon.value
+                      ? controller.clickOnApplyCouponButtonView()
+                      : controller.clickOnRemoveCouponButtonView(
                           context: context),
                   borderRadius: BorderRadius.all(Radius.circular(4.px)),
                   child: Align(
                     alignment: Alignment.center,
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 6.px),
-                      child: applyCouponButtonView(context: context),
+                      child: applyCouponButtonView(
+                          context: context,
+                          text: controller.isApplyCoupon.value
+                              ? 'Apply Coupon'
+                              : 'Remove Coupon'),
                     ),
                   ),
                 );
@@ -587,6 +593,7 @@ class BuyNowView extends GetView<BuyNowController> {
   Widget addCouponTextFieldView() => TextFormField(
         style: Theme.of(Get.context!).textTheme.subtitle1,
         controller: controller.applyCouponController,
+        readOnly: !controller.isApplyCoupon.value,
         onChanged: (value) {
           if (value.trim().isEmpty ||
               value.trim().replaceAll(" ", "").isEmpty) {
@@ -615,22 +622,17 @@ class BuyNowView extends GetView<BuyNowController> {
         gradient: CommonWidgets.commonLinearGradientView(),
       );
 
-  Widget applyCouponButtonView({required BuildContext context}) => Obx(
+  Widget applyCouponButtonView(
+          {required BuildContext context, required String text}) =>
+      Obx(
         () {
           print(controller.count.value);
-          return controller.isClickOnApplyCoupon.value
-              ? SizedBox(
-                  height: 25.px,
-                  width: 25.px,
-                  child: CommonWidgets.progressBarView())
-              : applyCouponTextView();
+          return GradientText(
+            text,
+            style: Theme.of(Get.context!).textTheme.headline3,
+            gradient: CommonWidgets.commonLinearGradientView(),
+          );
         },
-      );
-
-  Widget applyCouponTextView() => GradientText(
-        'Apply Coupon',
-        style: Theme.of(Get.context!).textTheme.headline3,
-        gradient: CommonWidgets.commonLinearGradientView(),
       );
 
   Widget itemBillView() {
@@ -674,8 +676,7 @@ class BuyNowView extends GetView<BuyNowController> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               priceDetailsTextView(text: 'Total'),
-              priceDetailsTextView(
-                  text: 'Rs.   ${controller.totalPrice.value}'),
+              priceDetailsTextView(text: 'Rs. ${controller.totalPrice.value}'),
             ],
           ),
           SizedBox(height: 10.px),
@@ -713,5 +714,10 @@ class BuyNowView extends GetView<BuyNowController> {
   Widget savingMoneyText() => (controller.discountPrice.value != 0.0)
       ? gradientText(
           text: 'Your Saving ${controller.discountPrice} On This Order')
+      : const SizedBox();
+
+  Widget couponRangeText() => (controller.discountPrice.value == 0.0)
+      ? gradientText(
+          text: 'Total price should be between coupon range')
       : const SizedBox();
 }

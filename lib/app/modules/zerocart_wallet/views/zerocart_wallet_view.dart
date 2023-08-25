@@ -155,8 +155,10 @@ class ZerocartWalletView extends GetView<ZerocartWalletController> {
                               padding: EdgeInsets.only(
                                   left: Zconstant.margin,
                                   right: Zconstant.margin,
-                                  top: 23.h),
+                                  top: 23.h
+                              ,bottom: Zconstant.margin),
                               child: Obx(() {
+                                controller.count.value;
                                 if (controller.listOfWalletHistory.isNotEmpty) {
                                   return CommonWidgets.commonRefreshIndicator(
                                     onRefresh: () => controller.onRefresh(),

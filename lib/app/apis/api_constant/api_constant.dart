@@ -93,7 +93,7 @@ class ApiConstUri {
 
   static const endPointGetOrderListApi="/getOrderListApi";
 
-  static const endPointGetNotificationApi="$baseUrl/getNotificationApi";
+  static const endPointGetNotificationApi="/getNotificationApi";
 
   static const endPointGetCustomerWalletHistoryApi="/getCustomerWalletHistoryApi";
 
