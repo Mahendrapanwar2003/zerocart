@@ -276,7 +276,6 @@ class MeasurementsController extends CommonMethods {
 
   Future<void> clickOnConfirmButton() async {
     inAsyncCall.value = true;
-
     await updateApiCalling();
     inAsyncCall.value = false;
   }

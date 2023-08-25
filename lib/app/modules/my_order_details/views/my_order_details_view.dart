@@ -21,7 +21,8 @@ class MyOrderDetailsView extends GetView<MyOrderDetailsController> {
       appBar: appBarView(),
       body: Obx(() {
         if (controller.myOrderDetailsModel.value != null) {
-          if (controller.productDetailsList != null && controller.productDetailsList!.isNotEmpty) {
+          if (controller.productDetailsList != null &&
+              controller.productDetailsList!.isNotEmpty) {
             return ScrollConfiguration(
               behavior: MyBehavior(),
               child: ListView(
@@ -31,16 +32,25 @@ class MyOrderDetailsView extends GetView<MyOrderDetailsController> {
                     aspectRatio: 1.7,
                     child: Container(
                       color: MyColorsLight().onPrimary.withOpacity(.2),
-                      child: (controller.productDetailsList?[0].thumbnailImage != null && controller.productDetailsList![0].thumbnailImage!.isNotEmpty)
+                      child:
+                          (controller.productDetailsList?[0].thumbnailImage !=
+                                      null &&
+                                  controller.productDetailsList![0]
+                                      .thumbnailImage!.isNotEmpty)
                               ? Image.network(
                                   CommonMethods.imageUrl(
-                                    url: controller.productDetailsList![0].thumbnailImage.toString(),
+                                    url: controller
+                                        .productDetailsList![0].thumbnailImage
+                                        .toString(),
                                   ),
-                                  loadingBuilder: (context, child, loadingProgress) {
+                                  loadingBuilder:
+                                      (context, child, loadingProgress) {
                                     if (loadingProgress == null) return child;
-                                    return CommonWidgets.commonShimmerViewForImage();
+                                    return CommonWidgets
+                                        .commonShimmerViewForImage();
                                   },
-                                  errorBuilder: (context, error, stackTrace) => CommonWidgets.defaultImage(),
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      CommonWidgets.defaultImage(),
                                 )
                               : controller.bannerValue.value
                                   ? CommonWidgets.commonShimmerViewForImage()
@@ -59,7 +69,8 @@ class MyOrderDetailsView extends GetView<MyOrderDetailsController> {
                         productAndSellerDescription(),
                         SizedBox(height: 1.h),
                         Padding(
-                          padding: EdgeInsets.symmetric(vertical: Zconstant.margin16),
+                          padding: EdgeInsets.symmetric(
+                              vertical: Zconstant.margin16),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -140,8 +151,8 @@ class MyOrderDetailsView extends GetView<MyOrderDetailsController> {
             .textTheme
             .subtitle1
             ?.copyWith(fontSize: 14.px),
-    maxLines: 2,
-    overflow: TextOverflow.ellipsis,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
       );
 
   Widget colorsView() {
@@ -307,17 +318,29 @@ class MyOrderDetailsView extends GetView<MyOrderDetailsController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              sizeTextView(),
-              SizedBox(width: 12.px),
+              if (controller.productDetailsList?[0].variantAbbreviation !=
+                      null &&
+                  controller
+                      .productDetailsList![0].variantAbbreviation!.isNotEmpty)
+                sizeTextView(),
+              if (controller.productDetailsList?[0].variantAbbreviation !=
+                      null &&
+                  controller
+                      .productDetailsList![0].variantAbbreviation!.isNotEmpty)
+                SizedBox(width: 12.px),
               if (controller.productDetailsList?[0].variantAbbreviation !=
                       null &&
                   controller
                       .productDetailsList![0].variantAbbreviation!.isNotEmpty)
                 selectedSizeView(),
-              const Spacer(),
-              textButton(
-                  text: 'Size Chart',
-                  onPressed: () => controller.clickOnSizeChartTextButton()),
+              if (controller.productDetailsList?[0].brandChartImg != null &&
+                  controller.productDetailsList![0].brandChartImg!.isNotEmpty)
+                const Spacer(),
+              if (controller.productDetailsList?[0].brandChartImg != null &&
+                  controller.productDetailsList![0].brandChartImg!.isNotEmpty)
+                textButton(
+                    text: 'Size Chart',
+                    onPressed: () => controller.clickOnSizeChartTextButton()),
             ],
           ),
         ],
@@ -455,26 +478,4 @@ class MyOrderDetailsView extends GetView<MyOrderDetailsController> {
       onPressed: () => controller.clickOnRateButton(),
     );
   }
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

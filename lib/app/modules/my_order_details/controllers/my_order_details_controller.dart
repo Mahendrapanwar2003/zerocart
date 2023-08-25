@@ -14,6 +14,9 @@ import 'package:zerocart/app/modules/my_orders/views/tracking_bottomsheet.dart';
 import 'package:zerocart/app/routes/app_pages.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
 
+import '../../../common_methods/common_methods.dart';
+import '../../../common_widgets/common_widgets.dart';
+
 class MyOrderDetailsController extends GetxController {
   final count = 0.obs;
   final isClickOnSize = 0.obs;
@@ -66,7 +69,25 @@ class MyOrderDetailsController extends GetxController {
     Get.back();
   }
 
-  void clickOnSizeChartTextButton() {}
+  void clickOnSizeChartTextButton() {
+    showDialog(
+      context: Get.context!,
+      barrierLabel: "Size Chart",
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          actions: [
+            Image.network(
+              CommonMethods.imageUrl(
+                  url: productDetailsList![0].brandChartImg.toString()),
+              errorBuilder: (context, error, stackTrace) =>
+                  CommonWidgets.defaultImage(),
+            )
+          ],
+        );
+      },
+    );
+  }
 
   void clickOnSizeButton({required index}) {}
 

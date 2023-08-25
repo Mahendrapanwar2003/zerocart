@@ -8,8 +8,7 @@ import 'package:zerocart/app/apis/api_constant/api_constant.dart';
 import 'package:zerocart/app/apis/api_modals/get_wallet_history_modal.dart';
 import 'package:zerocart/app/common_methods/common_methods.dart';
 
-class ZerocartWalletController extends CommonMethods
-    with GetSingleTickerProviderStateMixin {
+class ZerocartWalletController extends CommonMethods with GetTickerProviderStateMixin{
   final count = 0.obs;
   final absorbing = false.obs;
   final inAsyncCall = false.obs;
@@ -77,17 +76,20 @@ class ZerocartWalletController extends CommonMethods
 
   Future<void> onRefresh() async {
     offset = 0;
+    rotationController.dispose();
+    rotationController.isDismissed;
     await onInit();
   }
+
 
   Future<void> onLoadMore() async {
     offset = offset + 10;
     try {
       await getCustomerWalletHistoryApiCalling();
+      increment();
     } catch (e) {
       responseCode = 100;
-      MyCommonMethods.showSnackBar(
-          message: "Something went wrong", context: Get.context!);
+      MyCommonMethods.showSnackBar(message: "Something went wrong", context: Get.context!);
     }
   }
 

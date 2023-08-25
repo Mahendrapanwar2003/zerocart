@@ -27,6 +27,7 @@ class Result {
   String? couponCode;
   String? totalPrice;
   String? couponDisPrice;
+  String? discount;
 
   Result(
       {this.resStatus,
@@ -34,7 +35,8 @@ class Result {
         this.couponId,
         this.couponCode,
         this.totalPrice,
-        this.couponDisPrice});
+        this.couponDisPrice,
+        this.discount});
 
   Result.fromJson(Map<String, dynamic> json) {
     resStatus = json['resStatus'];
@@ -43,6 +45,7 @@ class Result {
     couponCode = json['couponCode'];
     totalPrice = json['totalPrice'];
     couponDisPrice = json['couponDisPrice'];
+    discount = json['discount'];
   }
 
   Map<String, dynamic> toJson() {
@@ -53,6 +56,7 @@ class Result {
     data['couponCode'] = couponCode;
     data['totalPrice'] = totalPrice;
     data['couponDisPrice'] = couponDisPrice;
+    data['discount'] = discount;
     return data;
   }
 }

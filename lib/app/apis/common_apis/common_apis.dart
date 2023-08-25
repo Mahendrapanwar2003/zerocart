@@ -127,7 +127,7 @@ class CommonApis {
   }
 
   static Future<GetAllFashionCategoryListApiModel?>
-      getAllFashionCategoryListApi() async {
+  getAllFashionCategoryListApi() async {
     GetAllFashionCategoryListApiModel? getAllFashionCategoryListApiModel;
     http.Response? response = await MyHttp.getMethod(
         context: Get.context!,
@@ -900,8 +900,9 @@ class CommonApis {
     }
   }
 
-  static Future<GetCustomerAddresses?> getCustomerAddressApi({      required Map<String, dynamic> queryParameters,
-  }) async {
+  static Future<GetCustomerAddresses?> getCustomerAddressApi(
+      { required Map<String, dynamic> queryParameters,
+      }) async {
     GetCustomerAddresses? getCustomerAddresses;
     Map<String, String> authorization = {};
     String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
@@ -909,7 +910,7 @@ class CommonApis {
     http.Response? response = await MyHttp.getMethodForParams(
         baseUri: ApiConstUri.baseUrlForGetMethod,
         endPointUri: ApiConstUri.endPointGetCustomerAddressApi,
-        queryParameters:queryParameters,
+        queryParameters: queryParameters,
         authorization: authorization,
         context: Get.context!);
     if (response != null) {
@@ -1118,7 +1119,6 @@ class CommonApis {
         endPointUri: ApiConstUri.endPointGetTopTrendingProductApi2);
     // ignore: unnecessary_null_comparison
     if (response != null) {
-
       if (await CommonMethods.checkResponse(response: response)) {
         recentProduct = RecentProduct.fromJson(jsonDecode(response.body));
         return recentProduct;
@@ -1130,7 +1130,7 @@ class CommonApis {
     }
   }
 
-    static Future<RecentProduct?> getProductDetailRecentApi2(
+  static Future<RecentProduct?> getProductDetailRecentApi2(
       {required Map<String, dynamic> queryParameters}) async {
     RecentProduct? recentProduct;
     Map<String, String> authorization = {};
@@ -1157,8 +1157,8 @@ class CommonApis {
   }
 
   static Future<SearchProductSuggestionModel?>
-      getSearchProductListSuggestionApi(
-          {required Map<String, dynamic> queryParameters}) async {
+  getSearchProductListSuggestionApi(
+      {required Map<String, dynamic> queryParameters}) async {
     SearchProductSuggestionModel? searchProductSuggestionModel;
     Map<String, String> authorization = {};
     String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
@@ -1347,14 +1347,19 @@ class CommonApis {
     }
   }
 
-  static Future<GetNotificationApiModel?> getNotificationApi() async {
+  static Future<GetNotificationApiModel?> getNotificationApi(
+      { required Map<String, dynamic> queryParameters,
+      }) async {
     GetNotificationApiModel? getNotificationApiModel;
     String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
     Map<String, String> authorization = {"Authorization": token!};
-    http.Response? response = await MyHttp.getMethod(
+    http.Response? response = await MyHttp.getMethodForParams(
+        authorization: authorization,
         context: Get.context!,
-        token: authorization,
-        url: ApiConstUri.endPointGetNotificationApi);
+        queryParameters: queryParameters,
+        endPointUri: ApiConstUri.endPointGetNotificationApi,
+        baseUri: ApiConstUri.baseUrlForGetMethod,
+    );
     if (response != null) {
       if (await CommonMethods.checkResponse(response: response)) {
         getNotificationApiModel =
@@ -1368,7 +1373,8 @@ class CommonApis {
     }
   }
 
-  static Future<GetWalletHistoryModel?> getCustomerWalletHistoryApi({required Map<String,dynamic> queryParameters}) async {
+  static Future<GetWalletHistoryModel?> getCustomerWalletHistoryApi(
+      {required Map<String, dynamic> queryParameters}) async {
     GetWalletHistoryModel? getWalletHistoryModel;
     String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
     Map<String, String> authorization = {"Authorization": token!};
@@ -1378,7 +1384,7 @@ class CommonApis {
         queryParameters: queryParameters,
         baseUri: ApiConstUri.baseUrlForGetMethod,
         endPointUri: ApiConstUri.endPointGetCustomerWalletHistoryApi);
-    if (response !=  null) {
+    if (response != null) {
       if (await CommonMethods.checkResponse(response: response)) {
         getWalletHistoryModel =
             GetWalletHistoryModel.fromJson(jsonDecode(response.body));
@@ -1416,10 +1422,6 @@ class CommonApis {
       return null;
     }
   }
-
-
-
-
 
 
   static Future<http.Response?> addToOutfitRoomApi({
@@ -1496,7 +1498,8 @@ class CommonApis {
   }
 
 
-  static Future<GetCustomerMeasurementApiModel?> getCustomerMeasurementApi() async {
+  static Future<
+      GetCustomerMeasurementApiModel?> getCustomerMeasurementApi() async {
     GetCustomerMeasurementApiModel? getCustomerMeasurementApiModel;
     Map<String, String> authorization = {};
     String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
@@ -1518,10 +1521,12 @@ class CommonApis {
     }
   }
 
-  static Future<GetProductListForHome?> getDefaultProductListApiForHome() async {
+  static Future<
+      GetProductListForHome?> getDefaultProductListApiForHome() async {
     GetProductListForHome? getProductListForHome;
     http.Response? response = await MyHttp.getMethod(
-        context: Get.context!, url: ApiConstUri.endPointGetDefaultProductListApi);
+        context: Get.context!,
+        url: ApiConstUri.endPointGetDefaultProductListApi);
     // ignore: unnecessary_null_comparison
     if (response != null) {
       if (await CommonMethods.checkResponse(response: response)) {
@@ -1542,11 +1547,14 @@ class CommonApis {
     String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
     authorization = {"Authorization": token!};
     http.Response? response = await MyHttp.getMethod(
-        context: Get.context!, url: ApiConstUri.endPointGetCancelReasonListApi,token: authorization);
+        context: Get.context!,
+        url: ApiConstUri.endPointGetCancelReasonListApi,
+        token: authorization);
     // ignore: unnecessary_null_comparison
     if (response != null) {
       if (await CommonMethods.checkResponse(response: response)) {
-        getCancelOrderReasonList = GetCancelOrderReasonList.fromJson(jsonDecode(response.body));
+        getCancelOrderReasonList =
+            GetCancelOrderReasonList.fromJson(jsonDecode(response.body));
         return getCancelOrderReasonList;
       } else {
         return null;
@@ -1556,7 +1564,8 @@ class CommonApis {
     }
   }
 
-  static Future<MyOrderDetailsModel?> getMyOrderDetailsApi({required Map<String,dynamic> queryParameters}) async {
+  static Future<MyOrderDetailsModel?> getMyOrderDetailsApi(
+      {required Map<String, dynamic> queryParameters}) async {
     MyOrderDetailsModel? myOrderDetailsModel;
     String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
     Map<String, String> authorization = {"Authorization": token!};
@@ -1566,7 +1575,7 @@ class CommonApis {
         queryParameters: queryParameters,
         baseUri: ApiConstUri.baseUrlForGetMethod,
         endPointUri: ApiConstUri.endPointGetProductSellerDetailApi);
-    if (response !=  null) {
+    if (response != null) {
       if (await CommonMethods.checkResponse(response: response)) {
         myOrderDetailsModel =
             MyOrderDetailsModel.fromJson(jsonDecode(response.body));

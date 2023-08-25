@@ -296,17 +296,15 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  Widget banner() {
-    return bannerImage();
-  }
 
-  Widget bannerImage() {
+  Widget banner() {
     return AspectRatio(
       aspectRatio: 16.px / 9.px,
       child: Container(
-        decoration: const BoxDecoration(
-            image:
-                DecorationImage(image: AssetImage('assets/default_image.jpg'))),
+        decoration: BoxDecoration(
+          color: Theme.of(Get.context!).colorScheme.onPrimary
+            /*image:
+                DecorationImage(image: AssetImage('assets/default_image.jpg'))*/),
         child: LightCarousel(
           images: controller.bannerImageList,
           dotSize: 0,
