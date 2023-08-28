@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -16,8 +17,13 @@ import 'package:zerocart/app/common_widgets/alert_dialog.dart';
 import 'package:zerocart/app/common_widgets/common_widgets.dart';
 import 'package:http/http.dart' as http;
 
-class EditProfileController extends GetxController {
-  final isSubmitButtonClicked = false.obs;
+class EditProfileController extends CommonMethods {
+  int load = 0;
+  int responseCodeState = 0;
+  int responseCodeCity = 0;
+  int responseCodeBrandList = 0;
+  int responseCodeCategoryList = 0;
+
   final inAsyncCall = false.obs;
   final absorbing = false.obs;
   final key = GlobalKey<FormState>();
@@ -26,35 +32,29 @@ class EditProfileController extends GetxController {
   final securityEmailController = TextEditingController();
   final securityMobileNumberController = TextEditingController();
   final dobController = TextEditingController();
-  final userData = Rxn<UserData?>();
-  final userDataMap = {}.obs;
 
   String countryId = "101";
-  final stateModel = Rxn<StateModel?>();
-  Map<String, dynamic> queryParametersState = {};
-  List<States>? statesList;
-  final selectedState = Rxn<States?>();
-  String stateId='';
-  String? stateName;
 
   final isStateSelectedValue = false.obs;
-  final isCitySelectedValue = false.obs;
+  StateModel? stateModel;
 
-  final cityModel = Rxn<CityModel?>();
-  Map<String, dynamic> queryParametersCity = {};
-  List<Cities>? citiesList;
-  final selectedCity = Rxn<Cities?>();
-  String cityId='';
-  String? cityName;
+  Map<String, dynamic> queryParametersState = {};
+  List<States> statesList = [];
+  States? selectedState;
 
-  /*final isSendOtpButtonClicked = false.obs;
-  final isSendOtpVisible = false.obs;
-  Map<String,dynamic> bodyParamsForSendOtpApi={};
-  Map<String, dynamic> sendOtpApiResponseMap = {};
-  final isSubmitButtonVisible = false.obs;*/
+  String stateId = '';
+  String? stateName;
 
-  Map<String, dynamic> bodyParamsForUpdateApi = {};
   final isCityTextFieldNotVisible = true.obs;
+  final isCitySelectedValue = false.obs;
+  CityModel? cityModel;
+
+  Map<String, dynamic> queryParametersCity = {};
+  List<Cities> citiesList = [];
+  Cities? selectedCity;
+
+  String cityId = '';
+  String? cityName;
 
   List checkBoxTitle = [
     'Men',
@@ -63,8 +63,10 @@ class EditProfileController extends GetxController {
   ];
 
   final count = 1.obs;
-  final getAllBrandListApiModel = Rxn<GetAllBrandListApiModel?>();
-  final getAllFashionCategoryListApiModel = Rxn<GetAllFashionCategoryListApiModel?>();
+  GetAllBrandListApiModel? getAllBrandListApiModel;
+
+  GetAllFashionCategoryListApiModel? getAllFashionCategoryListApiModel;
+
   List<BrandList> brandList = [];
   List<FashionCategoryList> fashionCategoryList = [];
 
@@ -74,8 +76,10 @@ class EditProfileController extends GetxController {
   List brandId = [];
   List fashionCategoryId = [];
   List selectedFashionCategory = [];
+
   final useObx = [].obs;
   final isResponse = false.obs;
+
   String? brandPreferenceName;
   String? brandPreferences;
   String? categoryPreferences;
@@ -83,49 +87,89 @@ class EditProfileController extends GetxController {
   Iterable<BrandList> selectBrandList = [];
   Iterable<FashionCategoryList> selectFashionCategoryList = [];
 
+  final isSubmitButtonClicked = false.obs;
+  Map<String, dynamic> bodyParamsForUpdateApi = {};
+  UserData? userDataValue;
+
+  final userDataMap = {}.obs;
+
+  /*final isSendOtpButtonClicked = false.obs;
+  final isSendOtpVisible = false.obs;
+  Map<String,dynamic> bodyParamsForSendOtpApi={};
+  Map<String, dynamic> sendOtpApiResponseMap = {};
+  final isSubmitButtonVisible = false.obs;*/
 
   @override
   Future<void> onInit() async {
     super.onInit();
-    inAsyncCall.value=true;
+    onReload();
+    inAsyncCall.value = true;
     await getUserData();
-
-
-    print("selectedState.value::::::::::::::  ${selectedState.value}");
-    print("stateId::::::::::::::  $stateId");
-
     stateName = userDataMap[UserDataKeyConstant.selectedState];
     cityName = userDataMap[UserDataKeyConstant.selectedCity];
     stateId = userDataMap[ApiKeyConstant.stateId];
-    cityId = await MyCommonMethods.getString(key: ApiKeyConstant.cityId) ??'';
+    cityId = await MyCommonMethods.getString(key: ApiKeyConstant.cityId) ?? '';
     setUserDataInTextField();
-
-    await getStateApiCalling();
-    if (stateName != '') {
-      await getCityApiCalling(sId: stateId.toString());
-    }
-    await getAllFashionCategoryListApiCalling();
-    await getAllBrandListApiCalling();
-    inAsyncCall.value=false;
-  }
-
-  @override
-  void onReady() {
-    super.onReady();
-  }
-
-  @override
-  void onClose() {
-    super.onClose();
-  }
-
-   clickOnBackIcon({required BuildContext context}) {
-    if(!absorbing.value)
-      {
-        Get.back();
+    if (await MyCommonMethods.internetConnectionCheckerMethod()) {
+      try {
+        await getStateApiCalling();
+      } catch (e) {
+        MyCommonMethods.showSnackBar(
+            message: "Something went wrong", context: Get.context!);
+        responseCodeState = 100;
       }
+
+      try {
+        if (stateName != '') {
+          await getCityApiCalling(sId: stateId.toString());
+        }
+      } catch (e) {
+        MyCommonMethods.showSnackBar(
+            message: "Something went wrong", context: Get.context!);
+        responseCodeCity = 100;
+      }
+
+      try {
+        await getAllFashionCategoryListApiCalling();
+      } catch (e) {
+        MyCommonMethods.showSnackBar(
+            message: "Something went wrong", context: Get.context!);
+        responseCodeCategoryList = 100;
+      }
+
+      try {
+        await getAllBrandListApiCalling();
+      } catch (e) {
+        MyCommonMethods.showSnackBar(
+            message: "Something went wrong", context: Get.context!);
+        responseCodeBrandList = 100;
+      }
+    }
+    inAsyncCall.value = false;
   }
 
+  void onReload() {
+    connectivity.onConnectivityChanged.listen((event) async {
+      if (await MyCommonMethods.internetConnectionCheckerMethod()) {
+        if (load == 0) {
+          load = 1;
+          await onInit();
+        }
+      } else {
+        load = 0;
+      }
+    });
+  }
+
+  Future<void> onRefresh() async {
+    await onInit();
+  }
+
+  clickOnBackIcon({required BuildContext context}) {
+    if (!absorbing.value) {
+      Get.back();
+    }
+  }
 
   void setUserDataInTextField() {
     nameController.text = userDataMap[UserDataKeyConstant.fullName];
@@ -141,16 +185,16 @@ class EditProfileController extends GetxController {
     brandPreferenceName = userDataMap[UserDataKeyConstant.brandPreferenceName];
     brandPreferences = userDataMap[UserDataKeyConstant.brandPreferences];
     categoryPreferences = userDataMap[UserDataKeyConstant.categoryPreferences];
-    if(categoryPreferenceName!=null && categoryPreferenceName!.isNotEmpty) {
+    if (categoryPreferenceName != null && categoryPreferenceName!.isNotEmpty) {
       selectedFashionCategory = categoryPreferenceName?.split(",") as List;
     }
-    if(brandPreferenceName!=null && brandPreferenceName!.isNotEmpty) {
+    if (brandPreferenceName != null && brandPreferenceName!.isNotEmpty) {
       selectedBrands = brandPreferenceName?.split(",") as List;
     }
-    if(brandPreferences!=null && brandPreferences!.isNotEmpty) {
+    if (brandPreferences != null && brandPreferences!.isNotEmpty) {
       brandId = brandPreferences?.split(",") as List;
     }
-    if(categoryPreferences!=null && categoryPreferences!.isNotEmpty) {
+    if (categoryPreferences != null && categoryPreferences!.isNotEmpty) {
       fashionCategoryId = categoryPreferences?.split(",") as List;
     }
     if (checkTypeOfProductsValue.value == "m") {
@@ -169,48 +213,99 @@ class EditProfileController extends GetxController {
   }
 
   Future<void> getStateApiCalling() async {
+    queryParametersState.clear();
     queryParametersState = {ApiKeyConstant.countryId: countryId};
-    stateModel.value =
-    await CommonApis.getStateApi(queryParameters: queryParametersState);
-    if (stateModel.value != null) {
-      statesList = stateModel.value?.states;
+    http.Response? response = await MyHttp.getMethodForParams(
+        context: Get.context!,
+        queryParameters: queryParametersState,
+        baseUri: ApiConstUri.baseUrlForGetMethod,
+        endPointUri: ApiConstUri.endPointGetStateApi);
+    responseCodeState = response?.statusCode ?? 0;
+    // ignore: unnecessary_null_comparison
+    if (response != null) {
+      if (await CommonMethods.checkResponse(
+        response: response,
+      )) {
+        stateModel = StateModel.fromJson(
+          jsonDecode(response.body),
+        );
+        if (stateModel != null) {
+          statesList = stateModel?.states ?? [];
+        }
+      }
     }
   }
 
   Future<void> getCityApiCalling({required String sId}) async {
+    queryParametersCity.clear();
     queryParametersCity = {ApiKeyConstant.stateId: sId};
-    cityModel.value =
-    await CommonApis.getCityApi(queryParameters: queryParametersCity);
-    if (cityModel.value != null) {
-      citiesList = cityModel.value?.cities;
+    http.Response? response = await MyHttp.getMethodForParams(
+        context: Get.context!,
+        queryParameters: queryParametersCity,
+        baseUri: ApiConstUri.baseUrlForGetMethod,
+        endPointUri: ApiConstUri.endPointGetCityApi);
+    responseCodeCity = response?.statusCode ?? 0;
+    // ignore: unnecessary_null_comparison
+    if (response != null) {
+      if (await CommonMethods.checkResponse(response: response)) {
+        cityModel = CityModel.fromJson(jsonDecode(response.body));
+        if (cityModel != null) {
+          citiesList = cityModel?.cities ?? [];
+        }
+      }
     }
   }
 
   Future<void> getAllBrandListApiCalling() async {
-    getAllBrandListApiModel.value = await CommonApis.getAllBrandListApi();
-    if (getAllBrandListApiModel.value != null) {
-      brandList = getAllBrandListApiModel.value?.brandList ?? [];
-      selectBrandList = brandList.where((element) =>brandId.contains(element.brandId ?? ''));
+    http.Response? response = await MyHttp.getMethod(
+        context: Get.context!, url: ApiConstUri.endPointGetAllBrandListApi);
+
+    responseCodeBrandList = response?.statusCode ?? 0;
+    // ignore: unnecessary_null_comparison
+    if (response != null) {
+      if (await CommonMethods.checkResponse(response: response)) {
+        getAllBrandListApiModel =
+            GetAllBrandListApiModel.fromJson(jsonDecode(response.body));
+        if (getAllBrandListApiModel != null) {
+          brandList = getAllBrandListApiModel?.brandList ?? [];
+          selectBrandList = brandList
+              .where((element) => brandId.contains(element.brandId ?? ''));
+        }
+      }
     }
     isResponse.value = true;
   }
 
-  Future<void>  getAllFashionCategoryListApiCalling() async {
-    getAllFashionCategoryListApiModel.value =
-    await CommonApis.getAllFashionCategoryListApi();
-    if (getAllFashionCategoryListApiModel.value != null) {
-      fashionCategoryList = getAllFashionCategoryListApiModel.value?.fashionCategoryList ?? [];
-      selectFashionCategoryList = fashionCategoryList.where((element) =>fashionCategoryId.contains(element.fashionCategoryId ?? ''));
+  Future<void> getAllFashionCategoryListApiCalling() async {
+    http.Response? response = await MyHttp.getMethod(
+        context: Get.context!,
+        url: ApiConstUri.endPointGetAllFashionCategoryListApi);
+    responseCodeCategoryList = response?.statusCode ?? 0;
+
+    // ignore: unnecessary_null_comparison
+    if (response != null) {
+      if (await CommonMethods.checkResponse(response: response)) {
+        getAllFashionCategoryListApiModel =
+            GetAllFashionCategoryListApiModel.fromJson(
+                jsonDecode(response.body));
+        if (getAllFashionCategoryListApiModel != null) {
+          fashionCategoryList =
+              getAllFashionCategoryListApiModel?.fashionCategoryList ?? [];
+          selectFashionCategoryList = fashionCategoryList.where((element) =>
+              fashionCategoryId.contains(element.fashionCategoryId ?? ''));
+        }
+      }
     }
   }
 
-  Future<void> updateUserProfileApiCalling({required BuildContext context}) async {
+  Future<void> updateUserProfileApiCalling(
+      {required BuildContext context}) async {
     bodyParamsForUpdateApi = {
       UserDataKeyConstant.fullName: nameController.text.trim().toString(),
       UserDataKeyConstant.securityEmail:
-      securityEmailController.text.trim().toString(),
+          securityEmailController.text.trim().toString(),
       UserDataKeyConstant.securityPhone:
-      securityMobileNumberController.text.trim().toString(),
+          securityMobileNumberController.text.trim().toString(),
       UserDataKeyConstant.securityPhoneCountryCode: "+91",
       ApiKeyConstant.dob: dobController.text.trim().toString(),
       ApiKeyConstant.countryId: countryId,
@@ -218,24 +313,22 @@ class EditProfileController extends GetxController {
       ApiKeyConstant.cityId: cityId ?? "",
       ApiKeyConstant.genderPreferences: checkTypeOfProductsValue.isNotEmpty
           ? checkTypeOfProductsValue.toString() == "0"
-          ? "m"
-          : checkTypeOfProductsValue.toString() == "1"
-          ? "f"
-          : 'm,f'
+              ? "m"
+              : checkTypeOfProductsValue.toString() == "1"
+                  ? "f"
+                  : 'm,f'
           : '',
-      ApiKeyConstant.brandPreferences: brandId.isNotEmpty
-          ? brandId.join(',')
-          : '' ,
-      ApiKeyConstant.categoryPreferences: fashionCategoryId.isNotEmpty
-          ? fashionCategoryId.join(',')
-          : '' ,
+      ApiKeyConstant.brandPreferences:
+          brandId.isNotEmpty ? brandId.join(',') : '',
+      ApiKeyConstant.categoryPreferences:
+          fashionCategoryId.isNotEmpty ? fashionCategoryId.join(',') : '',
     };
     http.Response? response = await CommonApis.updateUserProfile(
         bodyParams: bodyParamsForUpdateApi, image: image.value);
     if (response != null && response.statusCode == 200) {
-      userData.value = await CommonApis.getUserProfileApi();
-      if (userData.value != null) {
-        await CommonMethods.setUserData(userData: userData.value);
+      userDataValue = await CommonApis.getUserProfileApi();
+      if (userDataValue != null) {
+        await CommonMethods.setUserData(userData: userDataValue);
         await MyCommonMethods.setString(
             key: UserDataKeyConstant.selectedState,
             value: stateName.toString());
@@ -248,6 +341,8 @@ class EditProfileController extends GetxController {
         isSubmitButtonClicked.value = false;
         // ignore: use_build_context_synchronously
         //clickOnBackIcon(context: context);
+        MyCommonMethods.showSnackBar(
+            message: "Profile update successfully", context: Get.context!);
         Get.back();
       }
     } else {
@@ -275,15 +370,18 @@ class EditProfileController extends GetxController {
     MyCommonMethods.unFocsKeyBoard();
     absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
     dropDownValidationChecker();
-    if (key.currentState!.validate()  && !isStateSelectedValue.value && !isCitySelectedValue.value) {
+    if (key.currentState!.validate() &&
+        !isStateSelectedValue.value &&
+        !isCitySelectedValue.value) {
       isSubmitButtonClicked.value = true;
-      if (selectedState.value != null) {
-        if (selectedCity.value != null) {
+      if (selectedState != null) {
+        if (selectedCity != null) {
           await updateUserProfileApiCalling(context: context);
         } else {
           isSubmitButtonClicked.value = false;
           isCitySelectedValue.value = true;
-          MyCommonMethods.showSnackBar(message: "Please select city", context: context);
+          MyCommonMethods.showSnackBar(
+              message: "Please select city", context: context);
         }
       } else {
         await updateUserProfileApiCalling(context: context);
@@ -376,11 +474,11 @@ class EditProfileController extends GetxController {
         darkColorPrimaryColor: Theme.of(Get.context!).primaryColor);
     if (dateTime != null) {
       dobController.text =
-      '${dateTime.year}-${dateTime.month <= 9 ? "0${dateTime.month}" : "${dateTime.month}"}-${dateTime.day <= 9 ? "0${dateTime.day}" : "${dateTime.day}"}';
+          '${dateTime.year}-${dateTime.month <= 9 ? "0${dateTime.month}" : "${dateTime.month}"}-${dateTime.day <= 9 ? "0${dateTime.day}" : "${dateTime.day}"}';
     }
   }
 
-  void dropDownValidationChecker()  {
+  void dropDownValidationChecker() {
     if (stateName == null && stateName == '') {
       isStateSelectedValue.value = true;
     } else {
@@ -389,14 +487,12 @@ class EditProfileController extends GetxController {
 
     if (cityName == null && cityName == '') {
       isCitySelectedValue.value = true;
-      print("cityName :::000:::: $cityName");
     } else {
       isCitySelectedValue.value = false;
-      print("cityName :::111:::: $cityName");
     }
   }
 
-  /*Future<void> pickDate() async {
+/*Future<void> pickDate() async {
     DateTime? pickedDate = await showDatePicker(
       context: Get.context!,
       initialDate: DateTime.now(),
@@ -450,8 +546,7 @@ class EditProfileController extends GetxController {
     }
   }*/
 
-
-  /*
+/*
   Future<void> clickOnSendOtpButton() async {
     MyCommonMethods.unFocsKeyBoard();
     isSendOtpButtonClicked.value=true;
@@ -483,6 +578,4 @@ class EditProfileController extends GetxController {
   }
 
 */
-
-
 }

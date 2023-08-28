@@ -36,7 +36,7 @@ class ConfirmCancelController extends GetxController {
   }
 
   clickOnViewAllOrder() {
-    Get.toNamed(Routes.MY_ORDERS);
+    Get.offNamed(Routes.MY_ORDERS);
   }
 
 }

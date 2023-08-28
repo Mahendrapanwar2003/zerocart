@@ -785,7 +785,7 @@ class MyCartController extends CommonMethods {
           (sellPrice.value - discountPrice.value + deliveryPrice.value);
       await openGateway(
         type: OpenGetWayType.cart,
-        price: int.parse(
+        priceValue: int.parse(
             double.parse(totalPrice.value.toString()).toInt().toString()),
         description: "Order From Cart",
       );

@@ -258,7 +258,7 @@ class CommonMethods extends GetxController {
 
 
   OpenGetWayType? openGetWayType ;
-  String price = "";
+  String priceValue = "";
   String transId = "";
   String razorpayKeyName = "rzp_test_sBIiiURrNWQRTc";
   String razorpayKeyPassword = "UeGbEmzqYSb3tBjT7Mcphb2V";
@@ -273,11 +273,11 @@ class CommonMethods extends GetxController {
 
   Future<void> openGateway(
       {required OpenGetWayType type ,
-      required int price,String? description,bool inAmt=true,bool cancelOrder=false,
+      required int priceValue,String? description,bool inAmt=true,bool cancelOrder=false,
         String inventoryId="",int itemQuantity=1,
       }) async {
     openGetWayType = type;
-    this.price = price.toString();
+    this.priceValue = priceValue.toString();
     this.inAmt=inAmt;
     this.cancelOrder=cancelOrder;
     inventory=inventoryId;
@@ -287,7 +287,7 @@ class CommonMethods extends GetxController {
     String userMobile = await MyCommonMethods.getString(key: UserDataKeyConstant.mobile) ?? "";
     var option = {
       'key': razorpayKeyName,
-      'amount': price * 100,
+      'amount': priceValue * 100,
       'name': userName,
       'description': description ??"",
       'timeout': 60 * 2,
@@ -370,14 +370,14 @@ class CommonMethods extends GetxController {
       if (cancelOrder) {
         bodyParamsForWalletTransactionApi = {
           ApiKeyConstant.transType: "credit",
-          ApiKeyConstant.inAmt: price,
+          ApiKeyConstant.inAmt: priceValue,
           ApiKeyConstant.transId: transId,
           ApiKeyConstant.actionType: "order cancel"
         };
       } else {
         bodyParamsForWalletTransactionApi = {
           ApiKeyConstant.transType: "credit",
-          ApiKeyConstant.inAmt: price,
+          ApiKeyConstant.inAmt: priceValue,
           ApiKeyConstant.transId: transId,
           ApiKeyConstant.actionType: "addMoney"
         };
@@ -385,7 +385,7 @@ class CommonMethods extends GetxController {
     } else {
       bodyParamsForWalletTransactionApi = {
         ApiKeyConstant.transType: "debit",
-        ApiKeyConstant.outAmt: price,
+        ApiKeyConstant.outAmt: priceValue,
         ApiKeyConstant.transId: transId,
         ApiKeyConstant.actionType: "order Item"
       };

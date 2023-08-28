@@ -260,20 +260,25 @@ class MyOrdersController extends CommonMethods {
     inAsyncCall.value = false;
   }
 
-  void clickOnCancelOrderButton(
-      {required BuildContext context, required int index}) {
+  Future<void> clickOnCancelOrderButton(
+      {required BuildContext context, required int index}) async {
     inAsyncCall.value = true;
-    Get.offNamed(
+    Get.back();
+    await Get.toNamed(
       Routes.CANCEL_ORDER,
       arguments: {"orderList[index]": orderList[index]},
     );
+    offset=0;
+    await getOrderListApiCalling();
     inAsyncCall.value = false;
   }
 
-  void clickOnOrderDetails({required String productId}) {
+  Future<void> clickOnOrderDetails({required String productId}) async {
     inAsyncCall.value = true;
 
-    Get.toNamed(Routes.MY_ORDER_DETAILS, arguments: productId);
+    await Get.toNamed(Routes.MY_ORDER_DETAILS, arguments: productId);
+    offset = 0;
+    await onInit();
     inAsyncCall.value = false;
   }
 }

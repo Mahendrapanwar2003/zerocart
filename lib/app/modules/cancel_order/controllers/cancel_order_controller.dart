@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
@@ -7,20 +9,28 @@ import 'package:zerocart/app/apis/api_modals/get_cancel_order_reason_model.dart'
 import 'package:zerocart/app/apis/api_modals/get_order_list_modal.dart';
 import 'package:zerocart/app/apis/api_modals/my_order_detail_model.dart';
 import 'package:zerocart/app/apis/common_apis/common_apis.dart';
+import 'package:zerocart/app/common_methods/common_methods.dart';
 import 'package:zerocart/app/routes/app_pages.dart';
 
-class CancelOrderController extends GetxController {
+class CancelOrderController extends CommonMethods {
+  final count = 0.obs;
+  final inAsyncCall = false.obs;
+  int responseCode = 0;
+  int load = 0;
+
+
+  final isSubmitVisible = false.obs;
+  final isClickOnSubmitButton = false.obs;
+  final checkValue = ''.obs;
+  double price = 0.0;
+  TextEditingController commentTextField = TextEditingController();
+
+
   OrderList orderListObject = Get.arguments['orderList[index]'] ?? OrderList();
-
   ProductDetails productDetails = Get.arguments['productDetailsList'] ?? ProductDetails();
-
   String? myOrderDetailPage = Get.arguments['myOrderDetailPage'];
 
-  final count = 0.obs;
-  final absorbing = false.obs;
-  final checkValue = ''.obs;
-  String? orderItemUuid;
-  final isSubmitVisible = false.obs;
+
 
   /*List title = [
     'I want to change address for the order',
@@ -34,20 +44,18 @@ class CancelOrderController extends GetxController {
     'I want to cancel due to product quality issue',
   ];*/
 
+
   Map<String, dynamic> bodyParamsForCancelOrderApi = {};
-  double price = 0.0;
-
-  final getCancelOrderReasonList = Rxn<GetCancelOrderReasonList>();
-  List<CancelReasonList>? cancelReasonList;
-
-  TextEditingController commentTextField = TextEditingController();
+  String? orderItemUuid;
+  GetCancelOrderReasonList? getCancelOrderReasonList;
+  List<CancelReasonList> cancelReasonList=[];
 
   @override
   Future<void> onInit() async {
     super.onInit();
-
+    onReload();
+    inAsyncCall.value=true;
     if (myOrderDetailPage == 'myOrderDetailPage') {
-      print("myOrderPage:::::::: myOrderPage     ::::::::::myOrderDetailPageValue::::::::::  $myOrderDetailPage");
         if (productDetails.isOffer == "1") {
           price = price + double.parse(double.parse(productDetails.isOffer!).toStringAsFixed(2));
         } else {
@@ -55,7 +63,6 @@ class CancelOrderController extends GetxController {
         }
 
     }else{
-      print("myOrderDetailPageValue::::::::::  $myOrderDetailPage");
       for(int i=1;i<=int.parse(orderListObject.productQty??"1");i++)
       {
         if(orderListObject.isOffer=="1")
@@ -69,39 +76,55 @@ class CancelOrderController extends GetxController {
       }
     }
     await getCancelOrderReasonListApi();
+    inAsyncCall.value=false;
+
   }
 
-  @override
-  void onReady() {
-    super.onReady();
+  void onReload() {
+    connectivity.onConnectivityChanged.listen((event) async {
+      if (await MyCommonMethods.internetConnectionCheckerMethod()) {
+        if (load == 0) {
+          load = 1;
+          await onInit();
+        }
+      } else {
+        load = 0;
+      }
+    });
   }
 
-  @override
-  void onClose() {
-    super.onClose();
+  Future<void> onRefresh() async {
+    await onInit();
   }
 
   void increment() => count.value++;
 
   Future<void> getCancelOrderReasonListApi() async {
-    getCancelOrderReasonList.value = await CommonApis.getCancelOrderReasonListApi();
-    if (getCancelOrderReasonList.value != null) {
-      if (getCancelOrderReasonList.value?.cancelReasonList != null &&
-          getCancelOrderReasonList.value!.cancelReasonList!.isNotEmpty) {
-        cancelReasonList = getCancelOrderReasonList.value?.cancelReasonList ?? [];
-        print("cancelReasonList:::::::::::::::::::::::::::::::$cancelReasonList");
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
+    http.Response? response = await MyHttp.getMethod(
+        context: Get.context!,
+        url: ApiConstUri.endPointGetCancelReasonListApi,
+        token: authorization);
+    // ignore: unnecessary_null_comparison
+    responseCode=response?.statusCode??0;
+    if (response != null) {
+      if (await CommonMethods.checkResponse(response: response)) {
+        getCancelOrderReasonList = GetCancelOrderReasonList.fromJson(jsonDecode(response.body));
+        if (getCancelOrderReasonList != null) {
+          cancelReasonList.clear();
+          if (getCancelOrderReasonList?.cancelReasonList != null &&
+              getCancelOrderReasonList!.cancelReasonList!.isNotEmpty) {
+            cancelReasonList = getCancelOrderReasonList?.cancelReasonList ?? [];
+          }
+        }
       }
     }
+    increment();
   }
 
   Future<void> cancelOrderApiCalling() async {
-
-    print("orderListObject.ordId  :::::::::::::::   ${orderListObject.ordId}");
-    print("price  :::::::::::::::   $price");
-    print("orderListObject.ordItmId  :::::::::::::::   ${orderListObject.ordItmId}");
-    print("orderItemUuid  :::::::::::::::   $orderItemUuid");
-    print("checkValue  :::::::::::::::   $checkValue");
-
     bodyParamsForCancelOrderApi = {
       ApiKeyConstant.orderId:    /* myOrderDetailPage == 'myOrderDetailPage' ? productDetails.ordId.toString() :   */  orderListObject.ordId.toString(),
       ApiKeyConstant.orderItemId:/* myOrderDetailPage == 'myOrderDetailPage' ? productDetails.ordItmId.toString() :*/ orderListObject.ordItmId.toString() ,
@@ -120,15 +143,17 @@ class CancelOrderController extends GetxController {
   }
 
   void clickOnBackIcon() {
+    inAsyncCall.value=true;
     Get.back();
+    inAsyncCall.value=false;
   }
 
   void clickOnShoppingCart() {}
 
   Future<void> clickOnSubmitButton() async {
-    absorbing.value = true;
+    isClickOnSubmitButton.value = true;
     await cancelOrderApiCalling();
-    absorbing.value = false;
+    isClickOnSubmitButton.value = false;
   }
 
 }

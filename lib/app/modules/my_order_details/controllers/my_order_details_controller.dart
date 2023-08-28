@@ -38,7 +38,6 @@ class MyOrderDetailsController extends CommonMethods {
 
   final isEmpty = false.obs;
 
-  final isLastPage = false.obs;
 
   @override
   Future<void> onInit() async {
@@ -163,7 +162,7 @@ class MyOrderDetailsController extends CommonMethods {
         ),
         context: Get.context!,
         builder: (context) {
-          ProductDetails productDetailsListObject = productDetailsList![0];
+          ProductDetails productDetailsListObject = productDetailsList[0];
           double price = 0.0;
           if (productDetailsListObject.isOffer == "1") {
             price = price +
@@ -246,6 +245,7 @@ class MyOrderDetailsController extends CommonMethods {
   }
 
   Future<void> userProductFeedbackApiCalling() async {
+    bodyParamsForProductFeedbackApi.clear();
     if (descriptionController.text.trim().toString().isNotEmpty) {
       if (selectedImageForRating.isNotEmpty) {
         //isSubmitButtonVisible.value = false;
@@ -258,7 +258,6 @@ class MyOrderDetailsController extends CommonMethods {
             imageList: selectedImageForRating,
             bodyParams: bodyParamsForProductFeedbackApi);
         if (response != null) {
-          print("response::::: $response");
           selectedImageForRating = [];
           Get.back();
           bodyParamsForProductFeedbackApi.clear();
@@ -284,7 +283,7 @@ class MyOrderDetailsController extends CommonMethods {
   void clickOnOkOrderButton({required BuildContext context}) {
     Get.back();
     Get.offNamed(Routes.CANCEL_ORDER, arguments: {
-      'productDetailsList': productDetailsList?[0],
+      'productDetailsList': productDetailsList[0],
       'myOrderDetailPage': 'myOrderDetailPage'
     });
     /*var snackBar = SnackBar(

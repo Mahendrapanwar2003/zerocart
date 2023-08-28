@@ -161,7 +161,7 @@ class ZerocartWalletController extends CommonMethods with GetTickerProviderState
     if (addMoneyController.value.text.trim().toString().isNotEmpty) {
       openGateway(
           type: OpenGetWayType.addMoneyWallet,
-          price: int.parse(addMoneyController.value.text.trim().toString()),
+          priceValue: int.parse(addMoneyController.value.text.trim().toString()),
           description: "Transection From Wallet",
           inAmt: true,
           cancelOrder: false);

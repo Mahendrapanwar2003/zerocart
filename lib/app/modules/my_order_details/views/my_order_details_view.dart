@@ -6,9 +6,9 @@ import 'package:zerocart/app/common_methods/common_methods.dart';
 import 'package:zerocart/app/common_widgets/common_widgets.dart';
 import 'package:zerocart/app/constant/zconstant.dart';
 import 'package:zerocart/app/custom/custom_appbar.dart';
+import 'package:zerocart/app/custom/custom_outline_button.dart';
 import 'package:zerocart/model_progress_bar/model_progress_bar.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
-import '../../../../load_more/load_more.dart';
 import '../../../custom/custom_gradient_text.dart';
 import '../../../custom/scroll_splash_gone.dart';
 import '../controllers/my_order_details_controller.dart';
@@ -26,15 +26,16 @@ class MyOrderDetailsView extends GetView<MyOrderDetailsController> {
           appBar: appBarView(),
           body: Obx(() {
             if (CommonMethods.isConnect.value) {
-              return Obx(() {
-                controller.count.value;
-                if (controller.myOrderDetailsModel != null &&
-                    controller.responseCode == 200) {
-                  if (controller.productDetailsList.isNotEmpty) {
-                    return ScrollConfiguration(
+              controller.count.value;
+              if (controller.myOrderDetailsModel != null &&
+                  controller.responseCode == 200) {
+                if (controller.productDetailsList.isNotEmpty) {
+                  return CommonWidgets.commonRefreshIndicator(
+                    onRefresh: () => controller.onRefresh(),
+                    child: ScrollConfiguration(
                       behavior: MyBehavior(),
                       child: ListView(
-                        physics: const ScrollPhysics(),
+                        physics: const AlwaysScrollableScrollPhysics(),
                         children: [
                           AspectRatio(
                             aspectRatio: 1.7,
@@ -53,8 +54,9 @@ class MyOrderDetailsView extends GetView<MyOrderDetailsController> {
                                       ),
                                       loadingBuilder:
                                           (context, child, loadingProgress) {
-                                        if (loadingProgress == null)
+                                        if (loadingProgress == null) {
                                           return child;
+                                        }
                                         return CommonWidgets
                                             .commonShimmerViewForImage();
                                       },
@@ -63,8 +65,8 @@ class MyOrderDetailsView extends GetView<MyOrderDetailsController> {
                                               CommonWidgets.defaultImage(),
                                     )
                                   : /*controller.bannerValue.value
-                                ? CommonWidgets.commonShimmerViewForImage()
-                                :*/
+                                  ? CommonWidgets.commonShimmerViewForImage()
+                                  :*/
                                   CommonWidgets.defaultImage(),
                             ),
                           ),
@@ -98,24 +100,24 @@ class MyOrderDetailsView extends GetView<MyOrderDetailsController> {
                           )
                         ],
                       ),
-                    );
-                  } else {
-                    return Expanded(
-                      child: CommonWidgets.commonNoDataFoundImage(
-                        onRefresh: () => controller.onRefresh(),
-                      ),
-                    );
-                  }
+                    ),
+                  );
                 } else {
-                  if (controller.responseCode == 0) {
-                    return const SizedBox();
-                  }
                   return Expanded(
-                      child: CommonWidgets.commonSomethingWentWrongImage(
-                    onRefresh: () => controller.onRefresh(),
-                  ));
+                    child: CommonWidgets.commonNoDataFoundImage(
+                      onRefresh: () => controller.onRefresh(),
+                    ),
+                  );
                 }
-              });
+              } else {
+                if (controller.responseCode == 0) {
+                  return const SizedBox();
+                }
+                return Expanded(
+                    child: CommonWidgets.commonSomethingWentWrongImage(
+                  onRefresh: () => controller.onRefresh(),
+                ));
+              }
             } else {
               return CommonWidgets.commonNoInternetImage(
                 onRefresh: () => controller.onRefresh(),
@@ -126,84 +128,6 @@ class MyOrderDetailsView extends GetView<MyOrderDetailsController> {
       );
     });
   }
-
-/*  controller.count.value;
-  if (controller.myOrderDetailsModel != null) {
-  if (controller.productDetailsList != null &&
-  controller.productDetailsList!.isNotEmpty) {
-  return ScrollConfiguration(
-  behavior: MyBehavior(),
-  child: ListView(
-  physics: const ScrollPhysics(),
-  children: [
-  AspectRatio(
-  aspectRatio: 1.7,
-  child: Container(
-  color: MyColorsLight().onPrimary.withOpacity(.2),
-  child: (controller.productDetailsList?[0]
-      .thumbnailImage !=
-  null &&
-  controller.productDetailsList![0]
-      .thumbnailImage!.isNotEmpty)
-  ? Image.network(
-  CommonMethods.imageUrl(
-  url: controller
-      .productDetailsList![0].thumbnailImage
-      .toString(),
-  ),
-  loadingBuilder:
-  (context, child, loadingProgress) {
-  if (loadingProgress == null) return child;
-  return CommonWidgets
-      .commonShimmerViewForImage();
-  },
-  errorBuilder:
-  (context, error, stackTrace) =>
-  CommonWidgets.defaultImage(),
-  )
-      : */ /*controller.bannerValue.value
-                                    ? CommonWidgets.commonShimmerViewForImage()
-                                    :*/ /*
-  CommonWidgets.defaultImage(),
-  ),
-  ),
-  Padding(
-  padding: EdgeInsets.symmetric(
-  horizontal: Zconstant.margin, vertical: 2.h),
-  child: Column(
-  crossAxisAlignment: CrossAxisAlignment.start,
-  children: [
-  productInfo(),
-  productSize(),
-  SizedBox(height: 20.px),
-  productAndSellerDescription(),
-  SizedBox(height: 1.h),
-  Padding(
-  padding: EdgeInsets.symmetric(
-  vertical: Zconstant.margin16),
-  child: Row(
-  mainAxisAlignment:
-  MainAxisAlignment.spaceBetween,
-  children: [
-  cancelOrderButtonView(),
-  trackButtonView(),
-  ],
-  ),
-  ),
-  rateButton(),
-  SizedBox(height: 20.px),
-  ],
-  ),
-  )
-  ],
-  ),
-  );
-  } else {
-  return CommonWidgets.noDataTextView();
-  }
-  } else {
-  return CommonWidgets.progressBarView();
-  }*/
 
   PreferredSizeWidget appBarView() => const MyCustomContainer().myAppBar(
       isIcon: true,
@@ -219,15 +143,15 @@ class MyOrderDetailsView extends GetView<MyOrderDetailsController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (controller.productDetailsList?[0].brandName != null &&
-                  controller.productDetailsList![0].brandName!.isNotEmpty)
+              if (controller.productDetailsList[0].brandName != null &&
+                  controller.productDetailsList[0].brandName!.isNotEmpty)
                 brandNameTextView(),
-              if (controller.productDetailsList?[0].productName != null &&
-                  controller.productDetailsList![0].productName!.isNotEmpty)
+              if (controller.productDetailsList[0].productName != null &&
+                  controller.productDetailsList[0].productName!.isNotEmpty)
                 brandProductNameTextView(),
               SizedBox(height: 1.h),
-              if (controller.productDetailsList?[0].colorCode != null &&
-                  controller.productDetailsList![0].colorCode!.isNotEmpty)
+              if (controller.productDetailsList[0].colorCode != null &&
+                  controller.productDetailsList[0].colorCode!.isNotEmpty)
                 colorsView()
             ],
           ),
@@ -242,7 +166,7 @@ class MyOrderDetailsView extends GetView<MyOrderDetailsController> {
   }
 
   Widget brandNameTextView() => Text(
-        controller.productDetailsList![0].brandName.toString(),
+        controller.productDetailsList[0].brandName.toString(),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: Theme.of(Get.context!).textTheme.headline3?.copyWith(
@@ -254,7 +178,7 @@ class MyOrderDetailsView extends GetView<MyOrderDetailsController> {
       );
 
   Widget brandProductNameTextView() => Text(
-        controller.productDetailsList![0].productName.toString(),
+        controller.productDetailsList[0].productName.toString(),
         style: Theme.of(Get.context!)
             .textTheme
             .subtitle1
@@ -264,7 +188,7 @@ class MyOrderDetailsView extends GetView<MyOrderDetailsController> {
       );
 
   Widget colorsView() {
-    String color = controller.productDetailsList![0].colorCode.toString();
+    String color = controller.productDetailsList[0].colorCode.toString();
     String colorCode = color.replaceAll("#", "0xff");
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -289,51 +213,70 @@ class MyOrderDetailsView extends GetView<MyOrderDetailsController> {
             ?.copyWith(fontSize: 14.px),
       );
 
-  Widget unselectedColorView({required String replaceColor}) => SizedBox(
+  Widget unselectedColorView({required String replaceColor}) => Container(
+    decoration: const BoxDecoration(shape: BoxShape.circle),
+    height: 20.px,
+    width: 17.px,
+    child: UnicornOutline(
+      strokeWidth: 1.5.px,
+      radius: 10.px,
+      gradient: CommonWidgets.commonLinearGradientView(),
+      child: Container(
         height: 20.px,
         width: 15.px,
-        child: Container(
-          height: 30.px,
-          width: 15.px,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Color(int.parse(replaceColor)),
-          ),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Color(int.parse(replaceColor)),
         ),
-      );
+      ),
+    ),
+  );
 
   Widget productPriceView() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        if (controller.productDetailsList?[0].offerPrice != null &&
-            controller.productDetailsList![0].offerPrice!.isNotEmpty)
-          itemPriceTextView(),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            if (controller.productDetailsList?[0].productPrice != null &&
-                controller.productDetailsList![0].productPrice!.isNotEmpty)
-              Flexible(child: itemOriginalPriceTextView()),
-            SizedBox(width: 8.px),
-            if (controller.productDetailsList?[0].percentageDis != null &&
-                controller.productDetailsList![0].percentageDis!.isNotEmpty)
-              howManyPercentOffTextView()
-          ],
-        ),
+        priceView(),
         SizedBox(height: .5.h),
-        if (controller.productDetailsList?[0].rateAverage != null &&
-            controller.productDetailsList![0].rateAverage!.isNotEmpty)
+        if (controller.productDetailsList[0].rateAverage != null &&
+            controller.productDetailsList[0].rateAverage!.isNotEmpty)
           ratingElevatedButtonView(),
         SizedBox(height: 6.px),
-        if (controller.productDetailsList?[0].reactive != null)
-          reviewsTextView(),
+        reviewsTextView(),
       ],
     );
   }
 
-  Widget itemPriceTextView() => GradientText(
-        'Rs ${controller.productDetailsList![0].offerPrice.toString()}',
+  Widget priceView() {
+    if (controller.productDetailsList[0].isOffer != null &&
+        controller.productDetailsList[0].isOffer != "0") {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          itemPriceTextView(
+              value: controller.productDetailsList[0].offerPrice.toString()),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              if (controller.productDetailsList[0].productPrice != null &&
+                  controller.productDetailsList[0].productPrice!.isNotEmpty)
+                Flexible(child: itemOriginalPriceTextView()),
+              SizedBox(width: 8.px),
+              if (controller.productDetailsList[0].percentageDis != null &&
+                  controller.productDetailsList[0].percentageDis!.isNotEmpty)
+                howManyPercentOffTextView()
+            ],
+          ),
+        ],
+      );
+    } else {
+      return itemPriceTextView(
+          value: controller.productDetailsList[0].productPrice.toString(),);
+    }
+  }
+
+  Widget itemPriceTextView({required String value}) => GradientText(
+        'Rs $value',
         gradient: CommonWidgets.commonLinearGradientView(),
         style: Theme.of(Get.context!)
             .textTheme
@@ -342,7 +285,7 @@ class MyOrderDetailsView extends GetView<MyOrderDetailsController> {
       );
 
   Widget itemOriginalPriceTextView() => Text(
-        controller.productDetailsList![0].productPrice.toString(),
+        controller.productDetailsList[0].productPrice.toString(),
         overflow: TextOverflow.ellipsis,
         style: Theme.of(Get.context!)
             .textTheme
@@ -351,7 +294,7 @@ class MyOrderDetailsView extends GetView<MyOrderDetailsController> {
       );
 
   Widget howManyPercentOffTextView() => Text(
-        '${controller.productDetailsList![0].percentageDis}% off',
+        '${controller.productDetailsList[0].percentageDis}% off',
         style: Theme.of(Get.context!)
             .textTheme
             .headline3
@@ -383,7 +326,7 @@ class MyOrderDetailsView extends GetView<MyOrderDetailsController> {
 
   Widget ratingTextView() => Flexible(
         child: Text(
-          controller.productDetailsList![0].rateAverage.toString(),
+          controller.productDetailsList[0].rateAverage.toString(),
           style: Theme.of(Get.context!).textTheme.headline3?.copyWith(
                 color: MyColorsLight().secondary,
               ),
@@ -396,7 +339,7 @@ class MyOrderDetailsView extends GetView<MyOrderDetailsController> {
         children: [
           Flexible(
             child: Text(
-              controller.productDetailsList![0].totalReview.toString(),
+              controller.productDetailsList[0].totalReview.toString(),
               textAlign: TextAlign.start,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -426,26 +369,26 @@ class MyOrderDetailsView extends GetView<MyOrderDetailsController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              if (controller.productDetailsList?[0].variantAbbreviation !=
+              if (controller.productDetailsList[0].variantAbbreviation !=
                       null &&
                   controller
-                      .productDetailsList![0].variantAbbreviation!.isNotEmpty)
+                      .productDetailsList[0].variantAbbreviation!.isNotEmpty)
                 sizeTextView(),
-              if (controller.productDetailsList?[0].variantAbbreviation !=
+              if (controller.productDetailsList[0].variantAbbreviation !=
                       null &&
                   controller
-                      .productDetailsList![0].variantAbbreviation!.isNotEmpty)
+                      .productDetailsList[0].variantAbbreviation!.isNotEmpty)
                 SizedBox(width: 12.px),
-              if (controller.productDetailsList?[0].variantAbbreviation !=
+              if (controller.productDetailsList[0].variantAbbreviation !=
                       null &&
                   controller
-                      .productDetailsList![0].variantAbbreviation!.isNotEmpty)
+                      .productDetailsList[0].variantAbbreviation!.isNotEmpty)
                 selectedSizeView(),
-              if (controller.productDetailsList?[0].brandChartImg != null &&
-                  controller.productDetailsList![0].brandChartImg!.isNotEmpty)
+              if (controller.productDetailsList[0].brandChartImg != null &&
+                  controller.productDetailsList[0].brandChartImg!.isNotEmpty)
                 const Spacer(),
-              if (controller.productDetailsList?[0].brandChartImg != null &&
-                  controller.productDetailsList![0].brandChartImg!.isNotEmpty)
+              if (controller.productDetailsList[0].brandChartImg != null &&
+                  controller.productDetailsList[0].brandChartImg!.isNotEmpty)
                 textButton(
                     text: 'Size Chart',
                     onPressed: () => controller.clickOnSizeChartTextButton()),
@@ -475,6 +418,14 @@ class MyOrderDetailsView extends GetView<MyOrderDetailsController> {
             ?.copyWith(fontSize: 14.px),
       );
 
+  Widget quantityTextView() => Text(
+        "Quantity:",
+        style: Theme.of(Get.context!)
+            .textTheme
+            .headline5
+            ?.copyWith(fontSize: 14.px),
+      );
+
   Widget selectedSizeView() => Container(
         padding: EdgeInsets.symmetric(horizontal: 8.px, vertical: 0),
         decoration: BoxDecoration(
@@ -488,7 +439,7 @@ class MyOrderDetailsView extends GetView<MyOrderDetailsController> {
           child: Text(
             style: Theme.of(Get.context!).textTheme.subtitle2?.copyWith(
                 color: Theme.of(Get.context!).textTheme.subtitle1!.color!),
-            controller.productDetailsList![0].variantAbbreviation.toString(),
+            controller.productDetailsList[0].variantAbbreviation.toString(),
           ),
         ),
       );
@@ -499,24 +450,24 @@ class MyOrderDetailsView extends GetView<MyOrderDetailsController> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (controller.productDetailsList?[0].productDescription != null &&
-              controller.productDetailsList![0].productDescription!.isNotEmpty)
+          if (controller.productDetailsList[0].productDescription != null &&
+              controller.productDetailsList[0].productDescription!.isNotEmpty)
             productAndSellerDescriptionTextView(text: "Product Description"),
-          if (controller.productDetailsList?[0].productDescription != null &&
-              controller.productDetailsList![0].productDescription!.isNotEmpty)
+          if (controller.productDetailsList[0].productDescription != null &&
+              controller.productDetailsList[0].productDescription!.isNotEmpty)
             removeHtmlTagsProductAndSellerDescription(
-                string: controller.productDetailsList![0].productDescription
+                string: controller.productDetailsList[0].productDescription
                     .toString()),
-          if (controller.productDetailsList?[0].sellerDescription != null &&
-              controller.productDetailsList![0].sellerDescription!.isNotEmpty)
+          if (controller.productDetailsList[0].sellerDescription != null &&
+              controller.productDetailsList[0].sellerDescription!.isNotEmpty)
             SizedBox(height: 10.px),
-          if (controller.productDetailsList?[0].sellerDescription != null &&
-              controller.productDetailsList![0].sellerDescription!.isNotEmpty)
+          if (controller.productDetailsList[0].sellerDescription != null &&
+              controller.productDetailsList[0].sellerDescription!.isNotEmpty)
             productAndSellerDescriptionTextView(text: "Seller Description"),
-          if (controller.productDetailsList?[0].sellerDescription != null &&
-              controller.productDetailsList![0].sellerDescription!.isNotEmpty)
+          if (controller.productDetailsList[0].sellerDescription != null &&
+              controller.productDetailsList[0].sellerDescription!.isNotEmpty)
             removeHtmlTagsProductAndSellerDescription(
-                string: controller.productDetailsList![0].sellerDescription
+                string: controller.productDetailsList[0].sellerDescription
                     .toString()),
         ],
       );
