@@ -110,18 +110,18 @@ class CommonApis {
 
   static Future<GetAllBrandListApiModel?> getAllBrandListApi() async {
     GetAllBrandListApiModel? getAllBrandListApiModel;
-    http.Response? response = await MyHttp.getMethod(
-        context: Get.context!, url: ApiConstUri.endPointGetAllBrandListApi);
-    // ignore: unnecessary_null_comparison
-    if (response != null) {
-      if (await CommonMethods.checkResponse(response: response)) {
-        getAllBrandListApiModel =
-            GetAllBrandListApiModel.fromJson(jsonDecode(response.body));
-        return getAllBrandListApiModel;
+      http.Response? response = await MyHttp.getMethod(
+          context: Get.context!, url: ApiConstUri.endPointGetAllBrandListApi);
+      // ignore: unnecessary_null_comparison
+      if (response != null) {
+        if (await CommonMethods.checkResponse(response: response)) {
+          getAllBrandListApiModel =
+              GetAllBrandListApiModel.fromJson(jsonDecode(response.body));
+          return getAllBrandListApiModel;
+        } else {
+          return null;
+        }
       } else {
-        return null;
-      }
-    } else {
       return null;
     }
   }
@@ -1550,7 +1550,7 @@ class CommonApis {
         context: Get.context!,
         url: ApiConstUri.endPointGetCancelReasonListApi,
         token: authorization);
-    // ignore: unnecessary_null_comparison
+
     if (response != null) {
       if (await CommonMethods.checkResponse(response: response)) {
         getCancelOrderReasonList =

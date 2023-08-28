@@ -382,7 +382,7 @@ class BuyNowController extends CommonMethods {
           paymentType = "Online";
           await openGateway(
               type: OpenGetWayType.buyNow,
-              price: int.parse(
+              priceValue: int.parse(
                   double.parse(totalPrice.value.toString()).toInt().toString()),
               inventoryId: inventoryId,
               description: productDetail.value?.productName ?? "",

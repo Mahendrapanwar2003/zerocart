@@ -4,6 +4,7 @@ import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:ui_library/ui_library.dart';
 import 'package:zerocart/app/apis/api_modals/get_city_model.dart';
 import 'package:zerocart/app/apis/api_modals/get_state_model.dart';
+import 'package:zerocart/app/common_methods/common_methods.dart';
 import 'package:zerocart/app/common_widgets/common_widgets.dart';
 import 'package:zerocart/app/constant/zconstant.dart';
 import 'package:zerocart/app/custom/custom_appbar.dart';
@@ -36,474 +37,662 @@ class EditProfileView extends GetView<EditProfileController> {
               child: Form(
                 key: controller.key,
                 child: Obx(() {
-                  if (controller.userDataMap.isNotEmpty) {
-                    return Column(
-                      children: [
-                        Expanded(
-                          child: ScrollConfiguration(
-                            behavior: MyBehavior(),
-                            child: ListView(
-                              children: [
-                                SizedBox(
-                                  height: Zconstant.margin,
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Stack(
-                                      alignment: Alignment.bottomRight,
-                                      children: [
-                                        userProfilePicView(),
-                                        Padding(
-                                          padding: EdgeInsets.zero,
-                                          child: addIconButtonView(),
-                                        )
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: Zconstant.margin),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                  if (CommonMethods.isConnect.value) {
+                    if (controller.responseCodeState == 200 &&
+                        controller.responseCodeCity == 200 &&
+                        controller.responseCodeBrandList == 200 &&
+                        controller.responseCodeCategoryList == 200) {
+                      if (controller.userDataMap.isNotEmpty) {
+                        return Column(
+                          children: [
+                            Expanded(
+                              child: ScrollConfiguration(
+                                behavior: MyBehavior(),
+                                child: CommonWidgets.commonRefreshIndicator(
+                                  onRefresh: () => controller.onRefresh(),
+                                  child: ListView(
                                     children: [
-                                      SizedBox(height: 2.h),
-                                      nameTextFieldView(),
-                                      SizedBox(height: 2.h),
-                                      emailTextFieldView(),
-                                      SizedBox(height: 2.h),
-                                      dobTextFieldView(),
-                                      SizedBox(height: 2.h),
-                                      mobileNumberTextFieldView(),
-                                      /* Obx(() {
-                                      return controller.isSendOtpVisible.value
-                                          ? Row(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        children: [
-                                          sendOTPButtonView(),
-                                        ],
-                                      )
-                                          : SizedBox(
-                                        height: 0.h,
-                                      );
-                                    }),*/
-                                      SizedBox(height: 2.h),
-                                      if (controller.stateName != null && controller.stateName != '')
-                                      Align(
-                                          alignment: Alignment.topLeft,
-                                          child: Text(
-                                            'State Name',
-                                            style: Theme.of(Get.context!)
-                                                .textTheme
-                                                .subtitle1
-                                                ?.copyWith(
-                                                  fontSize: 12.px,
-                                                  color: Theme.of(Get.context!)
-                                                      .colorScheme
-                                                      .onSurface
-                                                      .withOpacity(.4),
-                                                ),
-                                          ),
-                                        ),
-                                      stateTextFieldView(),
-                                      SizedBox(height: 2.h),
-                                      if (controller.cityName != null &&
-                                          controller.cityName != '' &&
-                                          controller.cityModel.value != null &&
-                                          controller.cityModel.value?.cities != null &&
-                                          controller.cityModel.value!.cities!.isNotEmpty)
-                                        Align(
-                                          alignment: Alignment.topLeft,
-                                          child: Text(
-                                            'City Name',
-                                            style: Theme.of(Get.context!)
-                                                .textTheme
-                                                .subtitle1
-                                                ?.copyWith(
-                                                  fontSize: 12.px,
-                                                  color: Theme.of(Get.context!)
-                                                      .colorScheme
-                                                      .onSurface
-                                                      .withOpacity(.4),
-                                                ),
-                                          ),
-                                        ),
-
-                                        cityTextFieldView(),
-                                      SizedBox(height: 2.h),
-                                      titleTextView(text: 'Type Of Products'),
-                                      SizedBox(height: 1.h),
                                       SizedBox(
-                                        height: 30.px,
-                                        child: ListView.builder(
-                                          scrollDirection: Axis.horizontal,
-                                          shrinkWrap: true,
-                                          itemCount:
-                                              controller.checkBoxTitle.length,
-                                          itemBuilder: (context, index) {
-                                            return InkWell(
-                                              onTap: () {},
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                children: [
-                                                  Obx(() {
-                                                    return controller.count.value >=
-                                                            0
-                                                        ? myCheckBox(
-                                                            checkBoxValue: controller
-                                                                        .checkTypeOfProductsValue
-                                                                        .value ==
-                                                                    index.toString()
-                                                                ? true
-                                                                : false,
-                                                            onChanged:
-                                                                (value) async {
-                                                              controller
-                                                                      .checkTypeOfProductsValue
-                                                                      .value =
-                                                                  index.toString();
-                                                              controller.checkValue
-                                                                  .value = value!;
-                                                            },
-                                                          )
-                                                        : const SizedBox();
-                                                  }),
-                                                  titleTextView(
-                                                      text: controller
-                                                          .checkBoxTitle[index]
-                                                          .toString()),
-                                                ],
-                                              ),
-                                            );
-                                          },
-                                        ),
+                                        height: Zconstant.margin,
                                       ),
-                                      SizedBox(height: 2.h),
-                                      if (controller.fashionCategoryList.isNotEmpty)
-                                      Obx(() {
-                                          return controller.count.value >= 0
-                                              ? Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    titleTextView(
-                                                        text: 'Fashion Category'),
-                                                    Container(
-                                                      decoration: BoxDecoration(
-                                                        border: Border(
-                                                          bottom: BorderSide(
-                                                            color: Theme.of(context).brightness==Brightness.light?MyColorsLight().onPrimary.withOpacity(.1):MyColorsLight().onPrimary,
-                                                            width: 1.px,
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Stack(
+                                            alignment: Alignment.bottomRight,
+                                            children: [
+                                              userProfilePicView(),
+                                              Padding(
+                                                padding: EdgeInsets.zero,
+                                                child: addIconButtonView(),
+                                              )
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: Zconstant.margin),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            SizedBox(height: 2.h),
+                                            nameTextFieldView(),
+                                            SizedBox(height: 2.h),
+                                            emailTextFieldView(),
+                                            SizedBox(height: 2.h),
+                                            dobTextFieldView(),
+                                            SizedBox(height: 2.h),
+                                            mobileNumberTextFieldView(),
+                                            /* Obx(() {
+                                        return controller.isSendOtpVisible.value
+                                            ? Row(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          children: [
+                                            sendOTPButtonView(),
+                                          ],
+                                        )
+                                            : SizedBox(
+                                          height: 0.h,
+                                        );
+                                      }),*/
+                                            SizedBox(height: 2.h),
+                                            if (controller.stateName != null &&
+                                                controller.stateName != '')
+                                              Align(
+                                                alignment: Alignment.topLeft,
+                                                child: Text(
+                                                  'State Name',
+                                                  style: Theme.of(Get.context!)
+                                                      .textTheme
+                                                      .subtitle1
+                                                      ?.copyWith(
+                                                        fontSize: 12.px,
+                                                        color: Theme.of(
+                                                                Get.context!)
+                                                            .colorScheme
+                                                            .onSurface
+                                                            .withOpacity(.4),
+                                                      ),
+                                                ),
+                                              ),
+                                            stateTextFieldView(),
+                                            SizedBox(height: 2.h),
+                                            if (controller.cityName != null &&
+                                                controller.cityName != '' &&
+                                                controller.cityModel != null &&
+                                                controller.cityModel?.cities !=
+                                                    null &&
+                                                controller.cityModel!.cities!
+                                                    .isNotEmpty)
+                                              Align(
+                                                alignment: Alignment.topLeft,
+                                                child: Text(
+                                                  'City Name',
+                                                  style: Theme.of(Get.context!)
+                                                      .textTheme
+                                                      .subtitle1
+                                                      ?.copyWith(
+                                                        fontSize: 12.px,
+                                                        color: Theme.of(
+                                                                Get.context!)
+                                                            .colorScheme
+                                                            .onSurface
+                                                            .withOpacity(.4),
+                                                      ),
+                                                ),
+                                              ),
+                                            cityTextFieldView(),
+                                            SizedBox(height: 2.h),
+                                            titleTextView(
+                                                text: 'Type Of Products'),
+                                            SizedBox(height: 1.h),
+                                            SizedBox(
+                                              height: 30.px,
+                                              child: ListView.builder(
+                                                scrollDirection:
+                                                    Axis.horizontal,
+                                                shrinkWrap: true,
+                                                itemCount: controller
+                                                    .checkBoxTitle.length,
+                                                itemBuilder: (context, index) {
+                                                  return InkWell(
+                                                    onTap: () {},
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Obx(() {
+                                                          return controller
+                                                                      .count
+                                                                      .value >=
+                                                                  0
+                                                              ? myCheckBox(
+                                                                  checkBoxValue:
+                                                                      controller.checkTypeOfProductsValue.value ==
+                                                                              index.toString()
+                                                                          ? true
+                                                                          : false,
+                                                                  onChanged:
+                                                                      (value) async {
+                                                                    controller
+                                                                            .checkTypeOfProductsValue
+                                                                            .value =
+                                                                        index
+                                                                            .toString();
+                                                                    controller
+                                                                        .checkValue
+                                                                        .value = value!;
+                                                                  },
+                                                                )
+                                                              : const SizedBox();
+                                                        }),
+                                                        titleTextView(
+                                                            text: controller
+                                                                .checkBoxTitle[
+                                                                    index]
+                                                                .toString()),
+                                                      ],
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                            SizedBox(height: 2.h),
+                                            if (controller
+                                                .fashionCategoryList.isNotEmpty)
+                                              Obx(() {
+                                                return controller.count.value >=
+                                                        0
+                                                    ? Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          titleTextView(
+                                                              text:
+                                                                  'Fashion Category'),
+                                                          Container(
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              border: Border(
+                                                                bottom:
+                                                                    BorderSide(
+                                                                  color: Theme.of(context)
+                                                                              .brightness ==
+                                                                          Brightness
+                                                                              .light
+                                                                      ? MyColorsLight()
+                                                                          .onPrimary
+                                                                          .withOpacity(
+                                                                              .1)
+                                                                      : MyColorsLight()
+                                                                          .onPrimary,
+                                                                  width: 1.px,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            child:
+                                                                MultiSelectBottomSheetField(
+                                                              initialValue:
+                                                                  controller
+                                                                      .selectFashionCategoryList
+                                                                      .toList(),
+                                                              title: Text(
+                                                                'Select Fashion Brands',
+                                                                style: Theme.of(Get
+                                                                        .context!)
+                                                                    .textTheme
+                                                                    .subtitle2
+                                                                    ?.copyWith(
+                                                                        fontSize: 16
+                                                                            .px,
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .w800,
+                                                                        color: MyColorsLight()
+                                                                            .onText),
+                                                              ),
+                                                              unselectedColor:
+                                                                  MyColorsDark()
+                                                                      .onPrimary
+                                                                      .withOpacity(
+                                                                          .4),
+                                                              backgroundColor:
+                                                                  MyColorsLight()
+                                                                      .secondary,
+                                                              buttonIcon: Icon(
+                                                                  Icons
+                                                                      .arrow_drop_down,
+                                                                  size: 22.px),
+                                                              selectedItemsTextStyle: Theme
+                                                                      .of(Get
+                                                                          .context!)
+                                                                  .textTheme
+                                                                  .subtitle2
+                                                                  ?.copyWith(
+                                                                      fontSize:
+                                                                          16.px,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w800,
+                                                                      color: MyColorsLight()
+                                                                          .primaryColor),
+                                                              selectedColor:
+                                                                  MyColorsDark()
+                                                                      .primaryColor,
+                                                              searchable: true,
+                                                              searchHint:
+                                                                  "Search",
+                                                              separateSelectedItems:
+                                                                  true,
+                                                              closeSearchIcon: Icon(
+                                                                  Icons.close,
+                                                                  color: MyColorsLight()
+                                                                      .onText),
+                                                              searchHintStyle: Theme
+                                                                      .of(Get
+                                                                          .context!)
+                                                                  .textTheme
+                                                                  .subtitle2
+                                                                  ?.copyWith(
+                                                                      fontSize:
+                                                                          16.px,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w800,
+                                                                      color: MyColorsLight()
+                                                                          .dashMenuColor),
+                                                              searchIcon: Icon(
+                                                                  Icons.search,
+                                                                  color: MyColorsLight()
+                                                                      .onText),
+                                                              searchTextStyle:
+                                                                  Theme.of(Get
+                                                                          .context!)
+                                                                      .textTheme
+                                                                      .subtitle2
+                                                                      ?.copyWith(
+                                                                        fontSize:
+                                                                            16.px,
+                                                                        fontWeight:
+                                                                            FontWeight.w800,
+                                                                        color: MyColorsLight()
+                                                                            .onText,
+                                                                      ),
+                                                              chipDisplay:
+                                                                  MultiSelectChipDisplay
+                                                                      .none(),
+                                                              buttonText: Text(
+                                                                'Select Fashion Category',
+                                                                style: TextStyle(
+                                                                    color: Theme.of(
+                                                                            Get.context!)
+                                                                        .colorScheme
+                                                                        .onSecondary),
+                                                              ),
+                                                              initialChildSize:
+                                                                  0.4,
+                                                              shape:
+                                                                  RoundedRectangleBorder(
+                                                                side: BorderSide(
+                                                                    color: MyColorsLight()
+                                                                        .backgroundFilterColor,
+                                                                    width:
+                                                                        .5.px),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10.px),
+                                                              ),
+                                                              listType:
+                                                                  MultiSelectListType
+                                                                      .LIST,
+                                                              items: controller
+                                                                  .fashionCategoryList
+                                                                  .map(
+                                                                    (e) => MultiSelectItem(
+                                                                        e,
+                                                                        e.name
+                                                                            .toString()),
+                                                                  )
+                                                                  .toList(),
+                                                              onConfirm:
+                                                                  (value) {
+                                                                controller
+                                                                        .selectedFashionCategory =
+                                                                    value;
+                                                                controller
+                                                                        .useObx
+                                                                        .value =
+                                                                    value;
+                                                                controller
+                                                                    .fashionCategoryId
+                                                                    .clear();
+                                                                for (var element
+                                                                    in controller
+                                                                        .selectedFashionCategory) {
+                                                                  controller
+                                                                      .fashionCategoryId
+                                                                      .add(element
+                                                                          .fashionCategoryId);
+                                                                  controller.selectFashionCategoryList = controller
+                                                                      .fashionCategoryList
+                                                                      .where((element) => controller
+                                                                          .fashionCategoryId
+                                                                          .contains(element.fashionCategoryId ??
+                                                                              ''));
+                                                                }
+                                                              },
+                                                            ),
                                                           ),
+                                                          SizedBox(height: 1.h),
+                                                          my(
+                                                            items: controller
+                                                                .selectFashionCategoryList
+                                                                .map((e) =>
+                                                                    MultiSelectItem(
+                                                                        e,
+                                                                        e.name
+                                                                            .toString()))
+                                                                .toList(),
+                                                            scrollController:
+                                                                ScrollController(),
+                                                            scroll: true,
+                                                            scrollBar:
+                                                                HorizontalScrollBar(
+                                                                    isAlwaysShown:
+                                                                        true),
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              border:
+                                                                  Border.all(
+                                                                color: MyColorsLight()
+                                                                    .backgroundFilterColor,
+                                                                width: .5.px,
+                                                              ),
+                                                            ),
+                                                            shape:
+                                                                RoundedRectangleBorder(
+                                                              side: BorderSide(
+                                                                  color: MyColorsLight()
+                                                                      .backgroundFilterColor,
+                                                                  width: .5.px),
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          5.px),
+                                                            ),
+                                                            chipColor: Colors
+                                                                .transparent,
+                                                            textStyle: Theme.of(
+                                                                    Get
+                                                                        .context!)
+                                                                .textTheme
+                                                                .subtitle2
+                                                                ?.copyWith(
+                                                                    fontSize:
+                                                                        12.px),
+                                                            list: controller
+                                                                .selectedFashionCategory,
+                                                          ),
+                                                          SizedBox(height: 1.h),
+                                                        ],
+                                                      )
+                                                    : const SizedBox();
+                                              }),
+                                            SizedBox(height: 2.h),
+                                            if (controller.brandList.isNotEmpty)
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  titleTextView(
+                                                      text: 'Favourite Brand'),
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                      border: Border(
+                                                        bottom: BorderSide(
+                                                          color: Theme.of(context)
+                                                                      .brightness ==
+                                                                  Brightness
+                                                                      .light
+                                                              ? MyColorsLight()
+                                                                  .onPrimary
+                                                                  .withOpacity(
+                                                                      .1)
+                                                              : MyColorsLight()
+                                                                  .onPrimary,
+                                                          width: 1.px,
                                                         ),
                                                       ),
-                                                      child:
-                                                          MultiSelectBottomSheetField(
-                                                        initialValue: controller
-                                                            .selectFashionCategoryList
-                                                            .toList() ,
-                                                        title: Text(
-                                                          'Select Fashion Brands',
-                                                          style: Theme.of(
-                                                                  Get.context!)
+                                                    ),
+                                                    child:
+                                                        MultiSelectBottomSheetField(
+                                                      initialValue: controller
+                                                          .selectBrandList
+                                                          .toList(),
+                                                      title: Text(
+                                                        'Select Fashion Brands',
+                                                        style: Theme.of(
+                                                                Get.context!)
+                                                            .textTheme
+                                                            .subtitle2
+                                                            ?.copyWith(
+                                                                fontSize: 16.px,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w800,
+                                                                color:
+                                                                    MyColorsLight()
+                                                                        .onText),
+                                                      ),
+                                                      unselectedColor:
+                                                          MyColorsDark()
+                                                              .onPrimary
+                                                              .withOpacity(.4),
+                                                      backgroundColor:
+                                                          MyColorsLight()
+                                                              .secondary,
+                                                      buttonIcon: Icon(
+                                                          Icons.arrow_drop_down,
+                                                          size: 22.px),
+                                                      selectedItemsTextStyle: Theme
+                                                              .of(Get.context!)
+                                                          .textTheme
+                                                          .subtitle2
+                                                          ?.copyWith(
+                                                              fontSize: 16.px,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w800,
+                                                              color: MyColorsLight()
+                                                                  .primaryColor),
+                                                      selectedColor:
+                                                          MyColorsDark()
+                                                              .primaryColor,
+                                                      searchable: true,
+                                                      searchHint: "Search",
+                                                      separateSelectedItems:
+                                                          true,
+                                                      closeSearchIcon: Icon(
+                                                          Icons.close,
+                                                          color: MyColorsLight()
+                                                              .onText),
+                                                      searchHintStyle: Theme.of(
+                                                              Get.context!)
+                                                          .textTheme
+                                                          .subtitle2
+                                                          ?.copyWith(
+                                                              fontSize: 16.px,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w800,
+                                                              color: MyColorsLight()
+                                                                  .dashMenuColor),
+                                                      searchIcon: Icon(
+                                                          Icons.search,
+                                                          color: MyColorsLight()
+                                                              .onText),
+                                                      searchTextStyle:
+                                                          Theme.of(Get.context!)
                                                               .textTheme
                                                               .subtitle2
                                                               ?.copyWith(
-                                                                  fontSize: 16.px,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w800,
-                                                                  color:
-                                                                      MyColorsLight()
-                                                                          .onText),
-                                                        ),
-                                                        unselectedColor: MyColorsDark().onPrimary.withOpacity(.4),
-                                                        backgroundColor: MyColorsLight().secondary,
-                                                        buttonIcon: Icon(Icons.arrow_drop_down, size: 22.px),
-                                                        selectedItemsTextStyle: Theme.of(Get.context!).textTheme.subtitle2?.copyWith(fontSize: 16.px,
-                                                                fontWeight: FontWeight.w800,
-                                                                color: MyColorsLight().primaryColor),
-                                                        selectedColor: MyColorsDark().primaryColor,
-                                                        searchable: true,
-                                                        searchHint: "Search",
-                                                        separateSelectedItems: true,
-                                                        closeSearchIcon: Icon(Icons.close, color: MyColorsLight().onText),
-                                                        searchHintStyle: Theme.of(Get.context!).textTheme.subtitle2?.copyWith(
-                                                                fontSize: 16.px, fontWeight: FontWeight.w800,
-                                                                color: MyColorsLight().dashMenuColor),
-                                                        searchIcon: Icon(
-                                                            Icons.search,
-                                                            color: MyColorsLight().onText),
-                                                        searchTextStyle: Theme.of(Get.context!).textTheme.subtitle2
-                                                            ?.copyWith(fontSize: 16.px,
-                                                              fontWeight: FontWeight.w800,
-                                                              color: MyColorsLight().onText,
-                                                            ),
-                                                        chipDisplay:
-                                                            MultiSelectChipDisplay
-                                                                .none(),
-                                                        buttonText: Text(
-                                                          'Select Fashion Category',
+                                                                fontSize: 16.px,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w800,
+                                                                color:
+                                                                    MyColorsLight()
+                                                                        .onText,
+                                                              ),
+                                                      chipDisplay:
+                                                          MultiSelectChipDisplay
+                                                              .none(),
+                                                      buttonText: Text(
+                                                          'Select Favourite Brand',
                                                           style: TextStyle(
-                                                              color: Theme.of(
-                                                                      Get.context!)
+                                                              color: Theme.of(Get
+                                                                      .context!)
                                                                   .colorScheme
-                                                                  .onSecondary),
-                                                        ),
-                                                        initialChildSize: 0.4,
-                                                        shape:
-                                                            RoundedRectangleBorder(
-                                                          side: BorderSide(
-                                                              color: MyColorsLight()
-                                                                  .backgroundFilterColor,
-                                                              width: .5.px),
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                  10.px),
-                                                        ),
-                                                        listType: MultiSelectListType.LIST,
-                                                        items: controller.fashionCategoryList.map((e) =>
-                                                                MultiSelectItem(e, e.name.toString()),)
-                                                            .toList(),
-                                                        onConfirm: (value) {
-                                                          controller.selectedFashionCategory = value;
-                                                          controller.useObx.value = value;
-                                                          controller.fashionCategoryId.clear();
-                                                          for (var element in controller
-                                                              .selectedFashionCategory) {
-                                                            controller
-                                                                .fashionCategoryId
-                                                                .add(element
-                                                                    .fashionCategoryId);
-                                                            controller.selectFashionCategoryList = controller
-                                                                .fashionCategoryList
-                                                                .where((element) => controller
-                                                                    .fashionCategoryId
-                                                                    .contains(element
-                                                                            .fashionCategoryId ??
-                                                                        ''));
-                                                          }
-                                                        },
-                                                      ),
-                                                    ),
-                                                    SizedBox(height: 1.h),
-                                                    my(
-                                                      items: controller
-                                                          .selectFashionCategoryList
-                                                          .map((e) =>
-                                                              MultiSelectItem(
-                                                                  e,
-                                                                  e.name
-                                                                      .toString()))
-                                                          .toList(),
-                                                      scrollController:
-                                                          ScrollController(),
-                                                      scroll: true,
-                                                      scrollBar:
-                                                          HorizontalScrollBar(
-                                                              isAlwaysShown: true),
-                                                      decoration: BoxDecoration(
-                                                        border: Border.all(
-                                                          color: MyColorsLight()
-                                                              .backgroundFilterColor,
-                                                          width: .5.px,
-                                                        ),
-                                                      ),
-                                                      shape: RoundedRectangleBorder(
+                                                                  .onSecondary)),
+                                                      initialChildSize: 0.4,
+                                                      shape:
+                                                          RoundedRectangleBorder(
                                                         side: BorderSide(
                                                             color: MyColorsLight()
                                                                 .backgroundFilterColor,
                                                             width: .5.px),
                                                         borderRadius:
-                                                            BorderRadius.circular(
-                                                                5.px),
+                                                            BorderRadius
+                                                                .circular(
+                                                                    10.px),
                                                       ),
-                                                      chipColor: Colors.transparent,
-                                                      textStyle:
-                                                          Theme.of(Get.context!)
-                                                              .textTheme
-                                                              .subtitle2
-                                                              ?.copyWith(
-                                                                  fontSize: 12.px),
-                                                      list: controller
-                                                          .selectedFashionCategory,
+                                                      listType:
+                                                          MultiSelectListType
+                                                              .LIST,
+                                                      items: controller
+                                                          .brandList
+                                                          .map((e) =>
+                                                              MultiSelectItem(
+                                                                  e,
+                                                                  e.brandName
+                                                                      .toString()))
+                                                          .toList(),
+                                                      onConfirm: (value) {
+                                                        controller
+                                                                .selectedBrands =
+                                                            value;
+                                                        controller.brandId
+                                                            .clear();
+                                                        controller.useObx
+                                                            .value = value;
+                                                        for (var element
+                                                            in controller
+                                                                .selectedBrands) {
+                                                          controller.brandId
+                                                              .add(element
+                                                                  .brandId);
+                                                          controller.selectBrandList = controller
+                                                              .brandList
+                                                              .where((element) =>
+                                                                  controller
+                                                                      .brandId
+                                                                      .contains(
+                                                                          element.brandId ??
+                                                                              ''));
+                                                        }
+                                                      },
                                                     ),
-                                                    SizedBox(height: 1.h),
-                                                  ],
-                                                )
-                                              : const SizedBox();
-                                        }),
-                                      SizedBox(height: 2.h),
-                                      if (controller.brandList.isNotEmpty)
-                                      Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            titleTextView(text: 'Favourite Brand'),
-                                            Container(
-                                              decoration: BoxDecoration(
-                                                border: Border(
-                                                  bottom: BorderSide(
-                                                    color: Theme.of(context).brightness==Brightness.light?MyColorsLight().onPrimary.withOpacity(.1):MyColorsLight().onPrimary,
-                                                    width: 1.px,
                                                   ),
-                                                ),
-                                              ),
-                                              child: MultiSelectBottomSheetField(
-                                                initialValue: controller
-                                                    .selectBrandList
-                                                    .toList(),
-                                                title: Text(
-                                                  'Select Fashion Brands',
-                                                  style: Theme.of(Get.context!)
-                                                      .textTheme
-                                                      .subtitle2
-                                                      ?.copyWith(
-                                                          fontSize: 16.px,
-                                                          fontWeight:
-                                                              FontWeight.w800,
-                                                          color: MyColorsLight()
-                                                              .onText),
-                                                ),
-                                                unselectedColor: MyColorsDark()
-                                                    .onPrimary
-                                                    .withOpacity(.4),
-                                                backgroundColor:
-                                                    MyColorsLight().secondary,
-                                                buttonIcon: Icon(
-                                                    Icons.arrow_drop_down,
-                                                    size: 22.px),
-                                                selectedItemsTextStyle:
-                                                    Theme.of(Get.context!)
-                                                        .textTheme
-                                                        .subtitle2
-                                                        ?.copyWith(
-                                                            fontSize: 16.px,
-                                                            fontWeight:
-                                                                FontWeight.w800,
-                                                            color: MyColorsLight()
-                                                                .primaryColor),
-                                                selectedColor:
-                                                    MyColorsDark().primaryColor,
-                                                searchable: true,
-                                                searchHint: "Search",
-                                                separateSelectedItems: true,
-                                                closeSearchIcon: Icon(Icons.close,
-                                                    color: MyColorsLight().onText),
-                                                searchHintStyle:
-                                                    Theme.of(Get.context!)
-                                                        .textTheme
-                                                        .subtitle2
-                                                        ?.copyWith(
-                                                            fontSize: 16.px,
-                                                            fontWeight:
-                                                                FontWeight.w800,
-                                                            color: MyColorsLight()
-                                                                .dashMenuColor),
-                                                searchIcon: Icon(Icons.search,
-                                                    color: MyColorsLight().onText),
-                                                searchTextStyle: Theme.of(
-                                                        Get.context!)
-                                                    .textTheme
-                                                    .subtitle2
-                                                    ?.copyWith(
-                                                      fontSize: 16.px,
-                                                      fontWeight: FontWeight.w800,
-                                                      color: MyColorsLight().onText,
+                                                  SizedBox(height: 1.h),
+                                                  my(
+                                                    items: controller
+                                                        .selectBrandList
+                                                        .map((e) =>
+                                                            MultiSelectItem(
+                                                                e,
+                                                                e.brandName
+                                                                    .toString()))
+                                                        .toList(),
+                                                    scrollController:
+                                                        ScrollController(),
+                                                    scroll: true,
+                                                    scrollBar:
+                                                        HorizontalScrollBar(
+                                                            isAlwaysShown:
+                                                                true),
+                                                    decoration: BoxDecoration(
+                                                      border: Border.all(
+                                                        color: MyColorsLight()
+                                                            .backgroundFilterColor,
+                                                        width: .5.px,
+                                                      ),
                                                     ),
-                                                chipDisplay:
-                                                    MultiSelectChipDisplay.none(),
-                                                buttonText: Text(
-                                                    'Select Favourite Brand',
-                                                    style: TextStyle(
-                                                        color:
-                                                            Theme.of(Get.context!)
-                                                                .colorScheme
-                                                                .onSecondary)),
-                                                initialChildSize: 0.4,
-                                                shape: RoundedRectangleBorder(
-                                                  side: BorderSide(
-                                                      color: MyColorsLight()
-                                                          .backgroundFilterColor,
-                                                      width: .5.px),
-                                                  borderRadius:
-                                                      BorderRadius.circular(10.px),
-                                                ),
-                                                listType: MultiSelectListType.LIST,
-                                                items: controller.brandList
-                                                    .map((e) => MultiSelectItem(
-                                                        e, e.brandName.toString()))
-                                                    .toList(),
-                                                onConfirm: (value) {
-                                                  controller.selectedBrands = value;
-                                                  controller.brandId.clear();
-                                                  controller.useObx.value = value;
-                                                  for (var element in controller
-                                                      .selectedBrands) {
-                                                    controller.brandId
-                                                        .add(element.brandId);
-                                                    controller.selectBrandList =
-                                                        controller.brandList.where(
-                                                            (element) => controller
-                                                                .brandId
-                                                                .contains(element
-                                                                        .brandId ??
-                                                                    ''));
-                                                  }
-                                                },
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      side: BorderSide(
+                                                          color: MyColorsLight()
+                                                              .backgroundFilterColor,
+                                                          width: .5.px),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              5.px),
+                                                    ),
+                                                    chipColor:
+                                                        Colors.transparent,
+                                                    textStyle:
+                                                        Theme.of(Get.context!)
+                                                            .textTheme
+                                                            .subtitle2
+                                                            ?.copyWith(
+                                                                fontSize:
+                                                                    12.px),
+                                                    list: controller
+                                                        .selectedBrands,
+                                                  ),
+                                                ],
                                               ),
-                                            ),
-                                            SizedBox(height: 1.h),
-                                            my(
-                                              items: controller.selectBrandList
-                                                  .map((e) => MultiSelectItem(
-                                                      e, e.brandName.toString()))
-                                                  .toList(),
-                                              scrollController: ScrollController(),
-                                              scroll: true,
-                                              scrollBar: HorizontalScrollBar(
-                                                  isAlwaysShown: true),
-                                              decoration: BoxDecoration(
-                                                border: Border.all(
-                                                  color: MyColorsLight()
-                                                      .backgroundFilterColor,
-                                                  width: .5.px,
-                                                ),
-                                              ),
-                                              shape: RoundedRectangleBorder(
-                                                side: BorderSide(
-                                                    color: MyColorsLight()
-                                                        .backgroundFilterColor,
-                                                    width: .5.px),
-                                                borderRadius:
-                                                    BorderRadius.circular(5.px),
-                                              ),
-                                              chipColor: Colors.transparent,
-                                              textStyle: Theme.of(Get.context!)
-                                                  .textTheme
-                                                  .subtitle2
-                                                  ?.copyWith(fontSize: 12.px),
-                                              list: controller.selectedBrands,
-                                            ),
+                                            SizedBox(
+                                                height: Zconstant.margin * 5),
                                           ],
                                         ),
-                                      SizedBox(height: Zconstant.margin * 5),
+                                      ),
+                                      SizedBox(height: Zconstant.margin),
                                     ],
                                   ),
                                 ),
-                                SizedBox(height: Zconstant.margin),
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
-                        submitButtonView(context: context),
-                        SizedBox(height: Zconstant.margin),
-                      ],
-                    );
+                            submitButtonView(context: context),
+                            SizedBox(height: Zconstant.margin),
+                          ],
+                        );
+                      } else {
+                        return CommonWidgets.commonNoDataFoundImage(
+                          onRefresh: () => controller.onRefresh(),
+                        );
+                      }
+                    } else {
+                      if (controller.responseCodeState == 0 ||
+                          controller.responseCodeCity == 0 ||
+                          controller.responseCodeBrandList == 0 ||
+                          controller.responseCodeCategoryList == 0) {
+                        return const SizedBox();
+                      } else {
+                        return CommonWidgets.commonSomethingWentWrongImage(
+                          onRefresh: () => controller.onRefresh(),
+                        );
+                      }
+                    }
                   } else {
-                    return const SizedBox();
+                    return CommonWidgets.commonNoInternetImage(
+                      onRefresh: () => controller.onRefresh(),
+                    );
                   }
                 }),
               ),
@@ -742,64 +931,71 @@ class EditProfileView extends GetView<EditProfileController> {
 */
 
   Widget stateTextFieldView() {
-    print("controller.isStateSelectedValue.value::::::::: ${controller.isStateSelectedValue.value}");
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (controller.stateModel.value != null &&
-            controller.stateModel.value?.states != null &&
-            controller.stateModel.value!.states!.isNotEmpty)
-        SizedBox(
-          height: 6.h,
-          child: DropdownZeroCart(
-            wantDividerError: controller.isStateSelectedValue.value,
-            selected: controller.selectedState.value,
-            items: controller.stateModel.value!.states!
-                .map(
-                  (States e) => DropdownMenuItem<States>(
-                    value: e,
-                    child: Text(e.name.toString()),
-                  ),
-                )
-                .toList(),
-            hint: controller.stateName != ''
-                ? Text(
-                    "${controller.stateName}",
-                    style: Theme.of(Get.context!).textTheme.subtitle2?.copyWith(
-                        fontSize: 16.px,
-                        color: Theme.of(Get.context!).colorScheme.onSurface),
+        if (controller.stateModel != null &&
+            controller.stateModel?.states != null &&
+            controller.stateModel!.states!.isNotEmpty)
+          SizedBox(
+            height: 6.h,
+            child: DropdownZeroCart(
+              wantDividerError: controller.isStateSelectedValue.value,
+              selected: controller.selectedState,
+              items: controller.stateModel!.states!
+                  .map(
+                    (States e) => DropdownMenuItem<States>(
+                      value: e,
+                      child: Text(e.name.toString()),
+                    ),
                   )
-                : Text(
-                    'Select State',
-                    style: Theme.of(Get.context!).textTheme.subtitle2?.copyWith(
-                        fontSize: 16.px,
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(Get.context!)
-                            .colorScheme
-                            .onSurface
-                            .withOpacity(.4)),
-                  ),
-            onChanged: (States? value) async {
-              if (value?.id != controller.stateId) {
-
-                controller.selectedState.value = value;
-                controller.stateId = value?.id ?? '';
-                controller.stateName = value?.name;
-                if (value != null && value.id != null) {
-                  controller.cityName = '';
-                  controller.cityId = "";
-                  controller.selectedCity.value = null;
-                  controller.cityModel.value = null;
-                  controller.isStateSelectedValue.value=false;
-              await controller.getCityApiCalling(sId: controller.stateId.toString());
+                  .toList(),
+              hint: controller.stateName != ''
+                  ? Text(
+                      "${controller.stateName}",
+                      style: Theme.of(Get.context!)
+                          .textTheme
+                          .subtitle2
+                          ?.copyWith(
+                              fontSize: 16.px,
+                              color:
+                                  Theme.of(Get.context!).colorScheme.onSurface),
+                    )
+                  : Text(
+                      'Select State',
+                      style: Theme.of(Get.context!)
+                          .textTheme
+                          .subtitle2
+                          ?.copyWith(
+                              fontSize: 16.px,
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(Get.context!)
+                                  .colorScheme
+                                  .onSurface
+                                  .withOpacity(.4)),
+                    ),
+              onChanged: (States? value) async {
+                controller.inAsyncCall.value=true;
+                if (value?.id != controller.stateId) {
+                  controller.selectedState = value;
+                  controller.stateId = value?.id ?? '';
+                  controller.stateName = value?.name;
+                  if (value != null && value.id != null) {
+                    controller.cityName = '';
+                    controller.cityId = "";
+                    controller.selectedCity = null;
+                    controller.cityModel = null;
+                    controller.isStateSelectedValue.value = false;
+                    await controller.getCityApiCalling(
+                        sId: controller.stateId.toString());
+                  }
                 }
-              }
-            },
+                controller.inAsyncCall.value=false;
+              },
+            ),
           ),
-        ),
-        if(controller.isStateSelectedValue.value)
-          SizedBox(height: 5.px),
-        if(controller.isStateSelectedValue.value)
+        if (controller.isStateSelectedValue.value) SizedBox(height: 5.px),
+        if (controller.isStateSelectedValue.value)
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 5.px),
             child: Text(
@@ -851,69 +1047,74 @@ class EditProfileView extends GetView<EditProfileController> {
   }*/
 
   Widget cityTextFieldView() {
-    if (controller.cityModel.value != null &&
-        controller.cityModel.value?.cities != null &&
-        controller.cityModel.value!.cities!.isNotEmpty)
-      {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: 6.h,
-              child: DropdownZeroCart(
-                wantDividerError: controller.isCitySelectedValue.value,
-                selected: controller.selectedCity.value,
-                items: controller.citiesList!
-                    .map(
-                      (Cities e) => DropdownMenuItem<Cities>(
-                    value: e,
-                    child: Text(e.name.toString()),
-                  ),
-                )
-                    .toList(),
-                hint: controller.cityName != ''
-                    ? Text(
-                  "${controller.cityName}",
-                  style: Theme.of(Get.context!).textTheme.subtitle2?.copyWith(
-                      fontSize: 16.px,
-                      color: Theme.of(Get.context!).colorScheme.onSurface),
-                )
-                    : Text(
-                  'Select City',
-                  style: Theme.of(Get.context!).textTheme.subtitle2?.copyWith(
-                      fontSize: 16.px,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(Get.context!)
-                          .colorScheme
-                          .onSurface
-                          .withOpacity(.4)),
-                ),
-                onChanged: (Cities? value) async {
-                  controller.selectedCity.value = value;
-                  controller.cityId = value?.id??'';
-                  controller.cityName = value?.name;
-                  if(value != null && value.id != null){
-                    controller.isCitySelectedValue.value=false;
-                  }
-                },
+    if (controller.cityModel != null &&
+        controller.cityModel?.cities != null &&
+        controller.cityModel!.cities!.isNotEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: 6.h,
+            child: DropdownZeroCart(
+              wantDividerError: controller.isCitySelectedValue.value,
+              selected: controller.selectedCity,
+              items: controller.citiesList
+                  .map(
+                    (Cities e) => DropdownMenuItem<Cities>(
+                      value: e,
+                      child: Text(e.name.toString()),
+                    ),
+                  )
+                  .toList(),
+              hint: controller.cityName != ''
+                  ? Text(
+                      "${controller.cityName}",
+                      style: Theme.of(Get.context!)
+                          .textTheme
+                          .subtitle2
+                          ?.copyWith(
+                              fontSize: 16.px,
+                              color:
+                                  Theme.of(Get.context!).colorScheme.onSurface),
+                    )
+                  : Text(
+                      'Select City',
+                      style: Theme.of(Get.context!)
+                          .textTheme
+                          .subtitle2
+                          ?.copyWith(
+                              fontSize: 16.px,
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(Get.context!)
+                                  .colorScheme
+                                  .onSurface
+                                  .withOpacity(.4)),
+                    ),
+              onChanged: (Cities? value) async {
+                controller.selectedCity = value;
+                controller.cityId = value?.id ?? '';
+                controller.cityName = value?.name;
+                if (value != null && value.id != null) {
+                  controller.isCitySelectedValue.value = false;
+                }
+              },
+            ),
+          ),
+          if (controller.isCitySelectedValue.value) SizedBox(height: 5.px),
+          if (controller.isCitySelectedValue.value)
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5.px),
+              child: Text(
+                'Please Select City',
+                style: Theme.of(Get.context!)
+                    .textTheme
+                    .subtitle2
+                    ?.copyWith(fontSize: 14.px, color: MyColorsLight().error),
               ),
             ),
-            if(controller.isCitySelectedValue.value)
-              SizedBox(height: 5.px),
-            if(controller.isCitySelectedValue.value)
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 5.px),
-                child: Text(
-                  'Please Select City',
-                  style: Theme.of(Get.context!)
-                      .textTheme
-                      .subtitle2
-                      ?.copyWith(fontSize: 14.px, color: MyColorsLight().error),
-                ),
-              ),
-          ],
-        );
-      }else{
+        ],
+      );
+    } else {
       return const SizedBox();
     }
   }
@@ -1003,8 +1204,8 @@ class EditProfileView extends GetView<EditProfileController> {
           height: height ?? MediaQuery.of(Get.context!).size.height * 0.08,
           child: scrollBar != null
               ? ScrollConfiguration(
-            behavior: MyBehavior(),
-                child: Scrollbar(
+                  behavior: MyBehavior(),
+                  child: Scrollbar(
                     thumbVisibility: scrollBar.isAlwaysShown,
                     controller: scrollController,
                     child: ListView.builder(
@@ -1021,10 +1222,10 @@ class EditProfileView extends GetView<EditProfileController> {
                       },
                     ),
                   ),
-              )
+                )
               : ScrollConfiguration(
-            behavior: MyBehavior(),
-                child: ListView.builder(
+                  behavior: MyBehavior(),
+                  child: ListView.builder(
                     controller: scrollController,
                     scrollDirection: Axis.horizontal,
                     itemCount: items.length,
@@ -1037,7 +1238,7 @@ class EditProfileView extends GetView<EditProfileController> {
                           icon: icon);
                     },
                   ),
-              ),
+                ),
         )
         /*: Wrap(
         children: items != null

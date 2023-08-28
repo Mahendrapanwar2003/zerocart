@@ -351,7 +351,7 @@ class MyOrdersView extends GetView<MyOrdersController> {
                 Flexible(
                     child: itemOriginalPriceTextView(
                         value: controller.orderList[index].productPrice)),
-              howManyPercentOffTextView(),
+              howManyPercentOffTextView(value:""),
             ],
           ),
         ],

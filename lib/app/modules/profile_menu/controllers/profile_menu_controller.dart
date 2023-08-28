@@ -27,8 +27,7 @@ class ProfileMenuController extends GetxController {
     super.onInit();
     inAsyncCall.value = true;
     progress.value =
-        await MyCommonMethods.getString(key: UserDataKeyConstant.progress) ??
-            "0";
+        await MyCommonMethods.getString(key: UserDataKeyConstant.progress) ?? "0";
     inAsyncCall.value = false;
   }
 
