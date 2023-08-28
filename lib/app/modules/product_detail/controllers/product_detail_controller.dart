@@ -634,9 +634,9 @@ class ProductDetailController extends CommonMethods {
 
     if (bannerImagesList.isNotEmpty) {
       currentIndexOfDotIndicator.value = 0;
-      if (myController.ready == true) {
+      /*if (myController.ready == true) {
         myController.jumpToPage(0);
-      }
+      }*/
     }
   }
 

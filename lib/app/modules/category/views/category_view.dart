@@ -5,6 +5,7 @@ import 'package:zerocart/app/common_methods/common_methods.dart';
 import 'package:zerocart/app/constant/zconstant.dart';
 import 'package:zerocart/app/custom/scroll_splash_gone.dart';
 import 'package:zerocart/app/modules/category/controllers/category_controller.dart';
+import 'package:zerocart/load_more/load_more.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
 import '../../../../model_progress_bar/model_progress_bar.dart';
 import '../../../common_widgets/common_widgets.dart';
@@ -17,41 +18,57 @@ class CategoryView extends GetView<CategoryController> {
   Widget build(BuildContext context) {
     return Obx(() {
       return ModalProgress(
-        inAsyncCall: controller.absorbing.value,
+        inAsyncCall: controller.inAsyncCall.value,
         child: Scaffold(
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          appBar: const MyCustomContainer().myAppBar(
-            text: 'Categories',
-          ),
-          body: Obx(() {
-            if (CommonMethods.isConnect.value) {
-              if (controller.getCategories.value != null) {
-                if (controller.listOfCategories!.isNotEmpty) {
-                  return ScrollConfiguration(
-                    behavior: MyBehavior(),
-                    child: ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: [
-                        categoriesListView(context: context),
-                        SizedBox(height: 8.h),
-                      ],
-                    ),
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            appBar: const MyCustomContainer().myAppBar(
+              text: 'Categories',
+            ),
+            body: Obx(
+              () {
+                if (CommonMethods.isConnect.value) {
+                  if (controller.getCategories != null &&
+                      controller.responseCode == 200) {
+                    if (controller.listOfCategories.isNotEmpty) {
+                      return ScrollConfiguration(
+                        behavior: MyBehavior(),
+                        child: ListView(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          children: [
+                            categoriesListView(context: context),
+                            SizedBox(height: 8.h),
+                          ],
+                        ),
+                      );
+                      /* return CommonWidgets.commonRefreshIndicator(
+                        onRefresh: () => controller.onRefresh(),
+                        child: RefreshLoadMore(
+                          isLastPage: controller.isLastPage.value,
+                          onLoadMore: () => controller.onLoadMore(),
+                          child: ScrollConfiguration
+                        ),
+                      );*/
+                    } else {
+                      return CommonWidgets.commonNoDataFoundImage(
+                        onRefresh: () => controller.onRefresh(),
+                      );
+                    }
+                  } else {
+                    if (controller.responseCode == 0) {
+                      return const SizedBox();
+                    }
+                    return CommonWidgets.commonSomethingWentWrongImage(
+                      onRefresh: () => controller.onRefresh(),
+                    );
+                  }
+                } else {
+                  return CommonWidgets.commonNoInternetImage(
+                    onRefresh: () => controller.onRefresh(),
                   );
-                } else {
-                  return CommonWidgets.noDataTextView();
                 }
-              } else {
-                if (!controller.absorbing.value) {
-                  return CommonWidgets.somethingWentWrongTextView();
-                } else {
-                  return const SizedBox();
-                }
-              }
-            } else {
-              return CommonWidgets.noInternetTextView();
-            }
-          }),
-        ),
+              },
+            )),
       );
     });
   }
@@ -75,9 +92,9 @@ class CategoryView extends GetView<CategoryController> {
     return ListView.builder(
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
-        itemCount: controller.listOfCategories!.length,
+        itemCount: controller.listOfCategories.length,
         itemBuilder: (context, index) {
-          controller.categories = controller.listOfCategories![index];
+          controller.categories = controller.listOfCategories[index];
           return Padding(
             padding: EdgeInsets.symmetric(
                 horizontal: Zconstant.margin, vertical: 4.px),

@@ -1,10 +1,8 @@
 import 'dart:convert';
-
 import 'package:get/get.dart';
 import 'package:ui_library/ui_library.dart';
 import 'package:zerocart/app/apis/api_constant/api_constant.dart';
 import 'package:zerocart/app/apis/api_modals/get_notification_api_model.dart';
-import 'package:zerocart/app/apis/common_apis/common_apis.dart';
 import '../../../common_methods/common_methods.dart';
 import 'package:http/http.dart' as http;
 
@@ -84,15 +82,14 @@ class NotificationController extends CommonMethods {
         baseUri: ApiConstUri.baseUrlForGetMethod,
         endPointUri: ApiConstUri.endPointGetNotificationApi);
     responseCode = response?.statusCode ?? 0;
-    print("responseCode::::::${responseCode}");
     if (response != null) {
       if (await CommonMethods.checkResponse(response: response)) {
         getNotificationApiModel =
             GetNotificationApiModel.fromJson(jsonDecode(response.body));
+        if (offset == 0) {
+          notificationList.clear();
+        }
         if (getNotificationApiModel != null) {
-          if (offset == 0) {
-            notificationList.clear();
-          }
           if (getNotificationApiModel?.notificationList != null &&
               getNotificationApiModel!.notificationList!.isNotEmpty) {
             isLastPage.value = false;
@@ -112,4 +109,16 @@ class NotificationController extends CommonMethods {
     offset = 0;
     await onInit();
   }
+
+
+  Future<void> onLoadMore() async {
+    offset = offset + 10;
+    try {
+      await getNotification();
+    } catch (e) {
+      responseCode = 100;
+      MyCommonMethods.showSnackBar(message: "Something went wrong", context: Get.context!);
+    }
+  }
+
 }

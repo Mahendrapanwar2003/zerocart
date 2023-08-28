@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:ui_library/ui_library.dart';
 import 'package:zerocart/app/common_methods/common_methods.dart';
 import 'package:zerocart/app/custom/scroll_splash_gone.dart';
+import 'package:zerocart/model_progress_bar/model_progress_bar.dart';
+import '../../../../load_more/load_more.dart';
 import '../../../common_widgets/common_widgets.dart';
 import '../../../constant/zconstant.dart';
 import '../../../custom/custom_outline_button.dart';
@@ -16,8 +18,8 @@ class CategoryProductView extends GetView<CategoryProductController> {
   @override
   Widget build(BuildContext context) {
     return Obx(
-      () => AbsorbPointer(
-        absorbing: controller.absorbing.value,
+      () => ModalProgress(
+        inAsyncCall: controller.inAsyncCall.value,
         child: WillPopScope(
           onWillPop: () => controller.onWillPop(context: context),
           child: Scaffold(
@@ -49,9 +51,70 @@ class CategoryProductView extends GetView<CategoryProductController> {
                         'Filters',
                     isChatOption: /*controller.isChatOption == '1' ? true :*/
                         false),
-            body: CommonMethods.isConnect.value
-                ? controller.getProductListApiModel.value != null ||
-                        controller.searchProductModel.value != null
+            body: Obx(
+              () {
+                if (CommonMethods.isConnect.value) {
+                  if ((controller.getProductListApiModel != null ||
+                      controller.searchProductModel != null) &&
+                      controller.responseCode == 200) {
+                    if (controller.products.isNotEmpty) {
+                       return CommonWidgets.commonRefreshIndicator(
+                        onRefresh: () => controller.onRefresh(),
+                        child: RefreshLoadMore(
+                          isLastPage: controller.isLastPage.value,
+                          onLoadMore: () => controller.onLoadMore(),
+                          child: ScrollConfiguration(
+                            behavior: MyBehavior(),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (controller.filterDataList.isNotEmpty)
+                                  Obx(() {
+                                    controller.count.value;
+                                    return filterListView();
+                                  }),
+                                if (controller.products.isNotEmpty)
+                                  SizedBox(height: 4.px),
+                                if (controller.products.isNotEmpty)
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 16.px),
+                                    child: productsGridView(),
+                                  ),
+                              ],
+                            ),
+                          )
+                        ),
+                      );
+                    } else {
+                      return CommonWidgets.commonNoDataFoundImage(
+                        onRefresh: () => controller.onRefresh(),
+                      );
+                    }
+                  } else {
+                    if (controller.responseCode == 0) {
+                      return const SizedBox();
+                    }
+                    return CommonWidgets.commonSomethingWentWrongImage(
+                      onRefresh: () => controller.onRefresh(),
+                    );
+                  }
+                } else {
+                  return CommonWidgets.commonNoInternetImage(
+                    onRefresh: () => controller.onRefresh(),
+                  );
+                }
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /*CommonMethods.isConnect.value
+                ? controller.getProductListApiModel != null ||
+                        controller.searchProductModel != null
                     ? controller.products.isNotEmpty
                         ? ScrollConfiguration(
                             behavior: MyBehavior(),
@@ -122,12 +185,7 @@ class CategoryProductView extends GetView<CategoryProductController> {
                     children: [
                       CommonWidgets.noDataTextView(text: "No Internet"),
                     ],
-                  ),
-          ),
-        ),
-      ),
-    );
-  }
+                  ),*/
 
   Widget backArrowIconButtonView({required BuildContext context}) => Material(
         color: Colors.transparent,
@@ -300,6 +358,61 @@ class CategoryProductView extends GetView<CategoryProductController> {
     },
   );*/
 
+  Widget productsGridView() => SliverGrid.builder(
+        addAutomaticKeepAlives: false,
+        addRepaintBoundaries: false,
+        addSemanticIndexes: false,
+        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: 25.h,
+          childAspectRatio: 0.6,
+          crossAxisSpacing: 3.w,
+          mainAxisSpacing: 1.5.h,
+        ),
+        itemCount: controller.products.length,
+        itemBuilder: (BuildContext context, int index) {
+          return GestureDetector(
+            onTap: () => controller.clickOnProduct(
+                context: context,
+                productId: controller.products[index].productId.toString()),
+            child: Container(
+              color: Colors.transparent,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      productImageView(index: index),
+                      //SizedBox(height: 2.px),
+                      if (controller.products[index].isColor != null &&
+                          controller.products[index].isColor != "0")
+                        colorListView(index: index),
+                      SizedBox(height: 4.px),
+                      if (controller.products[index].brandName != null &&
+                          controller.products[index].brandName!.isNotEmpty)
+                        brandNameTextView(index: index),
+                      if (controller.products[index].brandName != null &&
+                          controller.products[index].brandName!.isNotEmpty)
+                        SizedBox(height: 2.px),
+                      if (controller.products[index].productName != null &&
+                          controller.products[index].productName!.isNotEmpty)
+                        productNameTextView(index: index),
+                      if (controller.products[index].productName != null &&
+                          controller.products[index].productName!.isNotEmpty)
+                        SizedBox(height: 2.px),
+                      //priceView(index: index),
+                      //SizedBox(height: 4.px),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+
+/*
   Widget productsGridView() => CustomScrollView(
         shrinkWrap: true,
         physics: controller.isLoading.value
@@ -372,7 +485,7 @@ class CategoryProductView extends GetView<CategoryProductController> {
                         height: 25.px, width: 25.px),
                   );
                 } else if (controller
-                        .getProductListApiModel.value?.products?.isEmpty ??
+                        .getProductListApiModel?.products?.isEmpty ??
                     false) {
                   return Padding(
                     padding: EdgeInsets.symmetric(vertical: 16.px),
@@ -387,6 +500,7 @@ class CategoryProductView extends GetView<CategoryProductController> {
           )
         ],
       );
+*/
 
   ///Todo Mahi
   /*  Widget productsGridView() => MasonryGridView.count(
@@ -748,7 +862,7 @@ class CategoryProductView extends GetView<CategoryProductController> {
                 padding:  EdgeInsets.symmetric(vertical: 8.px),
                 child: CommonWidgets.progressBarView(height: 25.px,width: 25.px),
               );
-            } else if (controller.searchProductModel.value?.productList?.isEmpty ?? false) {
+            } else if (controller.searchProductModel?.productList?.isEmpty ?? false) {
               return Padding(
                   padding: EdgeInsets.symmetric(vertical: 16.px),
                   child:

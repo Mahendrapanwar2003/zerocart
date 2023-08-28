@@ -1,9 +1,7 @@
-
 class ApiConstUri {
+  static const baseUrl = 'http://zerocart.dollopinfotech.com/';
 
-  static const  baseUrl ='http://zerocart.dollopinfotech.com/';
-
-  static const  baseUrlForGetMethod ='zerocart.dollopinfotech.com';
+  static const baseUrlForGetMethod = 'zerocart.dollopinfotech.com';
 
   //static const endPointGetRecentProductApi="${baseUrl}getRecentProductApi";
 
@@ -13,190 +11,205 @@ class ApiConstUri {
 
   // static const  baseUrlForGetMethod ='zerocart.in';
 
-  static const  endPointGoogleSignUpApi ='${baseUrl}customerSignupApi';
+  static const endPointGoogleSignUpApi = '${baseUrl}customerSignupApi';
 
-  static const  endPointRegistrationApi ='${baseUrl}customerRegistrationApi';
+  static const endPointRegistrationApi = '${baseUrl}customerRegistrationApi';
 
-  static const  endPointUpdateCustomerProfileApi ='${baseUrl}updateCustomerProfileApi';
+  static const endPointUpdateCustomerProfileApi =
+      '${baseUrl}updateCustomerProfileApi';
 
-  static const endPointSendOtpApi='${baseUrl}sendOtpApi';
+  static const endPointSendOtpApi = '${baseUrl}sendOtpApi';
 
-  static const endPointMatchOtpApi='${baseUrl}matchOtpApi';
+  static const endPointMatchOtpApi = '${baseUrl}matchOtpApi';
 
-  static const endPointLoginApi='${baseUrl}customerLoginApi';
+  static const endPointLoginApi = '${baseUrl}customerLoginApi';
 
-  static const endPointResetPasswordApi='${baseUrl}resetCustomerPasswordApi';
+  static const endPointResetPasswordApi = '${baseUrl}resetCustomerPasswordApi';
 
-  static const endPointGetUserDataApi='${baseUrl}getCustomerDetailApi';
+  static const endPointGetUserDataApi = '${baseUrl}getCustomerDetailApi';
 
-  static const endPointUpdateFcmIdApi='${baseUrl}updateCustomerFcmIdApi';
+  static const endPointUpdateFcmIdApi = '${baseUrl}updateCustomerFcmIdApi';
 
-  static const endPointAddCustomerAddressApi='${baseUrl}addCustomerAddressApi';
+  static const endPointAddCustomerAddressApi =
+      '${baseUrl}addCustomerAddressApi';
 
-  static const endPointGetCustomerAddressApi='/getCustomerAddressApi';
+  static const endPointGetCustomerAddressApi = '/getCustomerAddressApi';
 
-  static const endPointChangePasswordApi='${baseUrl}customerChangePasswordApi';
+  static const endPointChangePasswordApi =
+      '${baseUrl}customerChangePasswordApi';
 
-  static const endPointGetCategoryApi='${baseUrl}getCategoryApi';
+  static const endPointGetCategoryApi = '/getCategoryApi';
 
-  static const endPointGetBannerApi='${baseUrl}getBannerApi';
+  static const endPointGetBannerApi = '${baseUrl}getBannerApi';
 
-  static const endPointGetProductListApi='/getProductListApi';
+  static const endPointGetProductListApi = '/getProductListApi';
 
-  static const endPointGetProductDetailApi='/getProductDetailsApi';
+  static const endPointGetProductDetailApi = '/getProductDetailsApi';
 
-  static const endPointGetStateApi='/getStateApi';
+  static const endPointGetStateApi = '/getStateApi';
 
-  static const endPointGetCityApi='/getCityApi';
+  static const endPointGetCityApi = '/getCityApi';
 
-  static const endPointUserPrescriptionApi='${baseUrl}userPrescriptionApi';
+  static const endPointUserPrescriptionApi = '${baseUrl}userPrescriptionApi';
 
-  static const endPointGetConnectionListApi='${baseUrl}getConnectionListApi';
+  static const endPointGetConnectionListApi = '${baseUrl}getConnectionListApi';
 
-  static const endPointGetConnectionDetailApi='/getConnectionDetailApi';
+  static const endPointGetConnectionDetailApi = '/getConnectionDetailApi';
 
-  static const endPointSetCustomerDefaultAddressApi ='${baseUrl}setCustomerisDefaultAddressApi';
+  static const endPointSetCustomerDefaultAddressApi =
+      '${baseUrl}setCustomerisDefaultAddressApi';
 
-  static const endPointGetCartDetailsApi ='/getCartDetailsApi';
+  static const endPointGetCartDetailsApi = '/getCartDetailsApi';
 
-  static const endPointGetWishListApi ='${baseUrl}getWishListApi';
+  static const endPointGetWishListApi = '${baseUrl}getWishListApi';
 
-  static const endPointManageCartApi ='${baseUrl}manageCartApi';
+  static const endPointManageCartApi = '${baseUrl}manageCartApi';
 
-  static const endPointDeleteCustomerAddressApi ='${baseUrl}deleteCustomerAddressApi';
+  static const endPointDeleteCustomerAddressApi =
+      '${baseUrl}deleteCustomerAddressApi';
 
-  static const endPointDashboardDetailApi ='${baseUrl}dashboardDetailApi';
+  static const endPointDashboardDetailApi = '${baseUrl}dashboardDetailApi';
 
-  static const endPointAddToWishListApi='${baseUrl}addToWishListApi';
+  static const endPointAddToWishListApi = '${baseUrl}addToWishListApi';
 
-  static const endPointGetFilterCategoriesApi='/getFilterCategoriesApi';
+  static const endPointGetFilterCategoriesApi = '/getFilterCategoriesApi';
 
-  static const endPointGetFilterCategoriesListApi="/getFilterCategoriesListApi";
+  static const endPointGetFilterCategoriesListApi =
+      "/getFilterCategoriesListApi";
 
-  static const endPointUserProductFeedbackApi="${baseUrl}userProductFeedbackApi";
+  static const endPointUserProductFeedbackApi =
+      "${baseUrl}userProductFeedbackApi";
 
-  static const endPointGetProductReviewApi="/getProductReviewApi";
+  static const endPointGetProductReviewApi = "/getProductReviewApi";
 
-  static const endPointSearchRecentProductApi="${baseUrl}searchRecentProductApi";
+  static const endPointSearchRecentProductApi =
+      "${baseUrl}searchRecentProductApi";
 
-  static const endPointRemoveCartItemApi="${baseUrl}removeCartItemApi";
+  static const endPointRemoveCartItemApi = "${baseUrl}removeCartItemApi";
 
-  static const endPointRemoveWishlistItemApi="${baseUrl}removeFromWishListApi";
+  static const endPointRemoveWishlistItemApi =
+      "${baseUrl}removeFromWishListApi";
 
-  static const endPointGetProductByInventoryApi="/getProductByInventoryApi";
+  static const endPointGetProductByInventoryApi = "/getProductByInventoryApi";
 
-  static var cartItemSelectionApi="${baseUrl}cartItemSelectionApi";
+  static var cartItemSelectionApi = "${baseUrl}cartItemSelectionApi";
 
-  static var endPointApplyCouponApi="${baseUrl}applyCouponApi";
+  static var endPointApplyCouponApi = "${baseUrl}applyCouponApi";
 
-  static var endPointPlaceOrderApi="${baseUrl}placeOrderApi";
+  static var endPointPlaceOrderApi = "${baseUrl}placeOrderApi";
 
-  static const endPointWalletTransactionApi="${baseUrl}walletTransactionApi";
+  static const endPointWalletTransactionApi = "${baseUrl}walletTransactionApi";
 
-  static const endPointGetOrderListApi="/getOrderListApi";
+  static const endPointGetOrderListApi = "/getOrderListApi";
 
-  static const endPointGetNotificationApi="/getNotificationApi";
+  static const endPointGetNotificationApi = "/getNotificationApi";
 
-  static const endPointGetCustomerWalletHistoryApi="/getCustomerWalletHistoryApi";
+  static const endPointGetCustomerWalletHistoryApi =
+      "/getCustomerWalletHistoryApi";
 
-  static const endPointGetRecentProductApi="/get_order_history_based";
+  static const endPointGetRecentProductApi = "/get_order_history_based";
 
-  static const endPointGetTopTrendingProductApi="/get_similar_users_preferences_based";
+  static const endPointGetTopTrendingProductApi =
+      "/get_similar_users_preferences_based";
 
-  static const endPointGetTopTrendingProductApi2="/get_similar_users_order_based";
+  static const endPointGetTopTrendingProductApi2 =
+      "/get_similar_users_order_based";
 
-  static const endPointGetProductDetailApi2="/get_similar_products";
+  static const endPointGetProductDetailApi2 = "/get_similar_products";
 
-  static const endPointGetAllFashionCategoryListApi="$baseUrl/getAllFashionCategoryListApi";
+  static const endPointGetAllFashionCategoryListApi =
+      "$baseUrl/getAllFashionCategoryListApi";
 
-  static const endPointGetAllBrandListApi="$baseUrl/getAllBrandListApi";
+  static const endPointGetAllBrandListApi = "$baseUrl/getAllBrandListApi";
 
-  static const endPointGetDefaultProductListApi="${baseUrl}getDefaultProductListApi";
+  static const endPointGetDefaultProductListApi =
+      "${baseUrl}getDefaultProductListApi";
 
-  static const endPointGetCancelReasonListApi="$baseUrl/getCancelReasonListApi";
+  static const endPointGetCancelReasonListApi =
+      "$baseUrl/getCancelReasonListApi";
 
-  static const endPointGetProductSuggestion="/getProductSuggestion";
+  static const endPointGetProductSuggestion = "/getProductSuggestion";
 
-  static const endPointGetAllProductListApi="/getAllProducListApi";
+  static const endPointGetAllProductListApi = "/getAllProducListApi";
 
-  static const endPointCancelOrderApi ='${baseUrl}cancelOrderApi';
+  static const endPointCancelOrderApi = '${baseUrl}cancelOrderApi';
 
-  static const endPointAddToOutfitRoomApi ='${baseUrl}addToOutfitRoomApi';
+  static const endPointAddToOutfitRoomApi = '${baseUrl}addToOutfitRoomApi';
 
-  static const endPointGetOutfitRoomListApi ='${baseUrl}getOutfitRoomListApi';
+  static const endPointGetOutfitRoomListApi = '${baseUrl}getOutfitRoomListApi';
 
-  static const endPointAddOutfitToCartApi ='${baseUrl}addOutfitToCartApi';
+  static const endPointAddOutfitToCartApi = '${baseUrl}addOutfitToCartApi';
 
-  static const endPointGetCustomerMeasurementApi ='${baseUrl}getCustomerMeasurementApi';
+  static const endPointGetCustomerMeasurementApi =
+      '${baseUrl}getCustomerMeasurementApi';
 
-  static const endPointGetProductSellerDetailApi="/getProductSellerDetailApi";
-
+  static const endPointGetProductSellerDetailApi = "/getProductSellerDetailApi";
 }
 
-class ApiKeyConstant{
+class ApiKeyConstant {
+  static const message = "message";
 
-  static const message="message";
+  static const token = "token";
 
-  static const token="token";
+  static const fullName = "fullName";
 
-  static const fullName="fullName";
+  static const email = "email";
 
-  static const email="email";
+  static const loginType = "loginType";
 
-  static const loginType="loginType";
+  static const mobile = "mobile";
 
-  static const mobile="mobile";
+  static const countryCode = "countryCode";
 
-  static const countryCode="countryCode";
+  static const type = "type";
 
-  static const type="type";
+  static const uuid = "uuid";
 
-  static const uuid="uuid";
+  static const otp = "otp";
 
-  static const otp="otp";
+  static const deviceType = "deviceType";
 
-  static const deviceType="deviceType";
+  static const fcmId = "fcmId";
 
-  static const fcmId="fcmId";
+  static const password = "password";
 
-  static const password="password";
+  static const emailPhone = "emailPhone";
 
-  static const emailPhone="emailPhone";
+  static const name = "name";
 
-  static const name="name";
+  static const phone = "phone";
 
-  static const phone="phone";
+  static const pinCode = "pinCode";
 
-  static const pinCode="pinCode";
+  static const state = "state";
 
-  static const state="state";
+  static const city = "city";
 
-  static const city="city";
+  static const houseNo = "houseNo";
 
-  static const houseNo="houseNo";
+  static const colony = "colony";
 
-  static const colony="colony";
+  static const addressType = "addressType";
 
-  static const addressType="addressType";
+  static const latitude = "latitude";
 
-  static const latitude="latitude";
+  static const longitude = "longitude";
 
-  static const longitude="longitude";
+  static const customerId = "customerId";
 
-  static const customerId="customerId";
+  static const addressId = "addressId";
 
-  static const addressId="addressId";
+  static const oldPassword = "oldPassword";
 
-  static const oldPassword="oldPassword";
-
-  static const newPassword="newPassword";
+  static const newPassword = "newPassword";
 
   static const categoryId = "categoryId";
 
   static const filters = "filters";
 
-
   static const limit = "limit";
+
+  static const searchString = "searchString";
 
   static const offset = "offset";
 
@@ -207,128 +220,126 @@ class ApiKeyConstant{
   static const profilePicture = "profilePicture";
 
   static const countryId = "country_id";
+
   //static const countryId = "countryId";
 
-  static const stateId="state_id";
+  static const stateId = "state_id";
+
   // static const stateId="stateId";
 
-  static const cityId="city_id";
+  static const cityId = "city_id";
 
-  static const categoryPreferences="categoryPreferences";
+  static const categoryPreferences = "categoryPreferences";
 
-  static const brandPreferences="brandPreferences";
+  static const brandPreferences = "brandPreferences";
 
-  static const genderPreferences ="genderPreferences";
+  static const genderPreferences = "genderPreferences";
 
-  static const measurement ="measurement";
+  static const measurement = "measurement";
 
   static const productId = "productId";
 
   static const inventoryId = "inventoryId";
 
-  static const userMeasurement  = "userMeasurement ";
+  static const userMeasurement = "userMeasurement ";
 
   static const cartQty = "cartQty";
 
   static const cartId = "cartId";
 
-  static const filterCatId="filterCatId";
+  static const filterCatId = "filterCatId";
 
-  static const rating="rating";
+  static const rating = "rating";
 
-  static const review="review";
+  static const review = "review";
 
-  static const reviewFile="review_file[]";
+  static const reviewFile = "review_file[]";
 
-  static const cartUuid="cartUuid";
+  static const cartUuid = "cartUuid";
 
-  static const userSelection="userSelection";
+  static const userSelection = "userSelection";
 
-  static const couponCode="couponCode";
+  static const couponCode = "couponCode";
 
-  static var paymentMode="paymentMode";
+  static var paymentMode = "paymentMode";
 
-  static var transId="transId";
+  static var transId = "transId";
 
-  static var isCart="isCart";
+  static var isCart = "isCart";
 
-  static var quantity="quantity";
+  static var quantity = "quantity";
 
-  static var isLocationPermission="isLocationPermission";
+  static var isLocationPermission = "isLocationPermission";
 
-  static var orderStatus="orderStatus";
+  static var orderStatus = "orderStatus";
 
-  static var searchSrting="searchSrting";
+  static var searchSrting = "searchSrting";
 
-  static var transType="transType";
+  static var transType = "transType";
 
-  static var couponId="couponId";
+  static var couponId = "couponId";
 
-  static var orderId="orderId";
+  static var orderId = "orderId";
 
-  static var inAmt="inAmt";
+  static var inAmt = "inAmt";
 
-  static var outAmt="outAmt";
+  static var outAmt = "outAmt";
 
-  static var actionType="actionType";
+  static var actionType = "actionType";
 
-  static var orderItemUuid="orderItemUuid";
+  static var orderItemUuid = "orderItemUuid";
 
-  static String recentSearches="recentSearches";
+  static String recentSearches = "recentSearches";
 
-  static var outfitRoomId="outfitRoomId";
+  static var outfitRoomId = "outfitRoomId";
 
-  static var itemPrice="itemPrice";
+  static var itemPrice = "itemPrice";
 
-  static var orderItemId="orderItemId";
+  static var orderItemId = "orderItemId";
 
-  static var userReason="userReascon";
+  static var userReason = "userReascon";
 
-  static var userComment="userComment";
-
-
+  static var userComment = "userComment";
 }
 
 class UserDataKeyConstant {
+  static const customerId = "customerId";
 
-  static const customerId ="customerId";
+  static const fullName = "fullName";
 
-  static const fullName ="fullName";
+  static const email = "email";
 
-  static const email ="email";
+  static const mobile = "mobile";
 
-  static const mobile ="mobile";
+  static const securityEmail = "securityEmail";
 
-  static const securityEmail ="securityEmail";
+  static const securityPhoneCountryCode = "securityPhoneCountryCode";
 
-  static const securityPhoneCountryCode ="securityPhoneCountryCode";
+  static const profilePicture = "profilePicture";
 
-  static const profilePicture ="profilePicture";
+  static const dob = "dob";
 
-  static const dob ="dob";
+  static const walletAmount = "walletAmount";
 
-  static const walletAmount ="walletAmount";
+  static const deviceType = "deviceType";
 
-  static const deviceType ="deviceType";
+  static const securityPhone = "securityPhone";
 
-  static const securityPhone ="securityPhone";
+  static const lastUpdate = "lastUpdate";
 
-  static const lastUpdate="lastUpdate";
+  static const selectedCity = "selectedCity";
 
-  static const selectedCity ="selectedCity";
+  static const selectedState = "selectedState";
 
-  static const selectedState ="selectedState";
+  static const progress = "progress";
 
-  static const progress ="progress";
+  static const categoryPreferences = "categoryPreferences";
 
-  static const categoryPreferences ="categoryPreferences";
+  static const brandPreferences = "brandPreferences";
 
-  static const brandPreferences ="brandPreferences";
+  static const genderPreferences = "genderPreferences";
 
-  static const genderPreferences ="genderPreferences";
+  static const categoryPreferenceName = "categoryPreferenceName";
 
-  static const categoryPreferenceName ="categoryPreferenceName";
-
-  static const brandPreferenceName ="brandPreferenceName";
-
+  static const brandPreferenceName = "brandPreferenceName";
 }
