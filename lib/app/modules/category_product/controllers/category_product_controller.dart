@@ -126,10 +126,10 @@ class CategoryProductController extends CommonMethods {
     }
     http.Response? response = await MyHttp.getMethodForParams(
         context: Get.context!,
-        queryParameters: queryParameters,
+        queryParameters: bodyParamsForSearchProductApi,
         authorization: authorization,
         baseUri: ApiConstUri.baseUrlForGetMethod,
-        endPointUri: ApiConstUri.endPointSearchRecentProductApi);
+        endPointUri: ApiConstUri.endPointGetAllProductListApi);
     responseCode = response?.statusCode ?? 0;
     if (response != null) {
       if (await CommonMethods.checkResponse(response: response)) {

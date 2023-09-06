@@ -69,13 +69,19 @@ class CategoryProductView extends GetView<CategoryProductController> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                if (controller.filterDataList.isNotEmpty)
-                                  Obx(() {
-                                    controller.count.value;
-                                    return filterListView();
-                                  }),
-                                  SizedBox(height: 4.px),
-                                  productsGridView(),
+                                ListView(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  children: [
+                                    if (controller.filterDataList.isNotEmpty)
+                                      Obx(() {
+                                        controller.count.value;
+                                        return filterListView();
+                                      }),
+                                    SizedBox(height: 4.px),
+                                    productsGridView(),
+                                  ],
+                                ),
                               ],
                             ),
                           ),
@@ -83,6 +89,7 @@ class CategoryProductView extends GetView<CategoryProductController> {
                       );
                     } else {
                       return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (controller.filterDataList.isNotEmpty)
                             Obx(() {
@@ -91,8 +98,6 @@ class CategoryProductView extends GetView<CategoryProductController> {
                             }),
                           if (controller.products.isEmpty)
                             SizedBox(height: 4.px),
-                          if (controller.products.isNotEmpty)
-                            productsGridView(),
                           if (controller.products.isEmpty)
                             Expanded(
                               child: CommonWidgets.commonNoDataFoundImage(
@@ -369,7 +374,66 @@ class CategoryProductView extends GetView<CategoryProductController> {
     },
   );*/
 
-  Widget productsGridView() => Column(
+  Widget productsGridView() =>SingleChildScrollView(
+    child: Wrap(
+      children: List.generate(controller.products.length, (index) {
+        final cellWidth = MediaQuery.of(Get.context!).size.width /
+            2; // Every cell's `width` will be set to 1/2 of the screen width.
+        return SizedBox(
+          width: cellWidth,
+          child: GestureDetector(
+            onTap: () => controller.clickOnProduct(
+                context: Get.context!,
+                productId: controller.products[index].productId.toString()),
+            child: Container(
+                width: cellWidth,
+                //height: 248.px,
+                alignment: Alignment.centerLeft,
+                //padding: EdgeInsets.all(10.px),
+                margin: EdgeInsets.only(
+                    left: index % 2 == 0 ? 16.px : 10.px,
+                    right: index % 2 == 0 ? 10.px : 16.px,
+                    bottom: 16.px),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10.px)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        productImageView(index: index),
+                        //SizedBox(height: 2.px),
+                        if (controller.products[index].isColor != null &&
+                            controller.products[index].isColor != "0")
+                          colorListView(index: index),
+                        SizedBox(height: 4.px),
+                        if (controller.products[index].brandName != null &&
+                            controller.products[index].brandName!.isNotEmpty)
+                          brandNameTextView(index: index),
+                        if (controller.products[index].brandName != null &&
+                            controller.products[index].brandName!.isNotEmpty)
+                          SizedBox(height: 2.px),
+                        if (controller.products[index].productName != null &&
+                            controller.products[index].productName!.isNotEmpty)
+                          productNameTextView(index: index),
+                        if (controller.products[index].productName != null &&
+                            controller.products[index].productName!.isNotEmpty)
+                          SizedBox(height: 2.px),
+                        //priceView(index: index),
+                        //SizedBox(height: 4.px),
+                      ],
+                    ),
+                  ],
+                )),
+          ),
+        );
+      }),
+    ),
+  );
+
+     /* Widget productsGridView() => Column(
         children: [
           Wrap(
               children: List.generate(
@@ -416,7 +480,7 @@ class CategoryProductView extends GetView<CategoryProductController> {
             ),
           )),
         ],
-      );
+      );*/
 
   /*Widget productsGridView() => SliverGrid.builder(
         addAutomaticKeepAlives: false,
