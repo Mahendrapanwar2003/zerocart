@@ -19,21 +19,21 @@ class HomeView extends GetView<HomeController> {
     return WillPopScope(
       onWillPop: () => controller.onWillPop(),
       child: Obx(() {
+        controller.count.value;
         return ModalProgress(
           inAsyncCall: controller.inAsyncCall.value,
           child: Scaffold(
             backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             body: Obx(
               () {
+                controller.count.value;
                 if (CommonMethods.isConnect.value) {
-                  return Stack(
-                    children: [
-                      Obx(() {
-                        return ScrollConfiguration(
+                  if (controller.responseCode == 200) {
+                    return Stack(
+                      children: [
+                        ScrollConfiguration(
                           behavior: MyBehavior(),
-                          child: ListView(
-                            padding: EdgeInsets.zero,
-                            physics: const AlwaysScrollableScrollPhysics(),
+                          child: Column(
                             children: [
                               Visibility(
                                 maintainSize: true,
@@ -51,234 +51,254 @@ class HomeView extends GetView<HomeController> {
                                   ],
                                 ),
                               ),
-                              Stack(
-                                alignment: Alignment.bottomCenter,
-                                children: [
-                                  Obx(() {
-                                    if (controller.getBanner.value != null) {
-                                      if (controller
-                                          .bannerImageList.isNotEmpty) {
-                                        return Stack(
-                                          children: [
-                                            banner(),
-                                            Column(
-                                              children: [
-                                                AspectRatio(
-                                                  aspectRatio: 19.px / 7.px,
-                                                  child: const SizedBox(),
-                                                ),
-                                                customDotIndicatorList(),
-                                                Padding(
-                                                  padding: EdgeInsets.only(
-                                                      top: 16.px,
-                                                      left: 20.px,
-                                                      right: 20.px),
-                                                  child: Center(
-                                                    child: Container(
-                                                      padding:
-                                                          EdgeInsets.symmetric(
-                                                        vertical: 10.px,
-                                                        horizontal: 10.px,
-                                                      ),
-                                                      decoration: BoxDecoration(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(
-                                                                    10.px),
-                                                        color: Theme.of(context)
-                                                                    .brightness ==
-                                                                Brightness.light
-                                                            ? MyColorsLight()
-                                                                .secondary
-                                                            : MyColorsLight()
-                                                                .card
-                                                                .withOpacity(
-                                                                    .9),
-                                                      ),
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            "Customize your wardrobe",
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
-                                                            maxLines: 1,
-                                                            style: Theme.of(
-                                                                    context)
-                                                                .textTheme
-                                                                .bodyText1
-                                                                ?.copyWith(
-                                                                    color: MyColorsLight()
-                                                                        .onText,
-                                                                    fontSize:
-                                                                        14.px),
-                                                          ),
-                                                          SizedBox(
-                                                              height: 8.px),
-                                                          Text(
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
-                                                            maxLines: 2,
-                                                            "Make your own clothes based on your choice of colour, texture, material and many others.",
-                                                            style: Theme.of(
-                                                                    context)
-                                                                .textTheme
-                                                                .headline4
-                                                                ?.copyWith(
-                                                                    color: MyColorsLight()
-                                                                        .onText,
-                                                                    fontSize:
-                                                                        12.px),
-                                                          ),
-                                                          SizedBox(
-                                                              height: 12.px),
-                                                          Center(
-                                                            child: CommonWidgets
-                                                                .myElevatedButton(
-                                                              borderRadius:
-                                                                  5.px,
-                                                              width: 50.w,
-                                                              height: 28.px,
-                                                              text: Text(
-                                                                'OUTFIT ROOM',
-                                                                style: Theme.of(
-                                                                        context)
-                                                                    .textTheme
-                                                                    .button
-                                                                    ?.copyWith(
-                                                                        fontSize:
-                                                                            12.px),
-                                                              ),
-                                                              onPressed: () => controller
-                                                                  .clickOnCustomizeButton(
-                                                                      context:
-                                                                          context),
+                              Expanded(
+                                child: CommonWidgets.commonRefreshIndicator(
+                                  onRefresh: () => controller.onRefresh(),
+                                  child: ListView(
+                                    padding: EdgeInsets.zero,
+                                    physics:
+                                        const AlwaysScrollableScrollPhysics(),
+                                    children: [
+                                      Obx(() {
+                                        controller.count.value;
+                                        if (controller
+                                            .bannerImageList.isNotEmpty) {
+                                          return Stack(
+                                            children: [
+                                              banner(),
+                                              Column(
+                                                children: [
+                                                  AspectRatio(
+                                                    aspectRatio: 19.px / 7.px,
+                                                    child: const SizedBox(),
+                                                  ),
+                                                  customDotIndicatorList(),
+                                                  Padding(
+                                                    padding: EdgeInsets.only(
+                                                        top: 16.px,
+                                                        left: 20.px,
+                                                        right: 20.px),
+                                                    child: Center(
+                                                      child: Container(
+                                                        padding:
+                                                            EdgeInsets.symmetric(
+                                                          vertical: 10.px,
+                                                          horizontal: 10.px,
+                                                        ),
+                                                        decoration: BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      10.px),
+                                                          color: Theme.of(context)
+                                                                      .brightness ==
+                                                                  Brightness.light
+                                                              ? MyColorsLight()
+                                                                  .secondary
+                                                              : MyColorsLight()
+                                                                  .card
+                                                                  .withOpacity(
+                                                                      .9),
+                                                        ),
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Text(
+                                                              "Customize your wardrobe",
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                              maxLines: 1,
+                                                              style: Theme.of(
+                                                                      context)
+                                                                  .textTheme
+                                                                  .bodyText1
+                                                                  ?.copyWith(
+                                                                      color: MyColorsLight()
+                                                                          .onText,
+                                                                      fontSize:
+                                                                          14.px),
                                                             ),
-                                                          ),
-                                                        ],
+                                                            SizedBox(
+                                                                height: 8.px),
+                                                            Text(
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                              maxLines: 2,
+                                                              "Make your own clothes based on your choice of colour, texture, material and many others.",
+                                                              style: Theme.of(
+                                                                      context)
+                                                                  .textTheme
+                                                                  .headline4
+                                                                  ?.copyWith(
+                                                                      color: MyColorsLight()
+                                                                          .onText,
+                                                                      fontSize:
+                                                                          12.px),
+                                                            ),
+                                                            SizedBox(
+                                                                height: 12.px),
+                                                            Center(
+                                                              child: CommonWidgets
+                                                                  .myElevatedButton(
+                                                                borderRadius:
+                                                                    5.px,
+                                                                width: 50.w,
+                                                                height: 28.px,
+                                                                text: Text(
+                                                                  'OUTFIT ROOM',
+                                                                  style: Theme.of(
+                                                                          context)
+                                                                      .textTheme
+                                                                      .button
+                                                                      ?.copyWith(
+                                                                          fontSize:
+                                                                              12.px),
+                                                                ),
+                                                                onPressed: () => controller
+                                                                    .clickOnCustomizeButton(
+                                                                        context:
+                                                                            context),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
                                                       ),
                                                     ),
                                                   ),
-                                                ),
-                                              ],
-                                            ),
+                                                ],
+                                              ),
+                                            ],
+                                          );
+                                        } else {
+                                          if (controller.responseCode == 0 ||
+                                              controller.responseCode == 200) {
+                                            return const SizedBox();
+                                          }
+                                          return CommonWidgets.noDataTextView(
+                                              text: "No Banner Found");
+                                        }
+                                      }),
+                                      SizedBox(height: 16.px),
+                                      Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 16.px),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            if (controller
+                                                .recentProductsList.isNotEmpty)
+                                              sectionHeading(
+                                                  "Based on previous order"),
+                                            if (controller
+                                                .recentProductsList.isNotEmpty)
+                                              SizedBox(height: 8.px),
+                                            if (controller
+                                                .recentProductsList.isNotEmpty)
+                                              ScrollConfiguration(
+                                                  behavior: MyBehavior(),
+                                                  child: recentGridView()),
+                                            if (controller.topTrendingProductsList
+                                                .isNotEmpty)
+                                              SizedBox(height: 16.px),
+                                            if (controller.topTrendingProductsList
+                                                .isNotEmpty)
+                                              sectionHeading(
+                                                  "Based on users with similar preferences"),
+                                            if (controller.topTrendingProductsList
+                                                .isNotEmpty)
+                                              SizedBox(height: 8.px),
+                                            if (controller.topTrendingProductsList
+                                                .isNotEmpty)
+                                              ScrollConfiguration(
+                                                  behavior: MyBehavior(),
+                                                  child: trendingGridView()),
+                                            if (controller
+                                                .topTrendingProductsList2
+                                                .isNotEmpty)
+                                              SizedBox(height: 16.px),
+                                            if (controller
+                                                .topTrendingProductsList2
+                                                .isNotEmpty)
+                                              sectionHeading(
+                                                  "Other users also ordered"),
+                                            if (controller
+                                                .topTrendingProductsList2
+                                                .isNotEmpty)
+                                              SizedBox(height: 8.px),
+                                            if (controller
+                                                .topTrendingProductsList2
+                                                .isNotEmpty)
+                                              ScrollConfiguration(
+                                                  behavior: MyBehavior(),
+                                                  child: trendingGridView2()),
+                                            if (controller.recentProductsList.isEmpty &&
+                                                controller.topTrendingProductsList
+                                                    .isEmpty &&
+                                                controller
+                                                    .topTrendingProductsList2
+                                                    .isEmpty &&
+                                                controller.productListDefault
+                                                    .isNotEmpty)
+                                              sectionHeading("Products"),
+                                            if (controller.recentProductsList.isEmpty &&
+                                                controller.topTrendingProductsList
+                                                    .isEmpty &&
+                                                controller
+                                                    .topTrendingProductsList2
+                                                    .isEmpty &&
+                                                controller.productListDefault
+                                                    .isNotEmpty)
+                                              SizedBox(height: 8.px),
+                                            if (controller.recentProductsList.isEmpty &&
+                                                controller.topTrendingProductsList
+                                                    .isEmpty &&
+                                                controller
+                                                    .topTrendingProductsList2
+                                                    .isEmpty &&
+                                                controller.productListDefault
+                                                    .isNotEmpty)
+                                              defaultProductGridView()
                                           ],
-                                        );
-                                      } else {
-                                        return CommonWidgets.noDataTextView(
-                                            text: "No Banner Found");
-                                      }
-                                    } else {
-                                      return Center(
-                                        child: CommonWidgets
-                                            .commonShimmerViewForImage(
-                                                width: double.infinity,
-                                                height: 20.h),
-                                      );
-                                    }
-                                  })
-                                ],
-                              ),
-                              SizedBox(height: 16.px),
-                              Padding(
-                                padding:
-                                    EdgeInsets.symmetric(horizontal: 16.px),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    if ((controller
-                                        .recentProductsList.isNotEmpty))
-                                      sectionHeading("Based on previous order"),
-                                    if ((controller
-                                        .recentProductsList.isNotEmpty))
-                                      SizedBox(height: 8.px),
-                                    if ((controller
-                                        .recentProductsList.isNotEmpty))
-                                      ScrollConfiguration(
-                                          behavior: MyBehavior(),
-                                          child: recentGridView()),
-                                    if ((controller
-                                        .topTrendingProductsList.isNotEmpty))
-                                      SizedBox(height: 16.px),
-                                    if ((controller
-                                        .topTrendingProductsList.isNotEmpty))
-                                      sectionHeading(
-                                          "Based on users with similar preferences"),
-                                    if ((controller
-                                        .topTrendingProductsList.isNotEmpty))
-                                      SizedBox(height: 8.px),
-                                    if ((controller
-                                        .topTrendingProductsList.isNotEmpty))
-                                      ScrollConfiguration(
-                                          behavior: MyBehavior(),
-                                          child: trendingGridView()),
-                                    if ((controller
-                                        .topTrendingProductsList2.isNotEmpty))
-                                      SizedBox(height: 16.px),
-                                    if ((controller
-                                        .topTrendingProductsList2.isNotEmpty))
-                                      sectionHeading(
-                                          "Other users also ordered"),
-                                    if ((controller
-                                        .topTrendingProductsList2.isNotEmpty))
-                                      SizedBox(height: 8.px),
-                                    if ((controller
-                                        .topTrendingProductsList2.isNotEmpty))
-                                      ScrollConfiguration(
-                                          behavior: MyBehavior(),
-                                          child: trendingGridView2()),
-                                    if ((controller
-                                                .getProductApiModel.value ==
-                                            null) &&
-                                        (controller
-                                            .recentProductsList.isEmpty) &&
-                                        (controller
-                                            .topTrendingProductsList.isEmpty) &&
-                                        (controller.topTrendingProductsList2
-                                            .isEmpty) &&
-                                        controller
-                                            .productListDefault.isNotEmpty)
-                                      sectionHeading("Products"),
-                                    SizedBox(height: 8.px),
-                                    if ((controller
-                                                .getProductApiModel.value ==
-                                            null) &&
-                                        (controller
-                                            .recentProductsList.isEmpty) &&
-                                        (controller
-                                            .topTrendingProductsList.isEmpty) &&
-                                        (controller.topTrendingProductsList2
-                                            .isEmpty) &&
-                                        controller
-                                            .productListDefault.isNotEmpty)
-                                      defaultProductGridView()
-                                  ],
+                                        ),
+                                      ),
+                                      SizedBox(height: 100.px),
+                                    ],
+                                  ),
                                 ),
                               ),
-                              SizedBox(height: 100.px),
                             ],
                           ),
-                        );
-                      }),
-                      Column(
-                        children: [
-                          Container(
-                              color: Theme.of(Get.context!)
-                                  .colorScheme
-                                  .onBackground
-                                  .withOpacity(0.5),
-                              child: const MyCustomContainer()
-                                  .myCustomContainer()),
-                        ],
-                      ),
-                    ],
-                  );
+                        ),
+                        Column(
+                          children: [
+                            Container(
+                                color: Theme.of(Get.context!)
+                                    .colorScheme
+                                    .onBackground
+                                    .withOpacity(0.5),
+                                child: const MyCustomContainer()
+                                    .myCustomContainer()),
+                          ],
+                        ),
+                      ],
+                    );
+                  } else {
+                    if (controller.responseCode == 0) {
+                      return const SizedBox();
+                    }
+                    return CommonWidgets.commonSomethingWentWrongImage(
+                      onRefresh: () => controller.onRefresh(),
+                    );
+                  }
                 } else {
-                  return CommonWidgets.noInternetTextView();
+                  return CommonWidgets.commonNoInternetImage(
+                    onRefresh: () => controller.onRefresh(),
+                  );
                 }
               },
             ),
@@ -296,15 +316,15 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-
   Widget banner() {
     return AspectRatio(
       aspectRatio: 16.px / 9.px,
       child: Container(
         decoration: BoxDecoration(
-          color: Theme.of(Get.context!).colorScheme.onPrimary
+            color: Theme.of(Get.context!).colorScheme.onPrimary
             /*image:
-                DecorationImage(image: AssetImage('assets/default_image.jpg'))*/),
+                DecorationImage(image: AssetImage('assets/default_image.jpg'))*/
+            ),
         child: LightCarousel(
           images: controller.bannerImageList,
           dotSize: 0,
@@ -632,94 +652,85 @@ class HomeView extends GetView<HomeController> {
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
         itemBuilder: (context, index) {
-          if (!controller.isShimmer.value) {
-            return Column(
+          return GestureDetector(
+            onTap: () {
+              int productId = int.parse(
+                  controller.productListDefault[index].productId.toString());
+              String productIdId = productId.toString();
+              controller.clickOnCard(productId: productIdId);
+            },
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [CommonWidgets.commonShimmerViewForImage()],
-            );
-          } else {
-            return GestureDetector(
-              onTap: () {
-                int productId = int.parse(
-                    controller.productListDefault[index].productId.toString());
-                String productIdId = productId.toString();
-                controller.clickOnCard(productId: productIdId);
-              },
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (controller.productListDefault[index].thumbnailImage !=
-                          null &&
-                      controller
-                          .productListDefault[index].thumbnailImage!.isNotEmpty)
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8.px),
-                      child: Image.network(
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return CommonWidgets.commonShimmerViewForImage();
-                        },
-                        CommonMethods.imageUrl(
-                            url: controller
-                                .productListDefault[index].thumbnailImage
-                                .toString()),
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            decoration:
-                                BoxDecoration(color: MyColorsLight().onPrimary),
-                            width: 50.w,
-                            height: 28.w,
-                          );
-                        },
-                        width: 50.w,
-                        height: 28.w,
-                        fit: BoxFit.cover,
-                      ),
+              children: [
+                if (controller.productListDefault[index].thumbnailImage !=
+                        null &&
+                    controller
+                        .productListDefault[index].thumbnailImage!.isNotEmpty)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8.px),
+                    child: Image.network(
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return CommonWidgets.commonShimmerViewForImage();
+                      },
+                      CommonMethods.imageUrl(
+                          url: controller
+                              .productListDefault[index].thumbnailImage
+                              .toString()),
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          decoration:
+                              BoxDecoration(color: MyColorsLight().onPrimary),
+                          width: 50.w,
+                          height: 28.w,
+                        );
+                      },
+                      width: 50.w,
+                      height: 28.w,
+                      fit: BoxFit.cover,
                     ),
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.only(top: 6.px),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (controller
-                                      .productListDefault[index].productName !=
-                                  null &&
-                              controller.productListDefault[index].productName!
-                                  .isNotEmpty)
-                            Text(
-                              controller.productListDefault[index].productName
-                                  .toString(),
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(Get.context!)
-                                  .textTheme
-                                  .headline3
-                                  ?.copyWith(fontSize: 10.px),
-                              maxLines: 1,
-                            ),
-                          if (controller
-                                      .productListDefault[index].productPrice !=
-                                  null &&
-                              controller.productListDefault[index].productPrice!
-                                  .isNotEmpty)
-                            Text(
-                              controller.productListDefault[index].productPrice
-                                  .toString(),
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(Get.context!)
-                                  .textTheme
-                                  .headline3
-                                  ?.copyWith(fontSize: 10.px),
-                              maxLines: 1,
-                            ),
-                        ],
-                      ),
+                  ),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 6.px),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (controller.productListDefault[index].productName !=
+                                null &&
+                            controller.productListDefault[index].productName!
+                                .isNotEmpty)
+                          Text(
+                            controller.productListDefault[index].productName
+                                .toString(),
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(Get.context!)
+                                .textTheme
+                                .headline3
+                                ?.copyWith(fontSize: 10.px),
+                            maxLines: 1,
+                          ),
+                        if (controller.productListDefault[index].productPrice !=
+                                null &&
+                            controller.productListDefault[index].productPrice!
+                                .isNotEmpty)
+                          Text(
+                            controller.productListDefault[index].productPrice
+                                .toString(),
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(Get.context!)
+                                .textTheme
+                                .headline3
+                                ?.copyWith(fontSize: 10.px),
+                            maxLines: 1,
+                          ),
+                      ],
                     ),
-                  )
-                ],
-              ),
-            );
-          }
+                  ),
+                )
+              ],
+            ),
+          );
         });
   }
 

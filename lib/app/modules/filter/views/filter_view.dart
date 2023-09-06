@@ -4,6 +4,7 @@ import 'package:ui_library/ui_library.dart';
 import 'package:zerocart/app/common_methods/common_methods.dart';
 import 'package:zerocart/app/custom/custom_appbar.dart';
 import 'package:zerocart/app/custom/custom_outline_button.dart';
+import 'package:zerocart/model_progress_bar/model_progress_bar.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
 import '../../../common_widgets/common_widgets.dart';
 import '../controllers/filter_controller.dart';
@@ -14,35 +15,58 @@ class FilterView extends GetView<FilterController> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      return AbsorbPointer(
-        absorbing: controller.absorbing.value,
+      return ModalProgress(
+        inAsyncCall: controller.inAsyncCall.value,
         child: Scaffold(
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           appBar: const MyCustomContainer().myAppBar(
             text: "Filters",
             isIcon: true,
-            backIconOnPressed: () => controller.clickOnCloseButton(context: context),
+            backIconOnPressed: () =>
+                controller.clickOnCloseButton(context: context),
             buttonText: "Close",
-            buttonOnPressed: () => controller.clickOnCloseButton(context: context),
+            buttonOnPressed: () =>
+                controller.clickOnCloseButton(context: context),
           ),
           extendBodyBehindAppBar: true,
-          body: Obx(() {
-            if ((controller.filter.value != null &&
-                    controller.filter.value!.isNotEmpty) &&
-                CommonMethods.isConnect.value) {
-              return ListView(
-                shrinkWrap: true,
-                physics: const BouncingScrollPhysics(),
-                children: [
-                  if (controller.filter.value!.isNotEmpty)
-                    customFilterTabView(context: context),
-                  SizedBox(height: 8.h),
-                ],
-              );
-            } else {
-              return CommonWidgets.progressBarView();
-            }
-          }),
+          body: Obx(
+            () {
+              controller.count.value;
+              if (CommonMethods.isConnect.value) {
+                if (controller.getFilterModal != null &&
+                    controller.responseCode == 200) {
+                  if (controller.filterList.isNotEmpty) {
+                    return CommonWidgets.commonRefreshIndicator(
+                      onRefresh: () => controller.onRefresh(),
+                      child: ListView(
+                        shrinkWrap: true,
+                        physics: const BouncingScrollPhysics(),
+                        children: [
+                          customFilterTabView(context: context),
+                          SizedBox(height: 8.px),
+                        ],
+                      ),
+                    );
+                  } else {
+                    return CommonWidgets.commonNoDataFoundImage(
+                      onRefresh: () => controller.onRefresh(),
+                    );
+                  }
+                } else {
+                  if (controller.responseCode == 0) {
+                    return const SizedBox();
+                  }
+                  return CommonWidgets.commonSomethingWentWrongImage(
+                    onRefresh: () => controller.onRefresh(),
+                  );
+                }
+              } else {
+                return CommonWidgets.commonNoInternetImage(
+                  onRefresh: () => controller.onRefresh(),
+                );
+              }
+            },
+          ),
         ),
       );
     });
@@ -75,7 +99,7 @@ class FilterView extends GetView<FilterController> {
             child: ListView.separated(
               physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
-              itemCount: controller.filter.value!.length,
+              itemCount: controller.filterList.length,
               separatorBuilder: (BuildContext context, int index) {
                 return SizedBox(height: 5.px);
               },
@@ -102,8 +126,8 @@ class FilterView extends GetView<FilterController> {
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 5.px),
                               child: filtersTextButtonView(
-                                text: controller
-                                    .filter.value![index].filterCatName!,
+                                text:
+                                    controller.filterList[index].filterCatName!,
                                 onPressed: () =>
                                     controller.clickOnParticularFilterButton(
                                         index: index),
@@ -134,17 +158,40 @@ class FilterView extends GetView<FilterController> {
                 physics: const NeverScrollableScrollPhysics(),
                 controller: controller.pageController,
                 children: [
-                  Obx(() {
-                    if (controller.filterDetailList.value != null &&
-                        controller.filterDetailList.value!.isNotEmpty) {
-                      return chooseFilter(context: context);
-                    } else if (controller.getFilterList.value?.filterDetailList != null &&
-                        controller.getFilterList.value!.filterDetailList!.isEmpty) {
-                      return CommonWidgets.noDataTextView();
-                    } else {
-                      return CommonWidgets.progressBarView();
-                    }
-                  })
+                  Obx(
+                    () {
+                      controller.count.value;
+                      if (CommonMethods.isConnect.value) {
+                        if (controller.getFilterList != null &&
+                            controller.responseCode == 200) {
+                          if (controller.filterDetailList.isNotEmpty) {
+                            return CommonWidgets.commonRefreshIndicator(
+                              onRefresh: () => controller.onRefresh(),
+                              child: chooseFilter(context: context),
+                            );
+                          } else {
+                            if (controller.filterDetailList.isEmpty) {
+                              return const SizedBox();
+                            }
+                            return CommonWidgets.commonNoDataFoundImage(
+                              onRefresh: () => controller.onRefresh(),
+                            );
+                          }
+                        } else {
+                          if (controller.responseCode == 0) {
+                            return const SizedBox();
+                          }
+                          return CommonWidgets.commonSomethingWentWrongImage(
+                            onRefresh: () => controller.onRefresh(),
+                          );
+                        }
+                      } else {
+                        return CommonWidgets.commonNoInternetImage(
+                          onRefresh: () => controller.onRefresh(),
+                        );
+                      }
+                    },
+                  ),
                 ],
               ),
             ),
@@ -175,25 +222,24 @@ class FilterView extends GetView<FilterController> {
                 itemBuilder: (context, index) => Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    controller.filterDetailList.value![index].filterValue !=
-                            null
+                    controller.filterDetailList![index].filterValue != null
                         ? Container(
                             height: 30.px,
                             decoration: BoxDecoration(
-                              gradient: controller.filterDetailList
-                                          .value![index].filterValue ==
+                              gradient: controller.filterDetailList![index]
+                                          .filterValue ==
                                       controller.filterData[controller
-                                          .filter
-                                          .value![controller.initialIndex.value]
+                                          .filterList![
+                                              controller.initialIndex.value]
                                           .filterId
                                           .toString()]
                                   ? CommonWidgets.commonLinearGradientView()
                                   : null,
-                              color: controller.filterDetailList.value![index]
+                              color: controller.filterDetailList![index]
                                           .filterValue ==
                                       controller.filterData[controller
-                                          .filter
-                                          .value![controller.initialIndex.value]
+                                          .filterList![
+                                              controller.initialIndex.value]
                                           .filterId
                                           .toString()]
                                   ? null
@@ -206,19 +252,19 @@ class FilterView extends GetView<FilterController> {
                               style: ElevatedButton.styleFrom(
                                   padding: EdgeInsets.zero),
                               child: Text(
-                                controller.filterDetailList.value![index]
-                                        .filterValue ??
+                                controller
+                                        .filterDetailList![index].filterValue ??
                                     "",
                                 style:
                                     Theme.of(Get.context!).textTheme.subtitle2,
                               ),
                             ),
                           )
-                        : SizedBox()
+                        : const SizedBox()
                   ],
                 ),
                 separatorBuilder: (context, index) => SizedBox(height: 10.px),
-                itemCount: controller.filterDetailList.value!.length,
+                itemCount: controller.filterDetailList!.length,
                 physics: const ScrollPhysics(),
               ),
             ),
@@ -265,7 +311,7 @@ class FilterView extends GetView<FilterController> {
         onPressed: onPressed,
         strokeWidth: 1.px,
         radius: 25.px,
-          gradient: CommonWidgets.commonLinearGradientView(),
+        gradient: CommonWidgets.commonLinearGradientView(),
         child: Text(
           text,
           style: Theme.of(Get.context!).textTheme.subtitle1,

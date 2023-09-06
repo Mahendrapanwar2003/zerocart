@@ -81,14 +81,14 @@ class ZerocartWalletView extends GetView<ZerocartWalletController> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
-                                          if (controller.userData.value != null)
-                                            controller.userData.value?.customer
+                                          if (controller.userData != null)
+                                            controller.userData?.customer
                                                         ?.walletAmount !=
                                                     null
                                                 ? Expanded(
                                                     child: howManyBalanceInWalletTextView(
                                                         value:
-                                                            "$curr${double.parse(double.parse(controller.userData.value!.customer!.walletAmount!).toStringAsFixed(2))}"))
+                                                            "$curr${double.parse(double.parse(controller.userData!.customer!.walletAmount!).toStringAsFixed(2))}"))
                                                 : howManyBalanceInWalletTextView(
                                                     value: '${curr}0.0'),
                                           RotationTransition(
@@ -155,8 +155,8 @@ class ZerocartWalletView extends GetView<ZerocartWalletController> {
                               padding: EdgeInsets.only(
                                   left: Zconstant.margin,
                                   right: Zconstant.margin,
-                                  top: 23.h
-                              ,bottom: Zconstant.margin),
+                                  top: 23.h,
+                                  bottom: Zconstant.margin),
                               child: Obx(() {
                                 controller.count.value;
                                 if (controller.listOfWalletHistory.isNotEmpty) {

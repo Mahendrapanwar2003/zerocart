@@ -53,12 +53,13 @@ class CategoryProductView extends GetView<CategoryProductController> {
                         false),
             body: Obx(
               () {
+                controller.count.value;
                 if (CommonMethods.isConnect.value) {
                   if ((controller.getProductListApiModel != null ||
-                      controller.searchProductModel != null) &&
+                          controller.searchProductModel != null) &&
                       controller.responseCode == 200) {
                     if (controller.products.isNotEmpty) {
-                       return CommonWidgets.commonRefreshIndicator(
+                      return CommonWidgets.commonRefreshIndicator(
                         onRefresh: () => controller.onRefresh(),
                         child: RefreshLoadMore(
                           isLastPage: controller.isLastPage.value,
@@ -73,22 +74,32 @@ class CategoryProductView extends GetView<CategoryProductController> {
                                     controller.count.value;
                                     return filterListView();
                                   }),
-                                if (controller.products.isNotEmpty)
                                   SizedBox(height: 4.px),
-                                if (controller.products.isNotEmpty)
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 16.px),
-                                    child: productsGridView(),
-                                  ),
+                                  productsGridView(),
                               ],
                             ),
-                          )
+                          ),
                         ),
                       );
                     } else {
-                      return CommonWidgets.commonNoDataFoundImage(
-                        onRefresh: () => controller.onRefresh(),
+                      return Column(
+                        children: [
+                          if (controller.filterDataList.isNotEmpty)
+                            Obx(() {
+                              controller.count.value;
+                              return filterListView();
+                            }),
+                          if (controller.products.isEmpty)
+                            SizedBox(height: 4.px),
+                          if (controller.products.isNotEmpty)
+                            productsGridView(),
+                          if (controller.products.isEmpty)
+                            Expanded(
+                              child: CommonWidgets.commonNoDataFoundImage(
+                                onRefresh: () => controller.onRefresh(),
+                              ),
+                            ),
+                        ],
                       );
                     }
                   } else {
@@ -358,7 +369,56 @@ class CategoryProductView extends GetView<CategoryProductController> {
     },
   );*/
 
-  Widget productsGridView() => SliverGrid.builder(
+  Widget productsGridView() => Column(
+        children: [
+          Wrap(
+              children: List.generate(
+            controller.products.length,
+            (index) => GestureDetector(
+              onTap: () => controller.clickOnProduct(
+                  context: Get.context!,
+                  productId: controller.products[index].productId.toString()),
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 5.px, vertical: 6.px),
+                width: MediaQuery.of(Get.context!).size.width / 2.2,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        productImageView(index: index),
+                        //SizedBox(height: 2.px),
+                        if (controller.products[index].isColor != null &&
+                            controller.products[index].isColor != "0")
+                          colorListView(index: index),
+                        SizedBox(height: 4.px),
+                        if (controller.products[index].brandName != null &&
+                            controller.products[index].brandName!.isNotEmpty)
+                          brandNameTextView(index: index),
+                        if (controller.products[index].brandName != null &&
+                            controller.products[index].brandName!.isNotEmpty)
+                          SizedBox(height: 2.px),
+                        if (controller.products[index].productName != null &&
+                            controller.products[index].productName!.isNotEmpty)
+                          productNameTextView(index: index),
+                        if (controller.products[index].productName != null &&
+                            controller.products[index].productName!.isNotEmpty)
+                          SizedBox(height: 2.px),
+                        //priceView(index: index),
+                        //SizedBox(height: 4.px),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          )),
+        ],
+      );
+
+  /*Widget productsGridView() => SliverGrid.builder(
         addAutomaticKeepAlives: false,
         addRepaintBoundaries: false,
         addSemanticIndexes: false,
@@ -410,7 +470,7 @@ class CategoryProductView extends GetView<CategoryProductController> {
             ),
           );
         },
-      );
+      );*/
 
 /*
   Widget productsGridView() => CustomScrollView(

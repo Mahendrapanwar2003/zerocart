@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ui_library/ui_library.dart';
 import 'package:zerocart/app/common_widgets/common_widgets.dart';
-import 'package:zerocart/app/custom/custom_appbar.dart';
 import 'package:zerocart/app/custom/custom_gradient_text.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
 import '../controllers/confirm_cancel_controller.dart';

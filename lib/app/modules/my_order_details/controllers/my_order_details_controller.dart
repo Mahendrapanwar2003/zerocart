@@ -38,7 +38,6 @@ class MyOrderDetailsController extends CommonMethods {
 
   final isEmpty = false.obs;
 
-
   @override
   Future<void> onInit() async {
     super.onInit();
@@ -106,7 +105,8 @@ class MyOrderDetailsController extends CommonMethods {
         myOrderDetailsModel =
             MyOrderDetailsModel.fromJson(jsonDecode(response.body));
         if (myOrderDetailsModel != null) {
-          if (myOrderDetailsModel!.productDetails != null && myOrderDetailsModel!.productDetails!.isNotEmpty) {
+          if (myOrderDetailsModel!.productDetails != null &&
+              myOrderDetailsModel!.productDetails!.isNotEmpty) {
             productDetailsList = myOrderDetailsModel!.productDetails ?? [];
             //await Future.delayed(const Duration(seconds: 5), () => bannerValue.value = false);
           }
@@ -214,7 +214,9 @@ class MyOrderDetailsController extends CommonMethods {
     );
   }
 
-  void clickOnBottomSheet() {}
+  void clickOnBottomSheet() {
+    MyCommonMethods.unFocsKeyBoard();
+  }
 
   void clickOnRemoveReviewImage({required int index}) {
     selectedImageForRating.remove(selectedImageForRating[index]);
@@ -231,10 +233,28 @@ class MyOrderDetailsController extends CommonMethods {
   Future<void> clickOnSubmitButton() async {
     isSubmitButtonVisible.value = false;
     MyCommonMethods.unFocsKeyBoard();
-    if (descriptionController.text.trim().isNotEmpty) {
+    if (descriptionController.text.trim().isNotEmpty &&
+        selectedImageForRating.isNotEmpty) {
       isEmpty.value = false;
       await userProductFeedbackApiCalling();
     } else {
+      if (descriptionController.text.trim().isEmpty) {
+        MyCommonMethods.showSnackBar(
+            margin: EdgeInsets.only(
+                bottom: MediaQuery.of(Get.context!).size.height - 100,
+                right: 20.px,
+                left: 20.px),
+            message: "Please enter some description",
+            context: Get.context!);
+      } else {
+        MyCommonMethods.showSnackBar(
+            margin: EdgeInsets.only(
+                bottom: MediaQuery.of(Get.context!).size.height - 100,
+                right: 20.px,
+                left: 20.px),
+            message: "Please select Images",
+            context: Get.context!);
+      }
       isEmpty.value = true;
     }
     isSubmitButtonVisible.value = true;
@@ -254,6 +274,8 @@ class MyOrderDetailsController extends CommonMethods {
           ApiKeyConstant.rating: ratingCount.toString(),
           ApiKeyConstant.review: descriptionController.text.trim().toString(),
         };
+        print(
+            "bodyParamsForProductFeedbackApi::::${bodyParamsForProductFeedbackApi}");
         http.Response? response = await CommonApis.userProductFeedbackApi(
             imageList: selectedImageForRating,
             bodyParams: bodyParamsForProductFeedbackApi);

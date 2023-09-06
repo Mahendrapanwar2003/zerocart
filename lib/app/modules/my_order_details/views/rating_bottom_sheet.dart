@@ -200,13 +200,7 @@ class RatingBottomSheet extends GetView<MyOrderDetailsController> {
                           ),
                         ),
                       ),
-                      if (controller.isEmpty.value) SizedBox(height: 2.h),
-                      Row(
-                        children: [
-                          pleaseEnterSomeDescriptionTextView(),
-                        ],
-                      ),
-                      if (controller.isEmpty.value) SizedBox(height: 2.h),
+                      SizedBox(height: 8.px),
                       submitButtonView()
                     ],
                   ),

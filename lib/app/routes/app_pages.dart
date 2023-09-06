@@ -48,7 +48,6 @@ import '../modules/privacy_security/bindings/privacy_security_binding.dart';
 import '../modules/privacy_security/views/privacy_security_view.dart';
 import '../modules/product_detail/bindings/product_detail_binding.dart';
 import '../modules/product_detail/views/product_detail_view.dart';
-import '../modules/product_detail/views/productss_detail_view.dart';
 import '../modules/profile_menu/bindings/profile_menu_binding.dart';
 import '../modules/profile_menu/views/profile_menu_view.dart';
 import '../modules/registration/bindings/registration_binding.dart';

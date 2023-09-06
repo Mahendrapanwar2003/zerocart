@@ -17,140 +17,176 @@ class AllReviewsView extends GetView<AllReviewsController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: const MyCustomContainer().myAppBar(text: 'All Reviews', isIcon: true,backIconOnPressed: () =>
-          controller.clickOnBackIcon(context: context)),
-      body: Obx(() {
-        if (CommonMethods.isConnect.value) {
-          if (controller.getReviewModal.value != null) {
-            if ((controller.reviewList.value != null &&
-                    controller.reviewList.value!.isNotEmpty) &&
-                (controller.rateStarList.value != null &&
-                    controller.rateStarList.value!.isNotEmpty) &&
-                (controller.rattingAverage.value != null)) {
-              return ListView(
-                physics: const BouncingScrollPhysics(),
-                children: [
-
-                  SizedBox(height: 1.h),
-                /*  Padding(
+      appBar: const MyCustomContainer().myAppBar(
+          text: 'All Reviews',
+          isIcon: true,
+          backIconOnPressed: () =>
+              controller.clickOnBackIcon(context: context)),
+      body: Obx(
+        () {
+          controller.count.value;
+          if (CommonMethods.isConnect.value) {
+            if (controller.getProductReviewApiModel != null &&
+                controller.responseCode == 200) {
+              if ((controller.reviewList.isNotEmpty) &&
+                  (controller.rateStarList.isNotEmpty) &&
+                  (controller.rattingAverage != null)) {
+                return CommonWidgets.commonRefreshIndicator(
+                  onRefresh: () => controller.onRefresh(),
+                  child: ListView(
+                    physics: const BouncingScrollPhysics(),
+                    children: [
+                      SizedBox(height: 1.h),
+                      /*  Padding(
                     padding: EdgeInsets.symmetric(horizontal: 7.w),
                     child: CommonWidgets.profileMenuDash(),
                   ),*/
-                  Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 5.w, vertical: 2.h),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (controller.rattingAverage.value != null)
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  if (controller.rattingAverage.value
-                                              ?.rateAverage !=
-                                          null &&
-                                      controller.rattingAverage.value!
-                                          .rateAverage!.isNotEmpty)
-                                    avgRatingView(),
-                                  if (controller.rattingAverage.value
-                                              ?.totalReview !=
-                                          null &&
-                                      controller.rattingAverage.value
-                                              ?.totalRating !=
-                                          null)
-                                    ratingAndReviewsTexView()
-                                ],
-                              ),
-                            SizedBox(
-                              height: 18.h,
-                              child: VerticalDivider(
-                                color: MyColorsLight().textGrayColor,
-                                thickness: 1.px,
-                              ),
-                            ),
-                            if (controller.rateStarList.value != null &&
-                                controller.rateStarList.value!.isNotEmpty)
-                              Padding(
-                                padding: EdgeInsets.only(right: 6.w),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    commonRatingPercentageGraph(
-                                        graphNumber: controller.rateStarList
-                                                .value?[0].rating ??
-                                            "",
-                                        graphRatedCount: controller.rateStarList
-                                                .value?[0].ratingCount ??
-                                            "",
-                                        percentOfGraph: controller.rateStarList
-                                                .value?[0].ratePer ??
-                                            ""),
-                                    commonRatingPercentageGraph(
-                                        graphNumber: controller.rateStarList
-                                                .value?[1].rating ??
-                                            "",
-                                        graphRatedCount: controller.rateStarList
-                                                .value?[1].ratingCount ??
-                                            "",
-                                        percentOfGraph: controller.rateStarList
-                                                .value?[1].ratePer ??
-                                            ""),
-                                    commonRatingPercentageGraph(
-                                        graphNumber: controller.rateStarList
-                                                .value?[2].rating ??
-                                            "",
-                                        graphRatedCount: controller.rateStarList
-                                                .value?[2].ratingCount ??
-                                            "",
-                                        percentOfGraph: controller.rateStarList
-                                                .value?[2].ratePer ??
-                                            ""),
-                                    commonRatingPercentageGraph(
-                                        graphNumber: controller.rateStarList
-                                                .value?[3].rating ??
-                                            "",
-                                        graphRatedCount: controller.rateStarList
-                                                .value?[3].ratingCount ??
-                                            "",
-                                        percentOfGraph: controller.rateStarList
-                                                .value?[3].ratePer ??
-                                            ""),
-                                    commonRatingPercentageGraph(
-                                        graphNumber: controller.rateStarList
-                                                .value?[4].rating ??
-                                            "",
-                                        graphRatedCount: controller.rateStarList
-                                                .value?[4].ratingCount ??
-                                            "",
-                                        percentOfGraph: controller.rateStarList
-                                                .value?[4].ratePer ??
-                                            ""),
-                                  ],
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                if (controller.rattingAverage != null)
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      if (controller.rattingAverage
+                                                  ?.rateAverage !=
+                                              null &&
+                                          controller.rattingAverage!
+                                              .rateAverage!.isNotEmpty)
+                                        avgRatingView(),
+                                      if (controller.rattingAverage
+                                                  ?.totalReview !=
+                                              null &&
+                                          controller.rattingAverage
+                                                  ?.totalRating !=
+                                              null)
+                                        ratingAndReviewsTexView()
+                                    ],
+                                  ),
+                                SizedBox(
+                                  height: 18.h,
+                                  child: VerticalDivider(
+                                    color: MyColorsLight().textGrayColor,
+                                    thickness: 1.px,
+                                  ),
                                 ),
-                              ),
+                                if (controller.rateStarList.isNotEmpty)
+                                  Padding(
+                                    padding: EdgeInsets.only(right: 6.w),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        commonRatingPercentageGraph(
+                                            graphNumber: controller.rateStarList
+                                                    [0].rating ??
+                                                "",
+                                            graphRatedCount: controller
+                                                    .rateStarList
+                                                    [0]
+                                                    .ratingCount ??
+                                                "",
+                                            percentOfGraph: controller
+                                                    .rateStarList
+                                                    [0]
+                                                    .ratePer ??
+                                                ""),
+                                        commonRatingPercentageGraph(
+                                            graphNumber: controller.rateStarList
+                                                    [1].rating ??
+                                                "",
+                                            graphRatedCount: controller
+                                                    .rateStarList
+                                                    [1]
+                                                    .ratingCount ??
+                                                "",
+                                            percentOfGraph: controller
+                                                    .rateStarList
+                                                    [1]
+                                                    .ratePer ??
+                                                ""),
+                                        commonRatingPercentageGraph(
+                                            graphNumber: controller.rateStarList
+                                                    [2].rating ??
+                                                "",
+                                            graphRatedCount: controller
+                                                    .rateStarList
+                                                    [2]
+                                                    .ratingCount ??
+                                                "",
+                                            percentOfGraph: controller
+                                                    .rateStarList
+                                                    [2]
+                                                    .ratePer ??
+                                                ""),
+                                        commonRatingPercentageGraph(
+                                            graphNumber: controller.rateStarList
+                                                    [3].rating ??
+                                                "",
+                                            graphRatedCount: controller
+                                                    .rateStarList
+                                                    [3]
+                                                    .ratingCount ??
+                                                "",
+                                            percentOfGraph: controller
+                                                    .rateStarList
+                                                    [3]
+                                                    .ratePer ??
+                                                ""),
+                                        commonRatingPercentageGraph(
+                                            graphNumber: controller.rateStarList
+                                                    [4].rating ??
+                                                "",
+                                            graphRatedCount: controller
+                                                    .rateStarList
+                                                    [4]
+                                                    .ratingCount ??
+                                                "",
+                                            percentOfGraph: controller
+                                                    .rateStarList
+                                                    [4]
+                                                    .ratePer ??
+                                                ""),
+                                      ],
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            if (controller.reviewList.isNotEmpty)
+                              reviewListView()
                           ],
                         ),
-                        if (controller.reviewList.value != null &&
-                            controller.reviewList.value!.isNotEmpty)
-                          reviewListView()
-                      ],
-                    ),
-                  )
-                ],
-              );
+                      )
+                    ],
+                  ),
+                );
+              } else {
+                return CommonWidgets.commonNoDataFoundImage(
+                  onRefresh: () => controller.onRefresh(),
+                );
+              }
             } else {
-              return CommonWidgets.noDataTextView();
+              if (controller.responseCode == 0) {
+                return const SizedBox();
+              }
+              return CommonWidgets.commonSomethingWentWrongImage(
+                onRefresh: () => controller.onRefresh(),
+              );
             }
           } else {
-            return CommonWidgets.progressBarView();
+            return CommonWidgets.commonNoInternetImage(
+              onRefresh: () => controller.onRefresh(),
+            );
           }
-        } else {
-          return CommonWidgets.progressBarView();
-        }
-      }),
+        },
+      ),
     );
   }
 
@@ -171,7 +207,7 @@ class AllReviewsView extends GetView<AllReviewsController> {
 
   Widget avgRatingView() => RatingBar.builder(
         initialRating:
-            double.parse(controller.rattingAverage.value!.rateAverage!),
+            double.parse(controller.rattingAverage!.rateAverage!),
         minRating: 0,
         itemSize: 20.px,
         direction: Axis.horizontal,
@@ -185,7 +221,7 @@ class AllReviewsView extends GetView<AllReviewsController> {
       );
 
   Widget ratingAndReviewsTexView() => Text(
-        "${controller.rattingAverage.value?.totalRating} ratings and\n ${controller.rattingAverage.value?.totalRating}  reviews",
+        "${controller.rattingAverage?.totalRating} ratings and\n ${controller.rattingAverage?.totalRating}  reviews",
         style: Theme.of(Get.context!)
             .textTheme
             .subtitle2
@@ -235,15 +271,16 @@ class AllReviewsView extends GetView<AllReviewsController> {
   Widget reviewListView() {
     return ListView.builder(
       itemBuilder: (context, index) {
-        controller.review.value = controller.reviewList.value![index];
-        if(controller.reviewList.value?[index].reviewFile != null&& controller.reviewList.value![index].reviewFile!.isNotEmpty)
-          {
-            controller.reviewFileList.value=controller.reviewList.value![index].reviewFile;
-          }
-        if (controller.review.value?.createdDate != null &&
-            controller.review.value!.createdDate!.isNotEmpty) {
+        controller.review = controller.reviewList[index];
+        if (controller.reviewList[index].reviewFile != null &&
+            controller.reviewList[index].reviewFile!.isNotEmpty) {
+          controller.reviewFileList =
+              controller.reviewList[index].reviewFile ?? [];
+        }
+        if (controller.review?.createdDate != null &&
+            controller.review!.createdDate!.isNotEmpty) {
           controller.dateTime =
-              DateTime.parse(controller.review.value!.createdDate!);
+              DateTime.parse(controller.review!.createdDate!);
         }
         return Column(
           children: [
@@ -252,28 +289,32 @@ class AllReviewsView extends GetView<AllReviewsController> {
               children: [
                 CommonWidgets.profileMenuDash(),
                 SizedBox(height: 2.h),
-                if (controller.review.value?.rating != null &&
-                    controller.review.value!.rating!.isNotEmpty)
+                if (controller.review?.rating != null &&
+                    controller.review!.rating!.isNotEmpty)
                   avgRatingViewForList(
                       index: index,
-                      howManyStarRating: controller.review.value?.rating ?? ""),
-                if (controller.review.value?.rating != null &&
-                    controller.review.value!.rating!.isNotEmpty)
+                      howManyStarRating: controller.review?.rating ?? ""),
+                if (controller.review?.rating != null &&
+                    controller.review!.rating!.isNotEmpty)
                   SizedBox(height: 1.h),
-                if (controller.review.value?.review != null &&
-                    controller.review.value!.review!.isNotEmpty)
+                if (controller.review?.review != null &&
+                    controller.review!.review!.isNotEmpty)
                   customerReviewTextView(
-                      value: controller.review.value?.review ?? ""),
-                if (controller.review.value?.review != null &&
-                    controller.review.value!.review!.isNotEmpty)
+                      value: controller.review?.review ?? ""),
+                if (controller.review?.review != null &&
+                    controller.review!.review!.isNotEmpty)
                   SizedBox(height: 1.h),
-                if (controller.reviewFileList.value != null &&
-                    controller.reviewFileList.value!.isNotEmpty)
-                  SizedBox(height: 50.px,child: customerProductRatingPictureListView(),),
-                if (controller.review.value?.reviewFile != null &&
-                    controller.review.value!.reviewFile!.isNotEmpty)
+                if (controller.reviewFileList != null &&
+                    controller.reviewFileList!.isNotEmpty)
+                  SizedBox(
+                    height: 50.px,
+                    child: customerProductRatingPictureListView(),
+                  ),
+                if (controller.review?.reviewFile != null &&
+                    controller.review!.reviewFile!.isNotEmpty)
                   SizedBox(height: 1.h),
-                if (controller.review.value?.customerName != null && controller.dateTime != null)
+                if (controller.review?.customerName != null &&
+                    controller.dateTime != null)
                   Row(
                     children: [
                       GradientIconColor(
@@ -287,7 +328,7 @@ class AllReviewsView extends GetView<AllReviewsController> {
                           children: [
                             customerNameTextViewOrTime(
                                 text:
-                                    "${controller.review.value?.customerName} ${controller.dateTime?.day}-${controller.dateTime?.month}-${controller.dateTime?.year} "),
+                                    "${controller.review?.customerName} ${controller.dateTime?.day}-${controller.dateTime?.month}-${controller.dateTime?.year} "),
                           ],
                         ),
                       ),
@@ -303,7 +344,7 @@ class AllReviewsView extends GetView<AllReviewsController> {
       shrinkWrap: true,
       padding: EdgeInsets.zero,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: controller.reviewList.value?.length,
+      itemCount: controller.reviewList.length,
     );
   }
 
@@ -327,45 +368,43 @@ class AllReviewsView extends GetView<AllReviewsController> {
       Text(value, style: Theme.of(Get.context!).textTheme.subtitle1);
 
   Widget customerProductRatingPictureListView() => ListView.builder(
-    itemBuilder: (context, index) {
-      controller.reviewFile.value=controller.reviewFileList.value![index];
-      if(controller.reviewFile.value?.revPhoto != null && controller.reviewFile.value!.revPhoto!.isNotEmpty)
-        {
-          return Padding(
-            padding:  EdgeInsets.only(right:5.px ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
-                  padding:  EdgeInsets.only(right: 10.px),
-                  child: InkWell(
-                      onTap: ()=>controller.clickOnReviewImageList(index:index),
-                      borderRadius: BorderRadius.circular(5.px),
-                      child: ClipRRect(
-                          borderRadius:
-                          BorderRadius.circular(5.px),
-                          child: Image.network(
-                            ApiConstUri.baseUrl+ controller.reviewFile.value!.revPhoto!,
-                            fit: BoxFit.cover,
-                            height: 45.px,
-                            width: 45.px,
-                          ))
+        itemBuilder: (context, index) {
+          controller.reviewFile = controller.reviewFileList![index];
+          if (controller.reviewFile?.revPhoto != null &&
+              controller.reviewFile!.revPhoto!.isNotEmpty) {
+            return Padding(
+              padding: EdgeInsets.only(right: 5.px),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(right: 10.px),
+                    child: InkWell(
+                        onTap: () =>
+                            controller.clickOnReviewImageList(index: index),
+                        borderRadius: BorderRadius.circular(5.px),
+                        child: ClipRRect(
+                            borderRadius: BorderRadius.circular(5.px),
+                            child: Image.network(
+                              ApiConstUri.baseUrl +
+                                  controller.reviewFile!.revPhoto!,
+                              fit: BoxFit.cover,
+                              height: 45.px,
+                              width: 45.px,
+                            ))),
                   ),
-                ),
-              ],
-            ),
-          );
-        }
-      else
-        {
-          return const SizedBox();
-        }
-    },
-    physics: const BouncingScrollPhysics(),
-    itemCount: controller.reviewFileList.value?.length,
-    padding: EdgeInsets.zero,
-    scrollDirection: Axis.horizontal,
-  );
+                ],
+              ),
+            );
+          } else {
+            return const SizedBox();
+          }
+        },
+        physics: const BouncingScrollPhysics(),
+        itemCount: controller.reviewFileList.length,
+        padding: EdgeInsets.zero,
+        scrollDirection: Axis.horizontal,
+      );
 
   Widget iconButton(
           {required IconData icon,

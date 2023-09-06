@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ui_library/ui_library.dart';
@@ -14,6 +16,11 @@ import 'package:http/http.dart' as http;
 
 class BuyNowController extends CommonMethods {
   final count = 0.obs;
+  int responseCode = 0;
+  int load = 0;
+  final inAsyncCall = false.obs;
+  final isLastPage = false.obs;
+
   final proceedToPaymentAbsorbing = false.obs;
   final isClickOnProceedToCheckOut = false.obs;
   String inventoryId = Get.arguments[0];
@@ -21,7 +28,6 @@ class BuyNowController extends CommonMethods {
   final others = 'others'.obs;
   final cashOnDelivery = 'cashOnDelivery'.obs;
   final paymentMethod = 'wallet'.obs;
-  final absorbing = false.obs;
   final valueString = ''.obs;
   final sellPrice = 0.0.obs;
   double sellPriceCopy = 0.0;
@@ -32,14 +38,14 @@ class BuyNowController extends CommonMethods {
   double totalPriceCopy = 0.0;
 
   final itemQuantity = 1.obs;
-  final getProductByInventoryApiModal = Rxn<GetProductByInventoryApiModal>();
-  final productDetail = Rxn<ProductDetail?>();
-  final addressDetail = Rxn<AddressDetail?>();
+  GetProductByInventoryApiModal? getProductByInventoryApiModal;
+  ProductDetail? productDetail;
+  AddressDetail? addressDetail;
   Map<String, dynamic> queryParametersForGetProductByInventory = {};
 
-  final getApplyCouponModal = Rxn<GetApplyCouponModal?>();
+  GetApplyCouponModal? getApplyCouponModal;
   final applyCouponController = TextEditingController();
-  final applyCouponResult = Rxn<Result?>();
+  Result? applyCouponResult;
 
   //final isClickOnApplyCoupon = false.obs;
   final isClickOnApplyCouponVisible = false.obs;
@@ -52,7 +58,16 @@ class BuyNowController extends CommonMethods {
   @override
   Future<void> onInit() async {
     super.onInit();
-    await callingGetProductByInventoryApi();
+    onReload();
+    inAsyncCall.value = true;
+    try {
+      await callingGetProductByInventoryApi();
+    } catch (e) {
+      responseCode = 100;
+      MyCommonMethods.showSnackBar(
+          message: "Something went wrong", context: Get.context!);
+    }
+    inAsyncCall.value = false;
   }
 
   @override
@@ -67,6 +82,19 @@ class BuyNowController extends CommonMethods {
 
   void increment() => count.value++;
 
+  void onReload() {
+    connectivity.onConnectivityChanged.listen((event) async {
+      if (await MyCommonMethods.internetConnectionCheckerMethod()) {
+        if (load == 0) {
+          load = 1;
+          await onInit();
+        }
+      } else {
+        load = 0;
+      }
+    });
+  }
+
   Future<void> callingGetProductByInventoryApi() async {
     itemQuantity.value = 1;
     valueString.value = '';
@@ -77,118 +105,125 @@ class BuyNowController extends CommonMethods {
     deliveryPrice.value = 0.0;
     totalPrice.value = 0.0;
     totalPriceCopy = 0.0;
+
     if (inventoryId.isNotEmpty) {
-      absorbing.value = true;
       queryParametersForGetProductByInventory = {'inventoryId': inventoryId};
-      getProductByInventoryApiModal.value =
-          await CommonApis.getProductByInventoryApi(
-              queryParameters: queryParametersForGetProductByInventory);
-      if (getProductByInventoryApiModal.value != null) {
-        if (getProductByInventoryApiModal.value?.addressDetail != null) {
-          addressDetail.value =
-              getProductByInventoryApiModal.value?.addressDetail;
-        }
-        if (getProductByInventoryApiModal.value?.productDetail != null) {
-          productDetail.value =
-              getProductByInventoryApiModal.value?.productDetail;
-          if (productDetail.value?.isOffer != null &&
-              productDetail.value?.isOffer == "1") {
-            if (productDetail.value?.deliveryCharge != null &&
-                productDetail.value!.deliveryCharge!.isNotEmpty &&
-                productDetail.value?.deliveryCharge != "0.0") {
-              deliveryPrice.value = double.parse(
-                  double.parse(productDetail.value!.deliveryCharge!)
-                      .toStringAsFixed(2));
+      Map<String, String> authorization = {};
+      String? token =
+          await MyCommonMethods.getString(key: ApiKeyConstant.token);
+      authorization = {"Authorization": token!};
+      http.Response? response = await MyHttp.getMethodForParams(
+          baseUri: ApiConstUri.baseUrlForGetMethod,
+          endPointUri: ApiConstUri.endPointGetProductByInventoryApi,
+          queryParameters: queryParametersForGetProductByInventory,
+          authorization: authorization,
+          context: Get.context!);
+      responseCode = response?.statusCode ?? 0;
+      if (response != null) {
+        if (await CommonMethods.checkResponse(response: response)) {
+          getProductByInventoryApiModal =
+              GetProductByInventoryApiModal.fromJson(jsonDecode(response.body));
+          if (getProductByInventoryApiModal != null) {
+            if (getProductByInventoryApiModal?.addressDetail != null) {
+              addressDetail = getProductByInventoryApiModal?.addressDetail;
             }
-            if (productDetail.value?.sellPrice != null) {
-              sellPrice.value =
-                  double.parse(productDetail.value!.sellPrice.toString());
-              sellPriceCopy = sellPrice.value;
-            }
-            if (productDetail.value?.sellPrice != null &&
-                productDetail.value?.offerPrice != null) {
-              discountPrice.value =
-                  (double.parse(productDetail.value!.sellPrice.toString()) -
-                      double.parse(productDetail.value!.offerPrice.toString()));
-              discountPriceCopy = discountPrice.value;
-              totalPrice.value = deliveryPrice.value +
-                  double.parse(productDetail.value!.offerPrice.toString());
-              totalPriceCopy = totalPrice.value - deliveryPrice.value;
-            }
-          } else {
-            if (productDetail.value?.sellPrice != null) {
-              sellPrice.value =
-                  double.parse(productDetail.value!.sellPrice.toString());
-              sellPriceCopy = sellPrice.value;
-              totalPrice.value = sellPrice.value + deliveryPrice.value;
-              totalPriceCopy = sellPrice.value;
+            if (getProductByInventoryApiModal?.productDetail != null) {
+              productDetail = getProductByInventoryApiModal?.productDetail;
+              if (productDetail?.isOffer != null &&
+                  productDetail?.isOffer == "1") {
+                if (productDetail?.deliveryCharge != null &&
+                    productDetail!.deliveryCharge!.isNotEmpty &&
+                    productDetail?.deliveryCharge != "0.0") {
+                  deliveryPrice.value = double.parse(
+                      double.parse(productDetail!.deliveryCharge!)
+                          .toStringAsFixed(2));
+                }
+                if (productDetail?.sellPrice != null) {
+                  sellPrice.value =
+                      double.parse(productDetail!.sellPrice.toString());
+                  sellPriceCopy = sellPrice.value;
+                }
+                if (productDetail?.sellPrice != null &&
+                    productDetail?.offerPrice != null) {
+                  discountPrice.value =
+                      (double.parse(productDetail!.sellPrice.toString()) -
+                          double.parse(productDetail!.offerPrice.toString()));
+                  discountPriceCopy = discountPrice.value;
+                  totalPrice.value = deliveryPrice.value +
+                      double.parse(productDetail!.offerPrice.toString());
+                  totalPriceCopy = totalPrice.value - deliveryPrice.value;
+                }
+              } else {
+                if (productDetail?.sellPrice != null) {
+                  sellPrice.value =
+                      double.parse(productDetail!.sellPrice.toString());
+                  sellPriceCopy = sellPrice.value;
+                  totalPrice.value = sellPrice.value + deliveryPrice.value;
+                  totalPriceCopy = sellPrice.value;
+                }
+              }
             }
           }
         }
       }
+      increment();
     }
-    absorbing.value = false;
   }
 
   Future<void> applyCouponApi() async {
-    absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
+    inAsyncCall.value = true;
     bodyParametersForApplyCouponApi = {
       ApiKeyConstant.couponCode: applyCouponController.text.toString().trim(),
-      ApiKeyConstant.inventoryId: productDetail.value?.inventoryId.toString(),
+      ApiKeyConstant.inventoryId: productDetail?.inventoryId.toString(),
       ApiKeyConstant.quantity: itemQuantity.toString(),
     };
-    getApplyCouponModal.value = await CommonApis.applyCouponApi(
+    getApplyCouponModal = await CommonApis.applyCouponApi(
         bodyParams: bodyParametersForApplyCouponApi);
-    if (getApplyCouponModal.value != null) {
+    if (getApplyCouponModal != null) {
       isApplyCoupon.value = false;
-      if (getApplyCouponModal.value?.result != null) {
-        applyCouponResult.value = getApplyCouponModal.value?.result;
-        if (applyCouponResult.value?.totalPrice != null &&
-            applyCouponResult.value?.couponDisPrice != null) {
-          discountPrice.value =
-              (double.parse(int.parse(applyCouponResult.value!.discount!)
-                  .toDouble()
-                  .toString()));
+      if (getApplyCouponModal?.result != null) {
+        applyCouponResult = getApplyCouponModal?.result;
+        if (applyCouponResult?.totalPrice != null &&
+            applyCouponResult?.couponDisPrice != null) {
+          discountPrice.value = (double.parse(
+              int.parse(applyCouponResult!.discount!).toDouble().toString()));
           totalPrice.value = double.parse(
-                  int.parse(applyCouponResult.value!.totalPrice!)
+                  int.parse(applyCouponResult!.totalPrice!)
                       .toDouble()
                       .toString()) -
-              double.parse(int.parse(applyCouponResult.value!.discount!)
+              double.parse(int.parse(applyCouponResult!.discount!)
                   .toDouble()
                   .toString());
           sellPrice.value = double.parse(
-              int.parse(applyCouponResult.value!.totalPrice!)
-                  .toDouble()
-                  .toString());
-          isCouponRange.value= true;
+              int.parse(applyCouponResult!.totalPrice!).toDouble().toString());
+          isCouponRange.value = true;
           /*  discountPrice.value = itemQuantity.value * double.parse(
-              int.parse(applyCouponResult.value!.discount!)
+              int.parse(applyCouponResult!.discount!)
                   .toDouble()
-                  .toString()) + (double.parse(productDetail.value!.sellPrice.toString()) -
-              double.parse(productDetail.value!.offerPrice.toString()));*/
+                  .toString()) + (double.parse(productDetail!.sellPrice.toString()) -
+              double.parse(productDetail!.offerPrice.toString()));*/
           /*discountPrice.value = (discountPrice.value +
-              double.parse(int.parse(applyCouponResult.value!.totalPrice!)
+              double.parse(int.parse(applyCouponResult!.totalPrice!)
                   .toDouble()
                   .toString()) -
-              double.parse(int.parse(applyCouponResult.value!.couponDisPrice!)
+              double.parse(int.parse(applyCouponResult!.couponDisPrice!)
                   .toDouble()
                   .toString()));
           totalPrice.value = */ /*itemQuantity.value **/ /*
-              double.parse(int.parse(applyCouponResult.value!.couponDisPrice!)
+              double.parse(int.parse(applyCouponResult!.couponDisPrice!)
                   .toDouble()
                   .toString());*/
         }
       }
-      absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();
     } else {
-      totalPrice.value = sellPrice.value;
-      sellPrice.value = sellPrice.value;
-      discountPrice.value = 0.0;
+      /*totalPrice.value = sellPrice.value;
+      sellPrice.value = sellPrice.value;*/
+      discountPrice.value = discountPriceCopy;
       applyCouponController.text = '';
       isApplyCoupon.value = true;
-      isCouponRange.value= false;
+      isCouponRange.value = false;
     }
-    absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();
+    inAsyncCall.value = false;
   }
 
   void clickOnBackButton() {
@@ -199,29 +234,28 @@ class BuyNowController extends CommonMethods {
   Future<void> clickOnChangeAddressButton(
       {required BuildContext context}) async {
     MyCommonMethods.unFocsKeyBoard();
-    absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueTrue();
     await Get.toNamed(Routes.ADDRESS);
     await callingGetProductByInventoryApi();
-    absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueFalse();
   }
 
   Future<void> clickOnAddAddressButton({required BuildContext context}) async {
     MyCommonMethods.unFocsKeyBoard();
-    absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueTrue();
     await Get.toNamed(Routes.ADD_ADDRESS);
     await callingGetProductByInventoryApi();
-    absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueFalse();
   }
 
   void clickOnIncreaseQuantityButton() {
     MyCommonMethods.unFocsKeyBoard();
-    absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
-    if (productDetail.value?.availability != null &&
-        productDetail.value!.availability!.isNotEmpty) {
-      if (itemQuantity.value < int.parse(productDetail.value!.availability!)) {
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueTrue();
+    if (productDetail?.availability != null &&
+        productDetail!.availability!.isNotEmpty) {
+      if (itemQuantity.value < int.parse(productDetail!.availability!)) {
         itemQuantity.value = ++itemQuantity.value;
-        if (productDetail.value?.isOffer != null &&
-            productDetail.value?.isOffer == "1") {
+        if (productDetail?.isOffer != null && productDetail?.isOffer == "1") {
           sellPrice.value = sellPrice.value + sellPriceCopy;
           discountPrice.value = discountPrice.value + discountPriceCopy;
           totalPrice.value = totalPrice.value + totalPriceCopy;
@@ -237,16 +271,42 @@ class BuyNowController extends CommonMethods {
         }
       }
     }
-    absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueFalse();
   }
 
   void clickOnDecreaseQuantityButton() {
     MyCommonMethods.unFocsKeyBoard();
-    absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueTrue();
+    if (productDetail?.availability != null &&
+        productDetail!.availability!.isNotEmpty) {
+      if (itemQuantity.value > 1) {
+        itemQuantity.value = --itemQuantity.value;
+        if (productDetail?.isOffer != null && productDetail?.isOffer == "1") {
+          sellPrice.value = sellPrice.value - sellPriceCopy;
+          discountPrice.value = discountPrice.value - discountPriceCopy;
+          totalPrice.value = totalPrice.value - totalPriceCopy;
+          if (!isApplyCoupon.value) {
+            clickOnApplyCouponButtonView();
+          }
+        } else {
+          sellPrice.value = sellPrice.value - sellPriceCopy;
+          totalPrice.value = totalPrice.value - totalPriceCopy;
+          if (!isApplyCoupon.value) {
+            clickOnApplyCouponButtonView();
+          }
+        }
+      }
+    }
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueFalse();
+  }
+
+/*  void clickOnDecreaseQuantityButton() {
+    MyCommonMethods.unFocsKeyBoard();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueTrue();
     if (itemQuantity.value > 1) {
       itemQuantity.value = --itemQuantity.value;
-      if (productDetail.value?.isOffer != null &&
-          productDetail.value?.isOffer == "1") {
+      if (productDetail?.isOffer != null &&
+          productDetail?.isOffer == "1") {
         sellPrice.value = sellPrice.value - sellPriceCopy;
         discountPrice.value = discountPrice.value - discountPriceCopy;
         totalPrice.value = totalPrice.value - totalPriceCopy;
@@ -260,9 +320,10 @@ class BuyNowController extends CommonMethods {
           clickOnApplyCouponButtonView();
         }
       }
-      /* itemQuantity.value = --itemQuantity.value;
-      if (productDetail.value?.isOffer != null &&
-          productDetail.value?.isOffer == "1") {
+      */
+  /* itemQuantity.value = --itemQuantity.value;
+      if (productDetail?.isOffer != null &&
+          productDetail?.isOffer == "1") {
         sellPrice.value = sellPrice.value - sellPriceCopy;
         discountPrice.value = discountPrice.value - discountPriceCopy;
         totalPrice.value = totalPrice.value - totalPriceCopy;
@@ -278,32 +339,34 @@ class BuyNowController extends CommonMethods {
           clickOnApplyCouponButtonView();
         }
       }*/
+  /*
     }
-    absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();
-  }
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueFalse();
+  }*/
 
   Future<void> clickOnApplyCouponButtonView() async {
     MyCommonMethods.unFocsKeyBoard();
-    absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueTrue();
     await applyCouponApi();
-    absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueFalse();
   }
 
   clickOnRemoveCouponButtonView({required BuildContext context}) async {
     MyCommonMethods.unFocsKeyBoard();
-    absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueTrue();
     //await onInit();
-    totalPrice.value = itemQuantity.value * (totalPriceCopy + deliveryPrice.value);
+    totalPrice.value =
+        itemQuantity.value * (totalPriceCopy + deliveryPrice.value);
     discountPrice.value = itemQuantity.value * discountPriceCopy;
     sellPrice.value = itemQuantity.value * sellPriceCopy;
     applyCouponController.text = '';
     isApplyCoupon.value = true;
-    absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueFalse();
   }
 
   void clickOnProceedToPaymentButton({required BuildContext context}) {
     MyCommonMethods.unFocsKeyBoard();
-    if (addressDetail.value != null) {
+    if (addressDetail != null) {
       showModalBottomSheet(
         isScrollControlled: true,
         backgroundColor: MyColorsLight().secondary,
@@ -323,76 +386,77 @@ class BuyNowController extends CommonMethods {
   }
 
   Future<void> clickOnProceedToCheckout() async {
-    absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueTrue();
     isClickOnProceedToCheckOut.value = true;
     bool isSuccess = false;
     var userMeasurement = await MyCommonMethods.getString(key: "measurement");
-    if(userMeasurement!=null && userMeasurement.isNotEmpty)
-      {
-        if (paymentMethod.value.toString() == "cashOnDelivery") {
-          paymentType = "COD";
+    if (userMeasurement != null && userMeasurement.isNotEmpty) {
+      if (paymentMethod.value.toString() == "cashOnDelivery") {
+        paymentType = "COD";
+        bodyParametersForPlaceOrderApi = {
+          ApiKeyConstant.paymentMode: paymentType,
+          ApiKeyConstant.transId: '',
+          ApiKeyConstant.isCart: '0',
+          ApiKeyConstant.inventoryId: inventoryId,
+          ApiKeyConstant.userMeasurement: userMeasurement,
+          ApiKeyConstant.quantity: itemQuantity.value.toString(),
+        };
+        isSuccess = await placeOrderApiCalling();
+        Get.back();
+        if (isSuccess) {
+          MyCommonMethods.showSnackBar(
+              message: "Your order has been placed successfully",
+              context: Get.context!);
+        }
+        bodyParametersForPlaceOrderApi.clear();
+      } else if (paymentMethod.value.toString() == "wallet") {
+        paymentType = "Wallet";
+        bodyParametersForPlaceOrderApi = {
+          ApiKeyConstant.paymentMode: paymentType,
+          ApiKeyConstant.transId: '',
+          ApiKeyConstant.isCart: '0',
+          ApiKeyConstant.inventoryId: inventoryId,
+          ApiKeyConstant.userMeasurement: userMeasurement,
+          ApiKeyConstant.quantity: itemQuantity.value.toString(),
+        };
+        isSuccess = await placeOrderApiCalling();
+        if (isSuccess) {
+          bodyParametersForPlaceOrderApi.clear();
           bodyParametersForPlaceOrderApi = {
-            ApiKeyConstant.paymentMode: paymentType,
-            ApiKeyConstant.transId: '',
-            ApiKeyConstant.isCart: '0',
-            ApiKeyConstant.inventoryId: inventoryId,
-            ApiKeyConstant.userMeasurement: userMeasurement,
-            ApiKeyConstant.quantity: itemQuantity.value.toString(),
+            ApiKeyConstant.transType: 'debit',
+            ApiKeyConstant.outAmt: totalPrice.value.toString(),
           };
-          isSuccess = await placeOrderApiCalling();
-          Get.back();
-          if (isSuccess) {
+          http.Response? response = await CommonApis.walletTransactionApi(
+              bodyParams: bodyParametersForPlaceOrderApi);
+          if (response != null) {
+            Get.back();
             MyCommonMethods.showSnackBar(
                 message: "Your order has been placed successfully",
                 context: Get.context!);
           }
-          bodyParametersForPlaceOrderApi.clear();
         }
-        else if (paymentMethod.value.toString() == "wallet") {
-          paymentType = "Wallet";
-          bodyParametersForPlaceOrderApi = {
-            ApiKeyConstant.paymentMode: paymentType,
-            ApiKeyConstant.transId: '',
-            ApiKeyConstant.isCart: '0',
-            ApiKeyConstant.inventoryId: inventoryId,
-            ApiKeyConstant.userMeasurement: userMeasurement,
-            ApiKeyConstant.quantity: itemQuantity.value.toString(),
-          };
-          isSuccess = await placeOrderApiCalling();
-          if (isSuccess) {
-            bodyParametersForPlaceOrderApi.clear();
-            bodyParametersForPlaceOrderApi = {
-              ApiKeyConstant.transType: 'debit',
-              ApiKeyConstant.outAmt: totalPrice.value.toString(),
-            };
-            http.Response? response = await CommonApis.walletTransactionApi(
-                bodyParams: bodyParametersForPlaceOrderApi);
-            if (response != null) {
-              Get.back();
-              MyCommonMethods.showSnackBar(
-                  message: "Your order has been placed successfully",
-                  context: Get.context!);
-            }
-          }
-          Get.back();
-          bodyParametersForPlaceOrderApi.clear();
-        }
-        else if (paymentMethod.value.toString() == "others") {
-          Get.back();
-          paymentType = "Online";
-          await openGateway(
-              type: OpenGetWayType.buyNow,
-              priceValue: int.parse(
-                  double.parse(totalPrice.value.toString()).toInt().toString()),
-              inventoryId: inventoryId,
-              description: productDetail.value?.productName ?? "",
-              itemQuantity: itemQuantity.value);
-        }
-      }else{
+        Get.back();
+        bodyParametersForPlaceOrderApi.clear();
+      } else if (paymentMethod.value.toString() == "others") {
+        Get.back();
+        paymentType = "Online";
+        await openGateway(
+            type: OpenGetWayType.buyNow,
+            priceValue: int.parse(
+                double.parse(totalPrice.value.toString()).toInt().toString()),
+            inventoryId: inventoryId,
+            description: productDetail?.productName ?? "",
+            itemQuantity: itemQuantity.value);
+      }
+    } else {
       Get.back();
       await Get.toNamed(Routes.MEASUREMENTS);
     }
     isClickOnProceedToCheckOut.value = false;
-    absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueFalse();
+  }
+
+  onRefresh() async {
+    await onInit();
   }
 }

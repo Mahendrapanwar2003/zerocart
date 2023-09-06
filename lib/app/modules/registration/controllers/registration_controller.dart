@@ -122,6 +122,7 @@ class RegistrationController extends GetxController {
 
   Future<void> registrationApiCalling() async {
     String? uuid = await MyCommonMethods.getString(key: ApiKeyConstant.uuid);
+    String? fcmId = await MyFirebaseSignIn.getUserFcmId(context: Get.context!);
     String gender = "";
     if (checkTypeOfProductsValue.toString() == "0") {
       gender = "m";
@@ -137,6 +138,7 @@ class RegistrationController extends GetxController {
       ApiKeyConstant.uuid: uuid,
       ApiKeyConstant.password: passwordController.text.trim().toString(),
       ApiKeyConstant.deviceType: deviceType,
+      ApiKeyConstant.fcmId: fcmId,
       ApiKeyConstant.countryId: countryId,
       ApiKeyConstant.stateId: stateId ?? "",
       ApiKeyConstant.cityId: cityId ?? "",

@@ -293,7 +293,6 @@ class CommonApis {
     required Map<String, dynamic> bodyParams,
   }) async {
     String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
-
     Map<String, String> authorization = {};
     authorization = {"Authorization": token!};
     http.Response? response = await MyHttp.postMethod(
@@ -850,9 +849,9 @@ class CommonApis {
     }
   }
 
-  static Future<GetReviewModal?> getProductReviewApi(
+  static Future<GetProductReviewApiModel?> getProductReviewApi(
       {required Map<String, dynamic> queryParameters}) async {
-    GetReviewModal? getReviewModal;
+    GetProductReviewApiModel? getProductReviewApiModel ;
     Map<String, String> authorization = {};
     String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
     authorization = {"Authorization": token!};
@@ -864,8 +863,8 @@ class CommonApis {
         endPointUri: ApiConstUri.endPointGetProductReviewApi);
     if (response != null) {
       if (await CommonMethods.checkResponse(response: response)) {
-        getReviewModal = GetReviewModal.fromJson(jsonDecode(response.body));
-        return getReviewModal;
+        getProductReviewApiModel  = GetProductReviewApiModel.fromJson(jsonDecode(response.body));
+        return getProductReviewApiModel ;
       } else {
         return null;
       }
@@ -1057,14 +1056,12 @@ class CommonApis {
     Map<String, String> authorization = {};
     String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
     authorization = {"Authorization": token!};
-
     http.Response? response = await MyHttp.getMethodForParams(
         context: Get.context!,
         queryParameters: queryParameters,
         authorization: authorization,
         baseUri: '172.188.16.156:8000',
         endPointUri: ApiConstUri.endPointGetRecentProductApi);
-    // ignore: unnecessary_null_comparison
     if (response != null) {
       if (await CommonMethods.checkResponse(response: response)) {
         recentProduct = RecentProduct.fromJson(jsonDecode(response.body));

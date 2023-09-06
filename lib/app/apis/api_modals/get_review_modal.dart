@@ -1,41 +1,41 @@
-class GetReviewModal {
+class GetProductReviewApiModel {
   String? message;
   List<RateStar>? rateStar;
   List<ReviewList>? reviewList;
-  BestReview? bestReview;
+  ReviewList? bestReview;
   RatingAverage? ratingAverage;
 
-  GetReviewModal(
+  GetProductReviewApiModel(
       {this.message,
         this.rateStar,
         this.reviewList,
         this.bestReview,
         this.ratingAverage});
 
-  GetReviewModal.fromJson(Map<String, dynamic> json) {
+  GetProductReviewApiModel.fromJson(Map<String, dynamic> json) {
     message = json['message'];
     if (json['rateStar'] != null) {
       rateStar = <RateStar>[];
       json['rateStar'].forEach((v) {
-        rateStar!.add( RateStar.fromJson(v));
+        rateStar!.add(RateStar.fromJson(v));
       });
     }
     if (json['reviewList'] != null) {
       reviewList = <ReviewList>[];
       json['reviewList'].forEach((v) {
-        reviewList!.add( ReviewList.fromJson(v));
+        reviewList!.add(ReviewList.fromJson(v));
       });
     }
     bestReview = json['bestReview'] != null
-        ?  BestReview.fromJson(json['bestReview'])
+        ? ReviewList.fromJson(json['bestReview'])
         : null;
     ratingAverage = json['ratingAverage'] != null
-        ?  RatingAverage.fromJson(json['ratingAverage'])
+        ? RatingAverage.fromJson(json['ratingAverage'])
         : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data =  <String, dynamic>{};
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['message'] = message;
     if (rateStar != null) {
       data['rateStar'] = rateStar!.map((v) => v.toJson()).toList();
@@ -69,7 +69,7 @@ class RateStar {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data =  <String, dynamic>{};
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['rating'] = rating;
     data['ratingCount'] = ratingCount;
     data['maxRate'] = maxRate;
@@ -110,7 +110,7 @@ class ReviewList {
     if (json['review_file'] != null) {
       reviewFile = <ReviewFile>[];
       json['review_file'].forEach((v) {
-        reviewFile!.add( ReviewFile.fromJson(v));
+        reviewFile!.add(ReviewFile.fromJson(v));
       });
     }
     createdDate = json['createdDate'];
@@ -118,7 +118,7 @@ class ReviewList {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data =  <String, dynamic>{};
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['productReviewId'] = productReviewId;
     data['uuid'] = uuid;
     data['customerId'] = customerId;
@@ -146,58 +146,9 @@ class ReviewFile {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data =  <String, dynamic>{};
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['revImgId'] = revImgId;
     data['revPhoto'] = revPhoto;
-    return data;
-  }
-}
-
-class BestReview {
-  String? productReviewId;
-  String? uuid;
-  String? customerId;
-  String? productId;
-  String? rating;
-  String? review;
-  String? reviewFile;
-  String? createdDate;
-  String? customerName;
-
-  BestReview(
-      {this.productReviewId,
-        this.uuid,
-        this.customerId,
-        this.productId,
-        this.rating,
-        this.review,
-        this.reviewFile,
-        this.createdDate,
-        this.customerName});
-
-  BestReview.fromJson(Map<String, dynamic> json) {
-    productReviewId = json['productReviewId'];
-    uuid = json['uuid'];
-    customerId = json['customerId'];
-    productId = json['productId'];
-    rating = json['rating'];
-    review = json['review'];
-    reviewFile = json['review_file'];
-    createdDate = json['createdDate'];
-    customerName = json['customerName'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data =  <String, dynamic>{};
-    data['productReviewId'] = productReviewId;
-    data['uuid'] = uuid;
-    data['customerId'] = customerId;
-    data['productId'] = productId;
-    data['rating'] = rating;
-    data['review'] = review;
-    data['review_file'] = reviewFile;
-    data['createdDate'] = createdDate;
-    data['customerName'] = customerName;
     return data;
   }
 }
@@ -216,7 +167,7 @@ class RatingAverage {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data =  <String, dynamic>{};
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['rateAverage'] = rateAverage;
     data['totalReview'] = totalReview;
     data['totalRating'] = totalRating;

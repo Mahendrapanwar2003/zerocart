@@ -16,191 +16,212 @@ class OutfitRoomView extends GetView<OutfitRoomController> {
   Widget build(BuildContext context) {
     return Obx(() {
       return ModalProgress(
-        inAsyncCall: controller.absorbing.value,
+        inAsyncCall: controller.inAsyncCall.value,
         child: Scaffold(
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           appBar: appBarView(),
-          body: WillPopScope(
-            onWillPop: () => controller.clickOnBackIcon(),
-            child: Obx(() {
-              print(controller.count.value);
+          body: Obx(
+            () {
+              controller.count.value;
               if (CommonMethods.isConnect.value) {
-                if (controller.getOutfitRoomListApiModel.value != null) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 15.px),
-                      Expanded(
-                        /// TODO Add To Cart Button equal to Shoe Widget  Flex only {flex=2}
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 16.px,
-                          ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ScrollConfiguration(
-                                behavior: MyBehavior(),
-                                child: SizedBox(
-                                  width: 115.px,
-                                  child: ListView(
-                                    shrinkWrap: true,
-                                    padding: EdgeInsets.zero,
-                                    physics: const ScrollPhysics(),
-                                    children: [
-                                      controller.upperImagePath.value.isNotEmpty
-                                          ? InkWell(
-                                              onTap: () => controller
-                                                  .clickOnUpperImage(),
-                                              borderRadius:
-                                                  BorderRadius.circular(5.px),
-                                              child: upperImageView())
-                                          : commonConAddImage(
-                                              height: 115.px,
-                                              width: 112.px,
-                                              onTapAddImage: () => controller
-                                                  .clickOnUpperImage()),
-                                      SizedBox(height: 12.px),
-                                      controller.lowerImagePath.value.isNotEmpty
-                                          ? InkWell(
-                                              onTap: () => controller
-                                                  .clickOnLowerImage(),
-                                              borderRadius:
-                                                  BorderRadius.circular(5.px),
-                                              child: lowerImageView())
-                                          : commonConAddImage(
-                                              height: 115.px,
-                                              width: 112.px,
-                                              onTapAddImage: () => controller
-                                                  .clickOnLowerImage()),
-                                      SizedBox(height: 12.px),
-                                      controller.shoeImagePath.value.isNotEmpty
-                                          ? InkWell(
-                                              onTap: () =>
-                                                  controller.clickOnShoeImage(),
-                                              borderRadius:
-                                                  BorderRadius.circular(5.px),
-                                              child: shoeImageView())
-                                          : commonConAddImage(
-                                              height: 115.px,
-                                              width: 112.px,
-                                              onTapAddImage: () =>
-                                                  controller.clickOnShoeImage())
-                                    ],
-                                  ),
-                                ),
+                if (controller.getOutfitRoomListApiModel != null &&
+                    controller.responseCode == 200) {
+                  if (controller.outfitRoomList.isNotEmpty) {
+                    return CommonWidgets.commonRefreshIndicator(
+                      onRefresh: () => controller.onRefresh(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 15.px),
+                          Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 16.px,
                               ),
-                              SizedBox(width: 18.px),
-                              Expanded(
-                                child: Column(
-                                  children: [
-                                    Expanded(
-                                      child: ScrollConfiguration(
-                                        behavior: MyBehavior(),
-                                        child: GridView.builder(
-                                          itemCount: controller
-                                                  .accessoriesImageList.length +
-                                              1,
-                                          shrinkWrap: true,
-                                          padding: EdgeInsets.only(left: 16.px),
-                                          gridDelegate:
-                                              SliverGridDelegateWithFixedCrossAxisCount(
-                                                  crossAxisCount: 2,
-                                                  mainAxisSpacing: 4.px,
-                                                  crossAxisSpacing: 4.px),
-                                          itemBuilder: (context, index) {
-                                            if (index <
-                                                controller.accessoriesImageList
-                                                    .length) {
-                                              return commonImage(
-                                                width: 80.px,
-                                                height: 80.px,
-                                                imagePath: controller
-                                                    .accessoriesImageList[index]
-                                                    .toString(),
-                                                onTapCrossImage: () => controller
-                                                    .clickOnAccessoriesRemoveImage(
-                                                        index: index),
-                                              );
-                                            } else {
-                                              // if(controller.accessoriesImageList.isEmpty) {
-                                              return commonConAddImage(
-                                                height: 80.px,
-                                                width: 80.px,
-                                                onTapAddImage: () => controller
-                                                    .clickOnGridViewAddImage(),
-                                              );
-                                              // }
-                                            }
-                                            return null;
-                                          },
-                                        ),
-                                      ),
-                                    ),
-                                    Align(
-                                      /// TODO Add To Cart Button equal to Shoe Widget Alignment Use in this code {alignment: Alignment.bottomLeft}
-                                      alignment: Alignment.bottomRight,
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ScrollConfiguration(
+                                    behavior: MyBehavior(),
+                                    child: SizedBox(
+                                      width: 115.px,
+                                      child: ListView(
+                                        shrinkWrap: true,
+                                        padding: EdgeInsets.zero,
+                                        physics: const ScrollPhysics(),
                                         children: [
+                                          controller.upperImagePath.value
+                                                  .isNotEmpty
+                                              ? InkWell(
+                                                  onTap: () => controller
+                                                      .clickOnUpperImage(),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          5.px),
+                                                  child: upperImageView())
+                                              : commonConAddImage(
+                                                  height: 115.px,
+                                                  width: 112.px,
+                                                  onTapAddImage: () =>
+                                                      controller
+                                                          .clickOnUpperImage()),
                                           SizedBox(height: 12.px),
-                                          browserMoreButtonView(),
-                                          SizedBox(height: 8.px),
-                                          addToCartButtonView(),
+                                          controller.lowerImagePath.value
+                                                  .isNotEmpty
+                                              ? InkWell(
+                                                  onTap: () => controller
+                                                      .clickOnLowerImage(),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          5.px),
+                                                  child: lowerImageView())
+                                              : commonConAddImage(
+                                                  height: 115.px,
+                                                  width: 112.px,
+                                                  onTapAddImage: () =>
+                                                      controller
+                                                          .clickOnLowerImage()),
+                                          SizedBox(height: 12.px),
+                                          controller.shoeImagePath.value
+                                                  .isNotEmpty
+                                              ? InkWell(
+                                                  onTap: () => controller
+                                                      .clickOnShoeImage(),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          5.px),
+                                                  child: shoeImageView())
+                                              : commonConAddImage(
+                                                  height: 115.px,
+                                                  width: 112.px,
+                                                  onTapAddImage: () =>
+                                                      controller
+                                                          .clickOnShoeImage())
                                         ],
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                  SizedBox(width: 18.px),
+                                  Expanded(
+                                    child: Column(
+                                      children: [
+                                        Expanded(
+                                          child: ScrollConfiguration(
+                                            behavior: MyBehavior(),
+                                            child: GridView.builder(
+                                              itemCount: controller
+                                                      .accessoriesImageList
+                                                      .length +
+                                                  1,
+                                              shrinkWrap: true,
+                                              padding:
+                                                  EdgeInsets.only(left: 16.px),
+                                              gridDelegate:
+                                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                                      crossAxisCount: 2,
+                                                      mainAxisSpacing: 4.px,
+                                                      crossAxisSpacing: 4.px),
+                                              itemBuilder: (context, index) {
+                                                if (index <
+                                                    controller
+                                                        .accessoriesImageList
+                                                        .length) {
+                                                  return commonImage(
+                                                    width: 80.px,
+                                                    height: 80.px,
+                                                    imagePath: controller
+                                                        .accessoriesImageList[
+                                                            index]
+                                                        .toString(),
+                                                    onTapCrossImage: () =>
+                                                        controller
+                                                            .clickOnAccessoriesRemoveImage(
+                                                                index: index),
+                                                  );
+                                                } else {
+                                                  // if(controller.accessoriesImageList.isEmpty) {
+                                                  return commonConAddImage(
+                                                    height: 80.px,
+                                                    width: 80.px,
+                                                    onTapAddImage: () => controller
+                                                        .clickOnGridViewAddImage(),
+                                                  );
+                                                  // }
+                                                }
+                                                return null;
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                        Align(
+                                          /// TODO Add To Cart Button equal to Shoe Widget Alignment Use in this code {alignment: Alignment.bottomLeft}
+                                          alignment: Alignment.bottomRight,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: [
+                                              SizedBox(height: 12.px),
+                                              browserMoreButtonView(),
+                                              SizedBox(height: 8.px),
+                                              if (controller
+                                                  .outfitRoomList.isNotEmpty)
+                                                addToCartButtonView(),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
-                        ),
+                          if (controller.productDetailUpper.isNotEmpty ||
+                              controller.productDetailLower.isNotEmpty ||
+                              controller.productDetailShoe.isNotEmpty ||
+                              controller.productDetailAccessories.isNotEmpty)
+                            Padding(
+                              padding: EdgeInsets.symmetric(vertical: 16.px),
+                              child: SizedBox(
+                                height: 80.px,
+                                //flex: 2,
+                                /// TODO Add To Cart Button equal to Shoe Widget No Flex Use in this code{flex=0}
+                                child: controller.upperImageViewValue1.value
+                                    ? commonListViewBuilderForUpper()
+                                    : controller.lowerImageViewValue1.value
+                                        ? commonListViewBuilderForLower()
+                                        : controller.shoeImageViewValue1.value
+                                            ? commonListViewBuilderForShoe()
+                                            : controller
+                                                    .accessoriesImageViewValue1
+                                                    .value
+                                                ? commonListViewBuilderForAccessories()
+                                                : const SizedBox(),
+                              ),
+                            ),
+                          SizedBox(height: controller.bottomHeight),
+                        ],
                       ),
-                      if (controller.porductDetailUpper != null &&
-                              controller.porductDetailUpper!.isNotEmpty ||
-                          controller.porductDetailLower != null &&
-                              controller.porductDetailLower!.isNotEmpty ||
-                          controller.porductDetailShoe != null &&
-                              controller.porductDetailShoe!.isNotEmpty ||
-                          controller.porductDetailAccessories != null &&
-                              controller.porductDetailAccessories!.isNotEmpty)
-                        Padding(
-                          padding: EdgeInsets.symmetric(vertical: 16.px),
-                          child: SizedBox(
-                            height: 80.px,
-                            //flex: 2,
-                            /// TODO Add To Cart Button equal to Shoe Widget No Flex Use in this code{flex=0}
-                            child: controller.upperImageViewValue1.value
-                                ? commonListViewBuilderForUpper()
-                                : controller.lowerImageViewValue1.value
-                                    ? commonListViewBuilderForLower()
-                                    : controller.shoeImageViewValue1.value
-                                        ? commonListViewBuilderForShoe()
-                                        : controller.accessoriesImageViewValue1
-                                                .value
-                                            ? commonListViewBuilderForAccessories()
-                                            : const SizedBox(),
-                          ),
-                        ),
-                      SizedBox(height: controller.bottomHeight),
-                    ],
-                  );
-                } else {
-                  if (!controller.absorbing.value) {
-                    return CommonWidgets.somethingWentWrongTextView(
-                        text: controller.isAddToCartButtonClicked.value
-                            ? ''
-                            : "Something Went Wrong");
+                    );
                   } else {
+                    return CommonWidgets.commonNoDataFoundImage(
+                      onRefresh: () => controller.onRefresh(),
+                    );
+                  }
+                } else {
+                  if (controller.responseCode == 0) {
                     return const SizedBox();
                   }
+                  return CommonWidgets.commonSomethingWentWrongImage(
+                    onRefresh: () => controller.onRefresh(),
+                  );
                 }
               } else {
-                return CommonWidgets.noInternetTextView();
+                return CommonWidgets.commonNoInternetImage(
+                  onRefresh: () => controller.onRefresh(),
+                );
               }
-            }),
+            },
           ),
         ),
       );
@@ -303,7 +324,8 @@ class OutfitRoomView extends GetView<OutfitRoomController> {
         ],
       );
 
-  Widget commonCrossIconView({required GestureTapCallback onTapCrossImage}) => Padding(
+  Widget commonCrossIconView({required GestureTapCallback onTapCrossImage}) =>
+      Padding(
         padding: EdgeInsets.all(4.px),
         child: InkWell(
           onTap: onTapCrossImage,
@@ -395,12 +417,11 @@ class OutfitRoomView extends GetView<OutfitRoomController> {
       );
 
   Widget commonListViewBuilderForUpper() {
-    if (controller.porductDetailUpper != null &&
-        controller.porductDetailUpper!.isNotEmpty) {
+    if (controller.productDetailUpper.isNotEmpty) {
       return ScrollConfiguration(
         behavior: MyBehavior(),
         child: ListView.builder(
-            itemCount: controller.porductDetailUpper?.length,
+            itemCount: controller.productDetailUpper?.length,
             physics: const ScrollPhysics(),
             itemBuilder: (context, index) {
               return Obx(() {
@@ -417,13 +438,13 @@ class OutfitRoomView extends GetView<OutfitRoomController> {
                           controller.currentIndexOfUpperImageList.value == index
                               ? commonImageForHorizontalListBorder(
                                   imagePath: CommonMethods.imageUrl(
-                                      url: controller.porductDetailUpper![index]
+                                      url: controller.productDetailUpper[index]
                                           .thumbnailImage
                                           .toString()),
                                 )
                               : commonImageForHorizontalList(
                                   imagePath: CommonMethods.imageUrl(
-                                      url: controller.porductDetailUpper![index]
+                                      url: controller.productDetailUpper[index]
                                           .thumbnailImage
                                           .toString()),
                                 ),
@@ -441,12 +462,11 @@ class OutfitRoomView extends GetView<OutfitRoomController> {
   }
 
   Widget commonListViewBuilderForLower() {
-    if (controller.porductDetailLower != null &&
-        controller.porductDetailLower!.isNotEmpty) {
+    if (controller.productDetailLower.isNotEmpty) {
       return ScrollConfiguration(
         behavior: MyBehavior(),
         child: ListView.builder(
-            itemCount: controller.porductDetailLower?.length,
+            itemCount: controller.productDetailLower?.length,
             physics: const ScrollPhysics(),
             itemBuilder: (context, index) {
               return Obx(() {
@@ -463,13 +483,13 @@ class OutfitRoomView extends GetView<OutfitRoomController> {
                           controller.currentIndexOfLowerImageList.value == index
                               ? commonImageForHorizontalListBorder(
                                   imagePath: CommonMethods.imageUrl(
-                                      url: controller.porductDetailLower![index]
+                                      url: controller.productDetailLower[index]
                                           .thumbnailImage
                                           .toString()),
                                 )
                               : commonImageForHorizontalList(
                                   imagePath: CommonMethods.imageUrl(
-                                      url: controller.porductDetailLower![index]
+                                      url: controller.productDetailLower[index]
                                           .thumbnailImage
                                           .toString()),
                                 ),
@@ -487,12 +507,11 @@ class OutfitRoomView extends GetView<OutfitRoomController> {
   }
 
   Widget commonListViewBuilderForShoe() {
-    if (controller.porductDetailShoe != null &&
-        controller.porductDetailShoe!.isNotEmpty) {
+    if (controller.productDetailShoe.isNotEmpty) {
       return ScrollConfiguration(
         behavior: MyBehavior(),
         child: ListView.builder(
-            itemCount: controller.porductDetailShoe?.length,
+            itemCount: controller.productDetailShoe?.length,
             physics: const ScrollPhysics(),
             itemBuilder: (context, index) {
               return Obx(() {
@@ -509,13 +528,13 @@ class OutfitRoomView extends GetView<OutfitRoomController> {
                           controller.currentIndexOfShoeImageList.value == index
                               ? commonImageForHorizontalListBorder(
                                   imagePath: CommonMethods.imageUrl(
-                                      url: controller.porductDetailShoe![index]
+                                      url: controller.productDetailShoe[index]
                                           .thumbnailImage
                                           .toString()),
                                 )
                               : commonImageForHorizontalList(
                                   imagePath: CommonMethods.imageUrl(
-                                      url: controller.porductDetailShoe![index]
+                                      url: controller.productDetailShoe[index]
                                           .thumbnailImage
                                           .toString()),
                                 ),
@@ -533,12 +552,11 @@ class OutfitRoomView extends GetView<OutfitRoomController> {
   }
 
   Widget commonListViewBuilderForAccessories() {
-    if (controller.porductDetailAccessories != null &&
-        controller.porductDetailAccessories!.isNotEmpty) {
+    if (controller.productDetailAccessories.isNotEmpty) {
       return ScrollConfiguration(
         behavior: MyBehavior(),
         child: ListView.builder(
-            itemCount: controller.porductDetailAccessories?.length,
+            itemCount: controller.productDetailAccessories?.length,
             physics: const ScrollPhysics(),
             itemBuilder: (context, index) {
               return Obx(() {
@@ -554,19 +572,19 @@ class OutfitRoomView extends GetView<OutfitRoomController> {
                               index: index),
                       child: controller.accessoriesImageListIds.contains(
                               controller
-                                  .porductDetailAccessories![index].outfitRoomId
+                                  .productDetailAccessories[index].outfitRoomId
                                   .toString())
                           ? commonImageForHorizontalListBorder(
                               imagePath: CommonMethods.imageUrl(
                                   url: controller
-                                      .porductDetailAccessories![index]
+                                      .productDetailAccessories[index]
                                       .thumbnailImage
                                       .toString()),
                             )
                           : commonImageForHorizontalList(
                               imagePath: CommonMethods.imageUrl(
                                   url: controller
-                                      .porductDetailAccessories![index]
+                                      .productDetailAccessories[index]
                                       .thumbnailImage
                                       .toString()),
                             ),

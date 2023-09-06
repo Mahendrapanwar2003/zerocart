@@ -10,6 +10,7 @@ import 'package:ui_library/ui_library.dart';
 import 'package:zerocart/app/apis/api_constant/api_constant.dart';
 import 'package:zerocart/app/apis/api_modals/user_data_modal.dart';
 import 'package:zerocart/app/apis/common_apis/common_apis.dart';
+import 'package:zerocart/app/modules/home/controllers/home_controller.dart';
 import 'package:zerocart/app/modules/my_cart/controllers/my_cart_controller.dart';
 import 'package:zerocart/app/modules/zerocart_wallet/controllers/zerocart_wallet_controller.dart';
 
@@ -267,7 +268,7 @@ class CommonMethods extends GetxController {
   String inventory="";
   int itemQua=1;
   final response=false.obs;
-  final userData = Rxn<UserData?>();
+  UserData? userData;
   Map<String, dynamic> bodyParametersForPlaceOrderApi = {};
   Map<String, dynamic> bodyParamsForWalletTransactionApi = {};
 
@@ -317,7 +318,7 @@ class CommonMethods extends GetxController {
       ApiKeyConstant.userMeasurement : userMeasurement,
     };
     final cartController=Get.find<MyCartController>();
-    cartController.getCartDetailsModel.value=null;
+    cartController.getCartDetailsModel=null;
     bool isSuccess=await placeOrderApiCalling();
     if(isSuccess)
     {
@@ -400,9 +401,23 @@ class CommonMethods extends GetxController {
   }
 
   Future<void> getUserProfileApiCalling() async {
-    userData.value = await CommonApis.getUserProfileApi();
-    if (userData.value != null) {
-      await CommonMethods.setUserData(userData: userData.value);
+    //HomeController homeController = HomeController();
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
+    http.Response? response = await MyHttp.getMethod(
+        url: ApiConstUri.endPointGetUserDataApi,
+        token: authorization,
+        context: Get.context!);
+   /* homeController.responseCode = response?.statusCode ?? 0;
+    print("homeController.responseCode::::::::::::::::::::::${homeController.responseCode}");*/
+    if (response != null) {
+      if (await CommonMethods.checkResponse(response: response)) {
+        userData = UserData.fromJson(jsonDecode(response.body));
+        if (userData != null) {
+          await CommonMethods.setUserData(userData: userData);
+        }
+      }
     }
   }
 

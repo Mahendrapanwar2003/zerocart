@@ -5,6 +5,7 @@ import 'package:zerocart/app/constant/zconstant.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
 import '../../../../model_progress_bar/model_progress_bar.dart';
 import '../../../apis/api_modals/get_categories_modal.dart';
+import '../../../common_methods/common_methods.dart';
 import '../../../common_widgets/common_widgets.dart';
 import '../../../custom/custom_appbar.dart';
 import '../../../custom/dropdown_zerocart.dart';
@@ -16,88 +17,122 @@ class SearchItemView extends GetView<SearchItemController> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
+      controller.count.value;
       return ModalProgress(
         inAsyncCall: controller.inAsyncCall.value,
-        child: Scaffold(
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          body: Obx(() {
-              return GestureDetector(
-                onTap: () => MyCommonMethods.unFocsKeyBoard(),
-                child: Stack(
-                  children: [
-                    ListView(
-                      padding: EdgeInsets.zero,
-                      physics: const BouncingScrollPhysics(),
-                      children: [
-                        Visibility(
-                          maintainSize: true,
-                          visible: false,
-                          maintainAnimation: true,
-                          maintainState: true,
-                          child: Column(
-                            children: [
-                              Container(
-                                color: Theme.of(Get.context!)
-                                    .colorScheme
-                                    .onBackground,
-                                child: const MyCustomContainer()
-                                    .myCustomContainer(
-                                  isSearchActive: true,
-                                  isSearch: controller.isSearch,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: GestureDetector(
+          onTap: () => MyCommonMethods.unFocsKeyBoard(),
+          child: Scaffold(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            body: Obx(
+              () {
+                controller.count.value;
+                if (CommonMethods.isConnect.value) {
+                  if ((controller.categoriesModal != null ||
+                          controller.searchProductSuggestionModel != null) &&
+                      controller.responseCode == 200) {
+                    if (controller.listOfCategories.isNotEmpty ||
+                        controller.suggestionList.isNotEmpty) {
+                      return CommonWidgets.commonRefreshIndicator(
+                        onRefresh: () => controller.onRefresh(),
+                        child: Stack(
                           children: [
-                            Obx(() {
-                              if (controller.searchProductSuggestionModel.value != null) {
-                                if (controller.suggestionList.isNotEmpty) {
-                                  return suggestionsList();
-                                } else {
-                                  return Column(
+                            ListView(
+                              padding: EdgeInsets.zero,
+                              physics: const BouncingScrollPhysics(),
+                              children: [
+                                Visibility(
+                                  maintainSize: true,
+                                  visible: false,
+                                  maintainAnimation: true,
+                                  maintainState: true,
+                                  child: Column(
                                     children: [
-                                      SizedBox(height: Zconstant.margin16,),
-                                      CommonWidgets.noDataTextView(text: "No Product Found"),
-                                      SizedBox(height: Zconstant.margin16,)
+                                      Container(
+                                        color: Theme.of(Get.context!)
+                                            .colorScheme
+                                            .onBackground,
+                                        child: const MyCustomContainer()
+                                            .myCustomContainer(
+                                          isSearchActive: true,
+                                          isSearch: controller.isSearch,
+                                        ),
+                                      ),
                                     ],
-                                  );
-                                }
-                              } else {
-                                return const SizedBox();
-                              }
-                            }),
-                            CommonWidgets.profileMenuDash(),
-                            SizedBox(height: 4.5.h),
-                            customizeYourWardrobeButton(),
+                                  ),
+                                ),
+                                Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    if (controller.suggestionList.isNotEmpty)
+                                      suggestionsList(),
+                                    if (controller.suggestionList.isEmpty)
+                                      Column(
+                                        children: [
+                                          SizedBox(
+                                            height: Zconstant.margin16,
+                                          ),
+                                          CommonWidgets.noDataTextView(
+                                              text: "No Product Found"),
+                                          SizedBox(
+                                            height: Zconstant.margin16,
+                                          )
+                                        ],
+                                      ),
+                                    CommonWidgets.profileMenuDash(),
+                                    SizedBox(height: 4.5.h),
+                                    customizeYourWardrobeButton(),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                Container(
+                                  color: Theme.of(Get.context!)
+                                      .colorScheme
+                                      .onBackground
+                                      .withOpacity(0.5),
+                                  child: const MyCustomContainer()
+                                      .myCustomContainer(
+                                    isSearchActive: true,
+                                    isSearch: controller.isSearch,
+                                    categoriesDropdown: categoriesDropdown(),
+                                    textEditingController:
+                                        controller.searchController,
+                                    onFieldSubmitted: (value) => controller
+                                        .clickOnSearchInTextField(value: value),
+                                    onChanged: (value) => controller
+                                        .onChangeSearchTextField(value: value),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ],
                         ),
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        Container(
-                          color: Theme.of(Get.context!)
-                              .colorScheme
-                              .onBackground
-                              .withOpacity(0.5),
-                          child: const MyCustomContainer().myCustomContainer(
-                            isSearchActive: true,
-                            isSearch: controller.isSearch,
-                            categoriesDropdown: categoriesDropdown(),
-                            textEditingController: controller.searchController,
-                            onFieldSubmitted: (value) =>controller.clickOnSearchInTextField(value: value),
-                            onChanged: (value) => controller.onChangeSearchTextField(value: value),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-          }),
+                      );
+                    } else {
+                      return CommonWidgets.commonNoDataFoundImage(
+                        onRefresh: () => controller.onRefresh(),
+                      );
+                    }
+                  } else {
+                    if (controller.responseCode == 0) {
+                      return const SizedBox();
+                    }
+                    return CommonWidgets.commonSomethingWentWrongImage(
+                      onRefresh: () => controller.onRefresh(),
+                    );
+                  }
+                } else {
+                  return CommonWidgets.commonNoInternetImage(
+                    onRefresh: () => controller.onRefresh(),
+                  );
+                }
+              },
+            ),
+          ),
         ),
       );
     });
@@ -113,7 +148,7 @@ class SearchItemView extends GetView<SearchItemController> {
       ),
       icon: Icon(Icons.keyboard_arrow_down_rounded,
           color: MyColorsLight().textGrayColor, size: 18.px),
-      selected: controller.categoryObject.value,
+      selected: controller.categoryObject,
       items: controller.listOfCategories.reversed
           .map(
             (Categories e) => DropdownMenuItem<Categories>(
@@ -130,7 +165,7 @@ class SearchItemView extends GetView<SearchItemController> {
           )
           .toList(),
       onChanged: (Categories? value) async {
-        controller.categoryObject.value = value;
+        controller.categoryObject = value;
       },
     );
   }
@@ -165,13 +200,15 @@ class SearchItemView extends GetView<SearchItemController> {
                     ),
                     overflow: TextOverflow.ellipsis,
                     text: TextSpan(
-                      text: controller.suggestionList[index].resName ?? "Search",
+                      text:
+                          controller.suggestionList[index].resName ?? "Search",
                       style: Theme.of(Get.context!).textTheme.subtitle2,
                       children: <TextSpan>[
                         if (controller.suggestionList[index].inSearch != null &&
                             controller.suggestionList[index].inSearch != '')
                           TextSpan(
-                            text: "  ${controller.suggestionList[index].inSearch}",
+                            text:
+                                "  ${controller.suggestionList[index].inSearch}",
                             style: Theme.of(Get.context!)
                                 .textTheme
                                 .headline3
@@ -181,15 +218,13 @@ class SearchItemView extends GetView<SearchItemController> {
                     ),
                   ),
                 ),
-
-
-
                 controller.searchController.value.text.trim().toString().isEmpty
                     ? Expanded(
                         flex: 1,
                         child: commonIconButton(
                           icon: Image.asset("assets/search_arrow.png"),
-                          onPressed: () =>controller.clickOnArrowIcon(index:index),
+                          onPressed: () =>
+                              controller.clickOnArrowIcon(index: index),
                         ),
                       )
                     : const SizedBox(),

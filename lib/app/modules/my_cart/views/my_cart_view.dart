@@ -20,131 +20,153 @@ class MyCartView extends GetView<MyCartController> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => ModalProgress(
-          inAsyncCall: controller.absorbing.value,
+    return Obx(() =>
+        ModalProgress(
+          inAsyncCall: controller.inAsyncCall.value,
           child: GestureDetector(
             onTap: () => MyCommonMethods.unFocsKeyBoard(),
             child: Scaffold(
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-              appBar: const MyCustomContainer().myAppBar(
-                  text: 'My Cart',
-                  backIconOnPressed: () => controller.clickOnBackButton(),
-                  isIcon: controller.wantBackButton),
-              body: Obx(() {
-                if (CommonMethods.isConnect.value) {
-                  if (controller.getCartDetailsModel.value != null) {
-                    if (controller.checkedCarItemList.isNotEmpty ||
-                        controller.unCheckedCartItemList.isNotEmpty) {
-                      return ListView(
-                        physics: const BouncingScrollPhysics(),
-                        padding: EdgeInsets.zero,
-                        children: [
-                          SizedBox(height: 8.px),
-                          Column(
-                            children: [
-                              Padding(
-                                padding:
-                                    EdgeInsets.symmetric(horizontal: 16.px),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                backgroundColor: Theme
+                    .of(context)
+                    .scaffoldBackgroundColor,
+                appBar: const MyCustomContainer().myAppBar(
+                    text: 'My Cart',
+                    backIconOnPressed: () => controller.clickOnBackButton(),
+                    isIcon: controller.wantBackButton),
+                body: Obx(
+                      () {
+                    controller.count.value;
+                    if (CommonMethods.isConnect.value) {
+                      if (controller.getCartDetailsModel != null &&
+                          controller.responseCode == 200) {
+                        if (controller.checkedCarItemList.isNotEmpty ||
+                            controller.unCheckedCartItemList.isNotEmpty) {
+                          return CommonWidgets.commonRefreshIndicator(
+                            onRefresh: () => controller.onRefresh(),
+                            child:  ListView(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              padding: EdgeInsets.zero,
+                              children: [
+                                SizedBox(height: 8.px),
+                                Column(
                                   children: [
-                                    if (controller.addressDetail.value != null)
-                                      deliverToTextView(),
-                                    SizedBox(height: 4.px),
-                                    if (controller.addressDetail.value != null)
-                                      CommonWidgets.profileMenuDash(),
-                                    SizedBox(height: 4.px),
-                                    addressView(context: context),
+                                    Padding(
+                                      padding:
+                                      EdgeInsets.symmetric(horizontal: 16.px),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                        children: [
+                                          if (controller.addressDetail !=
+                                              null)
+                                            deliverToTextView(),
+                                          SizedBox(height: 4.px),
+                                          if (controller.addressDetail !=
+                                              null)
+                                            CommonWidgets.profileMenuDash(),
+                                          SizedBox(height: 4.px),
+                                          addressView(context: context),
+                                        ],
+                                      ),
+                                    ),
+                                    if (controller.checkedCarItemList.isNotEmpty)
+                                      Padding(
+                                        padding: EdgeInsets.only(
+                                            left: 16.px, right: 16.px, top: 8.px),
+                                        child: readyToCheckOutItemListview(),
+                                      ),
+                                    if (controller.checkedCarItemList.isNotEmpty)
+                                      Center(
+                                        child: applyCouponView(context),
+                                      ),
+                                    if (!controller.isCouponRange.value)
+                                      SizedBox(height: 20.px),
+                                    if (!controller.isCouponRange.value)
+                                      couponRangeText(),
+                                    if (!controller.isCouponRange.value)
+                                      SizedBox(height: 10.px),
+                                    if (controller.checkedCarItemList.isNotEmpty)
+                                      SizedBox(height: 8.px),
+                                    if (controller.checkedCarItemList.isNotEmpty)
+                                      Padding(
+                                        padding:
+                                        EdgeInsets.symmetric(horizontal: 16.px),
+                                        child: CommonWidgets.profileMenuDash(),
+                                      ),
+                                    if (controller.checkedCarItemList.isNotEmpty)
+                                      SizedBox(height: 8.px),
+                                    if (controller.checkedCarItemList.isNotEmpty)
+                                      cartBillView(),
+                                    if (controller.checkedCarItemList.isNotEmpty)
+                                      SizedBox(height: 16.px),
+                                    if (controller.checkedCarItemList.isNotEmpty)
+                                      proceedToPaymentButton(context: context),
+                                    if (controller.unCheckedCartItemList.isNotEmpty)
+                                      Padding(
+                                        padding: EdgeInsets.only(
+                                            right: 16.px, left: 16.px, top: 16.px),
+                                        child: uncheckedItemListView(),
+                                      ),
+                                    if (controller.unCheckedCartItemList.isEmpty)
+                                      SizedBox(height: 8.px),
+                                    if (!controller.wantBackButton)
+                                      Center(
+                                        child: continueShoppingButtonView(
+                                            context: context),
+                                      ),
+                                    SizedBox(
+                                      height: 8.h,
+                                    ),
                                   ],
                                 ),
-                              ),
-                              if (controller.checkedCarItemList.isNotEmpty)
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                      left: 16.px, right: 16.px, top: 8.px),
-                                  child: readyToCheckOutItemListview(),
-                                ),
-                              if (controller.checkedCarItemList.isNotEmpty)
-                                Center(
-                                  child: applyCouponView(context),
-                                ),
-                              if(!controller.isCouponRange.value)
-                                SizedBox(height: 20.px),
-                              if(!controller.isCouponRange.value)
-                                couponRangeText(),
-                              if(!controller.isCouponRange.value)
-                                SizedBox(height: 10.px),
-                              if (controller.checkedCarItemList.isNotEmpty)
-                                SizedBox(height: 8.px),
-                              if (controller.checkedCarItemList.isNotEmpty)
-                                Padding(
-                                  padding:
-                                      EdgeInsets.symmetric(horizontal: 16.px),
-                                  child: CommonWidgets.profileMenuDash(),
-                                ),
-                              if (controller.checkedCarItemList.isNotEmpty)
-                                SizedBox(height: 8.px),
-                              if (controller.checkedCarItemList.isNotEmpty)
-                                cartBillView(),
-                              if (controller.checkedCarItemList.isNotEmpty)
-                                SizedBox(height: 16.px),
-                              if (controller.checkedCarItemList.isNotEmpty)
-                                proceedToPaymentButton(context: context),
-                              if (controller.unCheckedCartItemList.isNotEmpty)
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                      right: 16.px, left: 16.px, top: 16.px),
-                                  child: uncheckedItemListView(),
-                                ),
-                              if (controller.unCheckedCartItemList.isEmpty)
-                                SizedBox(height: 8.px),
-                              if (!controller.wantBackButton)
-                                Center(
-                                  child: continueShoppingButtonView(
-                                      context: context),
-                                ),
-                              SizedBox(
-                                height: 8.h,
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 8.h),
-                        ],
+                                SizedBox(height: 8.h),
+                              ],
+                            ),
+                          );
+                        } else {
+                          return CommonWidgets.commonNoDataFoundImage(
+                            onRefresh: () => controller.onRefresh(),
+                          );
+                        }
+                      } else {
+                        if (controller.responseCode == 0) {
+                          return const SizedBox();
+                        }
+                        return CommonWidgets.commonSomethingWentWrongImage(
+                          onRefresh: () => controller.onRefresh(),
+                        );
+                      }
+                    } else {
+                      return CommonWidgets.commonNoInternetImage(
+                        onRefresh: () => controller.onRefresh(),
                       );
-                    } else {
-                      return CommonWidgets.noDataTextView();
                     }
-                  } else {
-                    if (!controller.absorbing.value) {
-                      return CommonWidgets.somethingWentWrongTextView();
-                    } else {
-                      return const SizedBox();
-                    }
-                  }
-                } else {
-                  return CommonWidgets.noInternetTextView();
-                }
-              }),
+                  },
+                ),
             ),
           ),
         ));
   }
 
-  Widget couponRangeText() => (controller.discountPrice.value == 0.0)
-      ? gradientText(
-      text: 'Total price should be between coupon range')
-      : const SizedBox();
+  Widget couponRangeText() =>
+      (controller.discountPrice.value == 0.0)
+          ? gradientText(text: 'Total price should be between coupon range')
+          : const SizedBox();
 
   Widget deliverToTextView() {
     return Text(
       "Deliver to:",
       style:
-          Theme.of(Get.context!).textTheme.headline6?.copyWith(fontSize: 12.px),
+      Theme
+          .of(Get.context!)
+          .textTheme
+          .headline6
+          ?.copyWith(fontSize: 12.px),
     );
   }
 
   Widget addressView({required BuildContext context}) {
-    if (controller.addressDetail.value != null) {
+    if (controller.addressDetail != null) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -152,9 +174,9 @@ class MyCartView extends GetView<MyCartController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (controller.addressDetail.value?.name != null)
+                if (controller.addressDetail?.name != null)
                   personNameTextView(
-                      value: controller.addressDetail.value?.name ?? ""),
+                      value: controller.addressDetail?.name ?? ""),
                 Padding(
                   padding: EdgeInsets.only(right: 12.px),
                   child: addressDetailView(),
@@ -178,29 +200,40 @@ class MyCartView extends GetView<MyCartController> {
           height: 40.px,
           width: 60.w);
 
-  Widget addAddressTextView() => Text(
+  Widget addAddressTextView() =>
+      Text(
         "ADD ADDRESS",
-        style: Theme.of(Get.context!).textTheme.headline3,
+        style: Theme
+            .of(Get.context!)
+            .textTheme
+            .headline3,
       );
 
-  Widget personNameTextView({required String value}) => Text(
+  Widget personNameTextView({required String value}) =>
+      Text(
         value,
         overflow: TextOverflow.ellipsis,
         maxLines: 2,
-        style: Theme.of(Get.context!)
+        style: Theme
+            .of(Get.context!)
             .textTheme
             .subtitle1
             ?.copyWith(fontSize: 14.px),
       );
 
-  Widget addressDetailView() => Text(
-        "${controller.addressDetail.value?.houseNo}"
-        " ${controller.addressDetail.value?.colony}"
-        " ${controller.addressDetail.value?.city}"
-        " ${controller.addressDetail.value?.state}"
-        " ${controller.addressDetail.value?.pinCode}",
+  Widget addressDetailView() =>
+      Text(
+        "${controller.addressDetail?.houseNo}"
+            " ${controller.addressDetail?.colony}"
+            " ${controller.addressDetail?.city}"
+            " ${controller.addressDetail?.state}"
+            " ${controller.addressDetail?.pinCode}",
         style:
-            Theme.of(Get.context!).textTheme.caption?.copyWith(fontSize: 12.px),
+        Theme
+            .of(Get.context!)
+            .textTheme
+            .caption
+            ?.copyWith(fontSize: 12.px),
       );
 
   Widget changeAddressButtonView({required BuildContext context}) =>
@@ -214,106 +247,119 @@ class MyCartView extends GetView<MyCartController> {
         radius: 5,
         text: Text(
           "Change",
-          style: Theme.of(Get.context!)
+          style: Theme
+              .of(Get.context!)
               .textTheme
               .subtitle1
               ?.copyWith(fontSize: 14.px),
         ),
       );
 
-  Widget readyToCheckOutItemListview() => ListView.builder(
-      shrinkWrap: true,
-      physics: const BouncingScrollPhysics(),
-      padding: EdgeInsets.zero,
-      itemCount: controller.checkedCarItemList.length,
-      itemBuilder: (BuildContext context, int index) {
-        controller.cartItem.value = controller.checkedCarItemList[index];
-        return Padding(
-          padding: EdgeInsets.only(bottom: Zconstant.margin16 / 2),
-          child: InkWell(
-            /*onTap: () => controller.clickedOnReadyToCheckOutListParticularItem(
+  Widget readyToCheckOutItemListview() =>
+      ListView.builder(
+          shrinkWrap: true,
+          physics: const BouncingScrollPhysics(),
+          padding: EdgeInsets.zero,
+          itemCount: controller.checkedCarItemList.length,
+          itemBuilder: (BuildContext context, int index) {
+            controller.cartItem = controller.checkedCarItemList[index];
+            return Padding(
+              padding: EdgeInsets.only(bottom: Zconstant.margin16 / 2),
+              child: InkWell(
+                /*onTap: () => controller.clickedOnReadyToCheckOutListParticularItem(
                 index: index),*/
-            borderRadius: BorderRadius.circular(10.px),
-            child: Stack(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10.px),
-                    border: Border.all(
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? MyColorsLight().secondary
-                          : MyColorsDark().secondary,
-                      width: 1.px,
-                    ),
-                  ),
-                  padding: EdgeInsets.all(8.px),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      if (controller.cartItem.value?.thumbnailImage != null)
-                        readyToCheckOutItemImageView(
-                            index: index,
-                            path: controller.cartItem.value?.thumbnailImage ??
-                                ''),
-                      SizedBox(width: 8.px),
-                      Expanded(
-                        child: Column(
-                          children: [
-                            if (controller.cartItem.value?.brandName != null &&
-                                controller.cartItem.value?.productName != null)
-                              Padding(
-                                padding: EdgeInsets.only(right: 12.px),
-                                child: Padding(
-                                  padding: EdgeInsets.only(right: 8.px),
-                                  child: readyToCheckOutItemDescriptionTextView(
-                                      index: index,
-                                      value:
-                                          "${controller.cartItem.value?.brandName} ${controller.cartItem.value?.productName}"),
-                                ),
-                              ),
-                            if (controller.cartItem.value?.brandName != null &&
-                                controller.cartItem.value?.productName != null)
-                              SizedBox(height: 0.75.h),
-                            readyToCheckOutItemPriceView(index: index),
-                            SizedBox(height: 8.px),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                if (controller.checkedListItemQuantity[
-                                index] ==
-                                    null ||
-                                    controller
-                                        .cartItem.value?.availability ==
-                                        "0")
-                                /*if (controller.checkedListItemQuantity[index] >
-                                    int.parse(controller
-                                        .checkedListItemAvalibility[index]))*/
-                                  outOfStockTextView(),
-                                if (controller.cartItem.value?.varientList !=
-                                        null &&
-                                    controller.cartItem.value!.varientList!
-                                        .isNotEmpty)
-                                  readyToCheckOutItemSizeView(index: index),
-                                readyToCheckOutItemQuantityView(index: index),
-                                readyToCheckOutItemDeleteItemFromCartView(
-                                    index: index),
-                              ],
-                            ),
-                          ],
+                borderRadius: BorderRadius.circular(10.px),
+                child: Stack(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10.px),
+                        border: Border.all(
+                          color: Theme
+                              .of(context)
+                              .brightness == Brightness.dark
+                              ? MyColorsLight().secondary
+                              : MyColorsDark().secondary,
+                          width: 1.px,
                         ),
                       ),
-                    ],
-                  ),
+                      padding: EdgeInsets.all(8.px),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          if (controller.cartItem?.thumbnailImage != null)
+                            readyToCheckOutItemImageView(
+                                index: index,
+                                path: controller.cartItem
+                                    ?.thumbnailImage ??
+                                    ''),
+                          SizedBox(width: 8.px),
+                          Expanded(
+                            child: Column(
+                              children: [
+                                if (controller.cartItem?.brandName !=
+                                    null &&
+                                    controller.cartItem?.productName !=
+                                        null)
+                                  Padding(
+                                    padding: EdgeInsets.only(right: 12.px),
+                                    child: Padding(
+                                      padding: EdgeInsets.only(right: 8.px),
+                                      child: readyToCheckOutItemDescriptionTextView(
+                                          index: index,
+                                          value:
+                                          "${controller.cartItem
+                                              ?.brandName} ${controller.cartItem?.productName}"),
+                                    ),
+                                  ),
+                                if (controller.cartItem?.brandName !=
+                                    null &&
+                                    controller.cartItem?.productName !=
+                                        null)
+                                  SizedBox(height: 0.75.h),
+                                readyToCheckOutItemPriceView(index: index),
+                                SizedBox(height: 8.px),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment
+                                      .spaceBetween,
+                                  children: [
+                                    if (controller
+                                        .checkedListItemQuantity[index] ==
+                                        null ||
+                                        controller.cartItem
+                                            ?.availability ==
+                                            "0")
+                                    /*if (controller.checkedListItemQuantity[index] >
+                                    int.parse(controller
+                                        .checkedListItemAvailability[index]))*/
+                                      outOfStockTextView(),
+                                    if (controller.cartItem
+                                        ?.varientList !=
+                                        null &&
+                                        controller.cartItem!.varientList!
+                                            .isNotEmpty)
+                                      readyToCheckOutItemSizeView(index: index),
+                                    readyToCheckOutItemQuantityView(
+                                        index: index),
+                                    readyToCheckOutItemDeleteItemFromCartView(
+                                        index: index),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    filledCheckedBox(index: index),
+                  ],
                 ),
-                filledCheckedBox(index: index),
-              ],
-            ),
-          ),
-        );
-      });
+              ),
+            );
+          });
 
   Widget readyToCheckOutItemImageView(
-          {required int index, required String path}) =>
+      {required int index, required String path}) =>
       Container(
         height: 125.px,
         width: 95.px,
@@ -328,7 +374,7 @@ class MyCartView extends GetView<MyCartController> {
       );
 
   Widget readyToCheckOutItemDescriptionTextView(
-          {required int index, required String value}) =>
+      {required int index, required String value}) =>
       Row(
         children: [
           Expanded(
@@ -336,38 +382,41 @@ class MyCartView extends GetView<MyCartController> {
               value,
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
-              style: Theme.of(Get.context!).textTheme.headline3,
+              style: Theme
+                  .of(Get.context!)
+                  .textTheme
+                  .headline3,
             ),
           ),
         ],
       );
 
   Widget readyToCheckOutItemPriceView({required int index}) {
-    if (controller.cartItem.value?.isOffer != null &&
-        controller.cartItem.value?.isOffer == "1") {
+    if (controller.cartItem?.isOffer != null &&
+        controller.cartItem?.isOffer == "1") {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (controller.cartItem.value?.offerPrice != null)
+          if (controller.cartItem?.offerPrice != null)
             readyToCheckOutItemPriceTextView(
                 index: index,
-                value: controller.cartItem.value?.offerPrice ?? ""),
+                value: controller.cartItem?.offerPrice ?? ""),
           SizedBox(
             width: 8.px,
           ),
           Row(
             children: [
-              if (controller.cartItem.value?.sellPrice != null)
+              if (controller.cartItem?.sellPrice != null)
                 readyToCheckOutItemOriginalPriceTextView(
                     index: index,
-                    value: controller.cartItem.value?.sellPrice ?? ""),
+                    value: controller.cartItem?.sellPrice ?? ""),
               SizedBox(
                 width: 8.px,
               ),
-              if (controller.cartItem.value?.percentageDis != null)
+              if (controller.cartItem?.percentageDis != null)
                 readyToCheckOutItemHowManyPercentOffTextView(
                     index: index,
-                    value: controller.cartItem.value?.percentageDis ?? "")
+                    value: controller.cartItem?.percentageDis ?? "")
             ],
           )
         ],
@@ -375,11 +424,11 @@ class MyCartView extends GetView<MyCartController> {
     } else {
       return Row(
         children: [
-          if (controller.cartItem.value?.sellPrice != null)
+          if (controller.cartItem?.sellPrice != null)
             Flexible(
               child: readyToCheckOutItemPriceTextView(
                   index: index,
-                  value: controller.cartItem.value?.sellPrice ?? ""),
+                  value: controller.cartItem?.sellPrice ?? ""),
             ),
         ],
       );
@@ -387,30 +436,35 @@ class MyCartView extends GetView<MyCartController> {
   }
 
   Widget readyToCheckOutItemPriceTextView(
-          {required int index, required String value}) =>
+      {required int index, required String value}) =>
       GradientText(
         '$curr$value',
-        style: Theme.of(Get.context!).textTheme.subtitle1,
+        style: Theme
+            .of(Get.context!)
+            .textTheme
+            .subtitle1,
         gradient: CommonWidgets.commonLinearGradientView(),
       );
 
   Widget readyToCheckOutItemOriginalPriceTextView(
-          {required int index, required String value}) =>
+      {required int index, required String value}) =>
       Text(
         "$curr$value",
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: Theme.of(Get.context!)
+        style: Theme
+            .of(Get.context!)
             .textTheme
             .headline3
             ?.copyWith(fontSize: 8.px, decoration: TextDecoration.lineThrough),
       );
 
   Widget readyToCheckOutItemHowManyPercentOffTextView(
-          {required int index, required String value}) =>
+      {required int index, required String value}) =>
       Text(
         " ($value% Off)",
-        style: Theme.of(Get.context!)
+        style: Theme
+            .of(Get.context!)
             .textTheme
             .headline3
             ?.copyWith(fontSize: 8.px),
@@ -436,10 +490,9 @@ class MyCartView extends GetView<MyCartController> {
         ),
       );*/
 
-  Widget elevatedButtonForItemList(
-          {required VoidCallback onPressed,
-          required Widget child,
-          double? height}) =>
+  Widget elevatedButtonForItemList({required VoidCallback onPressed,
+    required Widget child,
+    double? height}) =>
       Container(
         height: height ?? 3.5.h,
         width: 32.px,
@@ -447,7 +500,10 @@ class MyCartView extends GetView<MyCartController> {
             borderRadius: BorderRadius.circular(2.px),
             /*gradient: CommonWidgets.commonLinearGradientView()*/
             border: Border.all(
-                color: Theme.of(Get.context!).colorScheme.onSurface)),
+                color: Theme
+                    .of(Get.context!)
+                    .colorScheme
+                    .onSurface)),
         child: ElevatedButton(
           onPressed: onPressed,
           style: ElevatedButton.styleFrom(
@@ -459,7 +515,8 @@ class MyCartView extends GetView<MyCartController> {
         ),
       );
 
-  Widget readyToCheckOutItemSizeView({required int index}) => SizedBox(
+  Widget readyToCheckOutItemSizeView({required int index}) =>
+      SizedBox(
         height: 28.px,
         child: UnicornOutline(
           gradient: CommonWidgets.commonLinearGradientView(),
@@ -488,32 +545,32 @@ class MyCartView extends GetView<MyCartController> {
                         width: 75.px,
                         trailingIcon: const SizedBox(),
                         dropdownMenuEntries: controller
-                            .cartItem.value!.varientList!
+                            .cartItem!.varientList!
                             .map((VarientList value) {
                           return MyDropdownMenuEntry(
                               value: value,
                               label: value.variantAbbreviation ?? "");
                         }).toList(),
                         onSelected: (value) async {
-                          controller.absorbing.value = true;
+                          controller.inAsyncCall.value = true;
                           int v = controller.checkedListItemQuantity[index];
                           if (int.parse(value!.availability!) < v) {
                             controller.checkedListItemQuantity[index] =
                                 int.parse(value.availability!);
                           }
                           http.Response? response =
-                              await controller.manageCartApiCalling(
-                                  cartQty:
-                                      controller.checkedListItemQuantity[index],
-                                  cartItem:
-                                      controller.checkedCarItemList[index],
-                                  inventoryId: value.inventoryId);
+                          await controller.manageCartApiCalling(
+                              cartQty:
+                              controller.checkedListItemQuantity[index],
+                              cartItem:
+                              controller.checkedCarItemList[index],
+                              inventoryId: value.inventoryId);
                           if (response != null) {
                             controller.checkedListItemVariant[index] = value;
-                            controller.checkedListItemAvalibility[index] =
+                            controller.checkedListItemAvailability[index] =
                                 value.availability;
                           }
-                          controller.absorbing.value = false;
+                          controller.inAsyncCall.value = false;
                         },
                       ),
                     ),
@@ -556,9 +613,11 @@ class MyCartView extends GetView<MyCartController> {
         ),
       );
 
-  Widget readyToCheckOutItemSizeTextView({required int index}) => Text(
+  Widget readyToCheckOutItemSizeTextView({required int index}) =>
+      Text(
         "Size ",
-        style: Theme.of(Get.context!)
+        style: Theme
+            .of(Get.context!)
             .textTheme
             .headline3
             ?.copyWith(fontWeight: FontWeight.w300),
@@ -567,38 +626,38 @@ class MyCartView extends GetView<MyCartController> {
   Widget readyToCheckOutItemSizeUnitTextView({required int index}) {
     String string = '';
     if (controller.checkedListItemVariant1.isEmpty) {
-      controller.checkedListItemVariant1.value =
+      controller.checkedListItemVariant1 =
           controller.checkedListItemVariant;
       for (int i = 0;
-          i <
-                  controller.getCartDetailsModel.value!.cartItemList![index]
-                      .selectedSize!.length &&
-              i < 5;
-          i++) {
+      i <
+          controller.getCartDetailsModel!.cartItemList![index]
+              .selectedSize!.length &&
+          i < 5;
+      i++) {
         string += controller
-            .getCartDetailsModel.value!.cartItemList![index].selectedSize![i];
+            .getCartDetailsModel!.cartItemList![index].selectedSize![i];
       }
     } else {
       if (controller.checkedListItemVariant1[index].variantAbbreviation ==
           controller.checkedListItemVariant[index].variantAbbreviation) {
         for (int i = 0;
-            i <
-                    controller.checkedListItemVariant[index].variantAbbreviation
-                        .length &&
-                i < 5;
-            i++) {
+        i <
+            controller.checkedListItemVariant[index].variantAbbreviation
+                .length &&
+            i < 5;
+        i++) {
           string +=
-              controller.checkedListItemVariant[index].variantAbbreviation[i];
+          controller.checkedListItemVariant[index].variantAbbreviation[i];
         }
       } else {
         if (controller.checkedListItemVariant1[index].variantAbbreviation <
             controller.checkedListItemVariant[index].variantAbbreviation) {
           for (int i = 0;
-              i <
-                      controller.checkedListItemVariant[index]
-                          .variantAbbreviation.length &&
-                  i < 5;
-              i++) {
+          i <
+              controller.checkedListItemVariant[index]
+                  .variantAbbreviation.length &&
+              i < 5;
+          i++) {
             string += controller
                 .checkedListItemVariant1[index].variantAbbreviation[i];
           }
@@ -607,20 +666,29 @@ class MyCartView extends GetView<MyCartController> {
     }
     return Text(
       string ?? "",
-      style: Theme.of(Get.context!).textTheme.headline2?.copyWith(
-            fontSize: 12.px,
-          ),
+      style: Theme
+          .of(Get.context!)
+          .textTheme
+          .headline2
+          ?.copyWith(
+        fontSize: 12.px,
+      ),
       maxLines: 1,
     );
   }
 
-  Widget readyToCheckOutItemSizeDownIconView({required int index}) => Icon(
+  Widget readyToCheckOutItemSizeDownIconView({required int index}) =>
+      Icon(
         Icons.keyboard_arrow_down_rounded,
-        color: Theme.of(Get.context!).colorScheme.onSurface,
+        color: Theme
+            .of(Get.context!)
+            .colorScheme
+            .onSurface,
         size: 20.px,
       );
 
-  Widget readyToCheckOutItemQuantityView({required int index}) => SizedBox(
+  Widget readyToCheckOutItemQuantityView({required int index}) =>
+      SizedBox(
         height: 28.px,
         // width: 44.px,
         child: UnicornOutline(
@@ -643,7 +711,8 @@ class MyCartView extends GetView<MyCartController> {
         height: 28.px,
         width: 32.px,
         child: InkWell(
-          onTap: () => controller.checkedListItemQuantity[index] != 1
+          onTap: () =>
+          controller.checkedListItemQuantity[index] != 1
               ? controller.clickOnReadyToCheckOutItemDownIcon(index: index)
               : null,
           child: readyToCheckOutItemDecreaseQuantityOfItemView(index: index),
@@ -655,23 +724,37 @@ class MyCartView extends GetView<MyCartController> {
         Icons.keyboard_arrow_down_outlined,
         size: 16.px,
         color: controller.checkedListItemQuantity[index] != 1
-            ? Theme.of(Get.context!).colorScheme.onSurface
-            : Theme.of(Get.context!).colorScheme.onSurface.withOpacity(0.2),
+            ? Theme
+            .of(Get.context!)
+            .colorScheme
+            .onSurface
+            : Theme
+            .of(Get.context!)
+            .colorScheme
+            .onSurface
+            .withOpacity(0.2),
       );
 
-  Widget readyToCheckOutItemQuantityCountTextView({required int index}) => Text(
+  Widget readyToCheckOutItemQuantityCountTextView({required int index}) =>
+      Text(
         controller.checkedListItemQuantity[index].toString(),
-        style: Theme.of(Get.context!).textTheme.headline2?.copyWith(
-              fontSize: 12.px,
-            ),
+        style: Theme
+            .of(Get.context!)
+            .textTheme
+            .headline2
+            ?.copyWith(
+          fontSize: 12.px,
+        ),
       );
 
-  Widget readyToCheckOutItemAddButtonView({required int index}) => SizedBox(
+  Widget readyToCheckOutItemAddButtonView({required int index}) =>
+      SizedBox(
         height: 28.px,
         width: 32.px,
         child: InkWell(
-            onTap: () => controller.checkedListItemQuantity[index] <
-                    int.parse(controller.checkedListItemAvalibility[index])
+            onTap: () =>
+            controller.checkedListItemQuantity[index] <
+                int.parse(controller.checkedListItemAvailability[index])
                 ? controller.clickOnReadyToCheckOutItemUpIcon(index: index)
                 : null,
             child: readyToCheckOutItemIncreaseQuantityOfItemView(index: index)),
@@ -682,21 +765,29 @@ class MyCartView extends GetView<MyCartController> {
         Icons.keyboard_arrow_up_rounded,
         size: 16.px,
         color: controller.checkedListItemQuantity[index] <
-                int.parse(controller.checkedListItemAvalibility[index])
-            ? Theme.of(Get.context!).colorScheme.onSurface
-            : Theme.of(Get.context!).colorScheme.onSurface.withOpacity(0.2),
+            int.parse(controller.checkedListItemAvailability[index])
+            ? Theme
+            .of(Get.context!)
+            .colorScheme
+            .onSurface
+            : Theme
+            .of(Get.context!)
+            .colorScheme
+            .onSurface
+            .withOpacity(0.2),
       );
 
-  Widget readyToCheckOutItemDeleteItemFromCartView(
-          {required int index}) =>
+  Widget readyToCheckOutItemDeleteItemFromCartView({required int index}) =>
       InkWell(
-          onTap: () => controller.clickOnReadyToCheckOutItemDeleteIcon(
-              itemIndex: index,
-              cartUuid: controller.checkedCarItemList[index].uuid),
+          onTap: () =>
+              controller.clickOnReadyToCheckOutItemDeleteIcon(
+                  itemIndex: index,
+                  cartUuid: controller.checkedCarItemList[index].uuid),
           borderRadius: BorderRadius.circular(22.px),
           child: readyToCheckOutItemDeleteIconView());
 
-  Widget readyToCheckOutItemDeleteIconView() => SizedBox(
+  Widget readyToCheckOutItemDeleteIconView() =>
+      SizedBox(
         height: 28.px,
         width: 28.px,
         child: UnicornOutline(
@@ -705,13 +796,17 @@ class MyCartView extends GetView<MyCartController> {
           gradient: CommonWidgets.commonLinearGradientView(),
           child: Icon(
             Icons.delete_outline_rounded,
-            color: Theme.of(Get.context!).colorScheme.onSurface,
+            color: Theme
+                .of(Get.context!)
+                .colorScheme
+                .onSurface,
             size: 18.px,
           ),
         ),
       );
 
-  Widget applyCouponView(BuildContext context) => Padding(
+  Widget applyCouponView(BuildContext context) =>
+      Padding(
         padding: EdgeInsets.symmetric(horizontal: 16.px),
         child: Container(
           height: 42.px,
@@ -719,7 +814,10 @@ class MyCartView extends GetView<MyCartController> {
           padding: EdgeInsets.symmetric(horizontal: 8.px),
           decoration: BoxDecoration(
             border:
-                Border.all(color: Theme.of(Get.context!).colorScheme.onSurface),
+            Border.all(color: Theme
+                .of(Get.context!)
+                .colorScheme
+                .onSurface),
             borderRadius: BorderRadius.circular(5.px),
           ),
           child: Row(
@@ -732,7 +830,8 @@ class MyCartView extends GetView<MyCartController> {
               Obx(() {
                 if (controller.isClickOnApplyCouponVisible.value) {
                   return InkWell(
-                    onTap: () => controller.isApplyCoupon.value
+                    onTap: () =>
+                    controller.isApplyCoupon.value
                         ? controller.clickOnApplyCouponButtonView()
                         : controller.clickOnRemoveCouponButtonView(),
                     borderRadius: BorderRadius.all(Radius.circular(4.px)),
@@ -760,14 +859,26 @@ class MyCartView extends GetView<MyCartController> {
         ),
       );
 
-  Widget addCouponTextFieldView() => TextFormField(
-        style: Theme.of(Get.context!).textTheme.subtitle1,
+  Widget addCouponTextFieldView() =>
+      TextFormField(
+        style: Theme
+            .of(Get.context!)
+            .textTheme
+            .subtitle1,
         controller: controller.applyCouponController,
-        cursorColor: Theme.of(Get.context!).colorScheme.onSurface,
+        cursorColor: Theme
+            .of(Get.context!)
+            .colorScheme
+            .onSurface,
         readOnly: !controller.isApplyCoupon.value,
         onChanged: (value) {
-          if (value.trim().isEmpty ||
-              value.trim().replaceAll(" ", "").isEmpty) {
+          if (value
+              .trim()
+              .isEmpty ||
+              value
+                  .trim()
+                  .replaceAll(" ", "")
+                  .isEmpty) {
             controller.applyCouponController.text = "";
             controller.isClickOnApplyCouponVisible.value = false;
           } else {
@@ -782,17 +893,23 @@ class MyCartView extends GetView<MyCartController> {
           disabledBorder: InputBorder.none,
           contentPadding: EdgeInsets.only(left: 5.px, bottom: 8.px),
           hintText: "Enter Coupon Code",
-          hintStyle: Theme.of(Get.context!).textTheme.headline5,
+          hintStyle: Theme
+              .of(Get.context!)
+              .textTheme
+              .headline5,
         ),
       );
 
   Widget applyCouponButtonView(
-          {required BuildContext context, required String text}) =>
+      {required BuildContext context, required String text}) =>
       Obx(() {
         controller.count.value;
         return GradientText(
           text,
-          style: Theme.of(Get.context!).textTheme.headline3,
+          style: Theme
+              .of(Get.context!)
+              .textTheme
+              .headline3,
           gradient: CommonWidgets.commonLinearGradientView(),
         );
       });
@@ -805,7 +922,7 @@ class MyCartView extends GetView<MyCartController> {
         children: [
           priceDetailsTextView(
               text:
-                  'Price Details (${controller.checkedCarItemList.length} Items)'),
+              'Price Details (${controller.checkedCarItemList.length} Items)'),
           SizedBox(height: 5.px),
           if (controller.sellPrice.value != 0.0)
             Row(
@@ -843,7 +960,9 @@ class MyCartView extends GetView<MyCartController> {
               priceDetailsTextView(text: 'Total'),
               priceDetailsTextView(
                   text:
-                      'Rs. ${controller.sellPrice.value - controller.discountPrice.value + controller.deliveryPrice.value}'),
+                  'Rs. ${controller.sellPrice.value -
+                      controller.discountPrice.value +
+                      controller.deliveryPrice.value}'),
             ],
           ),
           SizedBox(height: 10.px),
@@ -853,30 +972,45 @@ class MyCartView extends GetView<MyCartController> {
     );
   }
 
-  Widget priceDetailsTextView({required String text}) => Text(
+  Widget priceDetailsTextView({required String text}) =>
+      Text(
         text,
-        style: Theme.of(Get.context!).textTheme.subtitle1?.copyWith(
-              fontSize: 14.px,
-            ),
+        style: Theme
+            .of(Get.context!)
+            .textTheme
+            .subtitle1
+            ?.copyWith(
+          fontSize: 14.px,
+        ),
       );
 
-  Widget priceTextView({required String text}) => Text(
+  Widget priceTextView({required String text}) =>
+      Text(
         text,
-        style: Theme.of(Get.context!).textTheme.headline3,
+        style: Theme
+            .of(Get.context!)
+            .textTheme
+            .headline3,
       );
 
-  Widget gradientText({required String text}) => GradientText(
+  Widget gradientText({required String text}) =>
+      GradientText(
         text,
-        style: Theme.of(Get.context!).textTheme.subtitle1,
+        style: Theme
+            .of(Get.context!)
+            .textTheme
+            .subtitle1,
         gradient: CommonWidgets.commonLinearGradientView(),
       );
 
-  Widget savingMoneyText() => (controller.discountPrice.value != 0.0)
-      ? gradientText(
+  Widget savingMoneyText() =>
+      (controller.discountPrice.value != 0.0)
+          ? gradientText(
           text: 'Your Saving Rs: ${controller.discountPrice} On This Order')
-      : const SizedBox();
+          : const SizedBox();
 
-  Widget filledCheckedBox({required int index}) => Positioned(
+  Widget filledCheckedBox({required int index}) =>
+      Positioned(
         top: 10.px,
         right: 10.px,
         child: Material(
@@ -884,9 +1018,10 @@ class MyCartView extends GetView<MyCartController> {
           child: Ink(
             color: Colors.transparent,
             child: InkWell(
-              onTap: () => controller.clickOnFilledCheckedBox(
-                  index: index,
-                  cartUuid: controller.checkedCarItemList[index].uuid),
+              onTap: () =>
+                  controller.clickOnFilledCheckedBox(
+                      index: index,
+                      cartUuid: controller.checkedCarItemList[index].uuid),
               borderRadius: BorderRadius.circular(8.px),
               child: Container(
                 height: 20.px,
@@ -897,10 +1032,10 @@ class MyCartView extends GetView<MyCartController> {
                 ),
                 child: Center(
                     child: Icon(
-                  Icons.check,
-                  size: 15.px,
-                  color: Colors.white,
-                )),
+                      Icons.check,
+                      size: 15.px,
+                      color: Colors.white,
+                    )),
               ),
             ),
           ),
@@ -910,7 +1045,8 @@ class MyCartView extends GetView<MyCartController> {
   Widget proceedToPaymentButton({required BuildContext context}) =>
       CommonWidgets.myElevatedButton(
           text: Text('Proceed To Payment',
-              style: Theme.of(Get.context!)
+              style: Theme
+                  .of(Get.context!)
                   .textTheme
                   .subtitle1
                   ?.copyWith(color: MyColorsLight().secondary)),
@@ -927,7 +1063,7 @@ class MyCartView extends GetView<MyCartController> {
         physics: const BouncingScrollPhysics(),
         itemCount: controller.unCheckedCartItemList.length,
         itemBuilder: (BuildContext context, int index) {
-          controller.cartItem.value = controller.unCheckedCartItemList[index];
+          controller.cartItem = controller.unCheckedCartItemList[index];
           return Column(
             children: [
               InkWell(
@@ -940,7 +1076,9 @@ class MyCartView extends GetView<MyCartController> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10.px),
                         border: Border.all(
-                          color: Theme.of(context).brightness == Brightness.dark
+                          color: Theme
+                              .of(context)
+                              .brightness == Brightness.dark
                               ? MyColorsLight().secondary
                               : MyColorsDark().secondary,
                           width: 1.px,
@@ -951,20 +1089,20 @@ class MyCartView extends GetView<MyCartController> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          if (controller.cartItem.value?.thumbnailImage != null)
+                          if (controller.cartItem?.thumbnailImage != null)
                             uncheckedItemImageView(
                                 index: index,
                                 value:
-                                    controller.cartItem.value?.thumbnailImage ??
-                                        ""),
+                                controller.cartItem?.thumbnailImage ??
+                                    ""),
                           SizedBox(width: 8.px),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                if (controller.cartItem.value?.brandName !=
-                                        null &&
-                                    controller.cartItem.value?.productName !=
+                                if (controller.cartItem?.brandName !=
+                                    null &&
+                                    controller.cartItem?.productName !=
                                         null)
                                   Padding(
                                     padding: EdgeInsets.only(right: 12.px),
@@ -973,7 +1111,9 @@ class MyCartView extends GetView<MyCartController> {
                                       child: uncheckedItemDescriptionTextView(
                                           index: index,
                                           value:
-                                              "${controller.cartItem.value?.brandName} ${controller.cartItem.value?.productName}"),
+                                          "${controller.cartItem
+                                              ?.brandName} ${controller.cartItem
+                                              ?.productName}"),
                                     ),
                                   ),
                                 SizedBox(height: 8.px),
@@ -981,32 +1121,32 @@ class MyCartView extends GetView<MyCartController> {
                                 SizedBox(height: 8.px),
                                 Row(
                                   mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  MainAxisAlignment.spaceBetween,
                                   children: [
                                     if (controller
-                                                .cartItem.value?.varientList !=
-                                            null &&
-                                        controller.cartItem.value!.varientList!
+                                        .cartItem?.varientList !=
+                                        null &&
+                                        controller.cartItem!.varientList!
                                             .isNotEmpty &&
                                         controller
-                                                .cartItem.value?.availability !=
+                                            .cartItem?.availability !=
                                             null &&
                                         controller
-                                                .cartItem.value?.availability !=
+                                            .cartItem?.availability !=
                                             "0")
                                       uncheckedItemSizeView(index: index),
                                     if (controller.unCheckedListItemQuantity[
-                                                index] ==
-                                            null ||
+                                    index] ==
+                                        null ||
                                         controller
-                                                .cartItem.value?.availability ==
+                                            .cartItem?.availability ==
                                             "0")
                                       outOfStockTextView(),
                                     if (controller
-                                                .cartItem.value?.availability !=
-                                            null &&
+                                        .cartItem?.availability !=
+                                        null &&
                                         controller
-                                                .cartItem.value?.availability !=
+                                            .cartItem?.availability !=
                                             "0")
                                       uncheckedItemQuantityView(index: index),
                                     uncheckedItemDeleteItemFromCartView(
@@ -1019,8 +1159,8 @@ class MyCartView extends GetView<MyCartController> {
                         ],
                       ),
                     ),
-                    if (controller.cartItem.value?.availability != null &&
-                        controller.cartItem.value?.availability != '0')
+                    if (controller.cartItem?.availability != null &&
+                        controller.cartItem?.availability != '0')
                       unFilledCheckBox(index: index),
                   ],
                 ),
@@ -1044,7 +1184,7 @@ class MyCartView extends GetView<MyCartController> {
       );
 
   Widget uncheckedItemDescriptionTextView(
-          {required int index, required String value}) =>
+      {required int index, required String value}) =>
       Row(
         children: [
           Expanded(
@@ -1052,38 +1192,41 @@ class MyCartView extends GetView<MyCartController> {
               value,
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
-              style: Theme.of(Get.context!).textTheme.headline3,
+              style: Theme
+                  .of(Get.context!)
+                  .textTheme
+                  .headline3,
             ),
           ),
         ],
       );
 
   Widget uncheckedItemPriceView({required int index}) {
-    if (controller.cartItem.value?.isOffer != null &&
-        controller.cartItem.value?.isOffer == "1") {
+    if (controller.cartItem?.isOffer != null &&
+        controller.cartItem?.isOffer == "1") {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (controller.cartItem.value?.offerPrice != null)
+          if (controller.cartItem?.offerPrice != null)
             uncheckedItemPriceTextView(
                 index: index,
-                value: controller.cartItem.value?.offerPrice ?? ""),
+                value: controller.cartItem?.offerPrice ?? ""),
           SizedBox(
             width: 8.px,
           ),
           Row(
             children: [
-              if (controller.cartItem.value?.sellPrice != null)
+              if (controller.cartItem?.sellPrice != null)
                 uncheckedItemOriginalPriceTextView(
                     index: index,
-                    value: controller.cartItem.value?.sellPrice ?? ""),
+                    value: controller.cartItem?.sellPrice ?? ""),
               SizedBox(
                 width: 8.px,
               ),
-              if (controller.cartItem.value?.percentageDis != null)
+              if (controller.cartItem?.percentageDis != null)
                 uncheckedItemHowManyPercentOffTextView(
                     index: index,
-                    value: controller.cartItem.value?.percentageDis ?? "")
+                    value: controller.cartItem?.percentageDis ?? "")
             ],
           )
         ],
@@ -1091,11 +1234,11 @@ class MyCartView extends GetView<MyCartController> {
     } else {
       return Row(
         children: [
-          if (controller.cartItem.value?.sellPrice != null)
+          if (controller.cartItem?.sellPrice != null)
             Flexible(
               child: uncheckedItemPriceTextView(
                   index: index,
-                  value: controller.cartItem.value?.sellPrice ?? ""),
+                  value: controller.cartItem?.sellPrice ?? ""),
             ),
         ],
       );
@@ -1103,36 +1246,42 @@ class MyCartView extends GetView<MyCartController> {
   }
 
   Widget uncheckedItemPriceTextView(
-          {required int index, required String value}) =>
+      {required int index, required String value}) =>
       GradientText(
         '$curr$value',
-        style: Theme.of(Get.context!).textTheme.subtitle1,
+        style: Theme
+            .of(Get.context!)
+            .textTheme
+            .subtitle1,
         gradient: CommonWidgets.commonLinearGradientView(),
       );
 
   Widget uncheckedItemOriginalPriceTextView(
-          {required int index, required String value}) =>
+      {required int index, required String value}) =>
       Text(
         "$curr$value",
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: Theme.of(Get.context!)
+        style: Theme
+            .of(Get.context!)
             .textTheme
             .headline3
             ?.copyWith(fontSize: 8.px, decoration: TextDecoration.lineThrough),
       );
 
   Widget uncheckedItemHowManyPercentOffTextView(
-          {required int index, required String value}) =>
+      {required int index, required String value}) =>
       Text(
         " ($value% Off)",
-        style: Theme.of(Get.context!)
+        style: Theme
+            .of(Get.context!)
             .textTheme
             .headline3
             ?.copyWith(fontSize: 8.px),
       );
 
-  Widget uncheckedItemSizeView({required int index}) => SizedBox(
+  Widget uncheckedItemSizeView({required int index}) =>
+      SizedBox(
         height: 28.px,
         child: UnicornOutline(
           gradient: CommonWidgets.commonLinearGradientView(),
@@ -1162,14 +1311,14 @@ class MyCartView extends GetView<MyCartController> {
                           width: 75.px,
                           trailingIcon: const SizedBox(),
                           dropdownMenuEntries: controller
-                              .cartItem.value!.varientList!
+                              .cartItem!.varientList!
                               .map((VarientList value) {
                             return MyDropdownMenuEntry(
                                 value: value,
                                 label: value.variantAbbreviation ?? "");
                           }).toList(),
                           /*onSelected: (value) async {
-                        controller.absorbing.value = true;
+                        controller.inAsyncCall = true;
                         http.Response? response =
                         await controller.manageCartApiCalling(
                             cartQty: controller
@@ -1181,30 +1330,30 @@ class MyCartView extends GetView<MyCartController> {
                           controller.uncheckedListItemVariant[index] =
                               value;
                         } else {}
-                        controller.absorbing.value = false;
+                        controller.inAsyncCall = false;
                       },*/
 
                           onSelected: (value) async {
-                            controller.absorbing.value = true;
+                            controller.inAsyncCall.value = true;
                             int v = controller.unCheckedListItemQuantity[index];
                             if (int.parse(value!.availability!) < v) {
                               controller.unCheckedListItemQuantity[index] =
                                   int.parse(value.availability!);
                             }
                             http.Response? response =
-                                await controller.manageCartApiCalling(
-                                    cartQty: controller
-                                        .unCheckedListItemQuantity[index],
-                                    cartItem:
-                                        controller.unCheckedCartItemList[index],
-                                    inventoryId: value.inventoryId);
+                            await controller.manageCartApiCalling(
+                                cartQty: controller
+                                    .unCheckedListItemQuantity[index],
+                                cartItem:
+                                controller.unCheckedCartItemList[index],
+                                inventoryId: value.inventoryId);
                             if (response != null) {
                               controller.uncheckedListItemVariant[index] =
                                   value;
-                              controller.unCheckedListItemAvalibility[index] =
+                              controller.unCheckedListItemAvailability[index] =
                                   value.availability;
                             }
-                            controller.absorbing.value = false;
+                            controller.inAsyncCall.value = false;
                           },
                         ),
                       ),
@@ -1218,7 +1367,7 @@ class MyCartView extends GetView<MyCartController> {
                             child: DropdownButtonHideUnderline(
                               child: DropdownButton(
                                 onChanged: (value) async {
-                                  controller.absorbing.value = true;
+                                  controller.inAsyncCall = true;
                                   await controller.manageCartApiCalling(
                                       cartQty: controller
                                           .unCheckedListItemQuantity[index],
@@ -1227,9 +1376,9 @@ class MyCartView extends GetView<MyCartController> {
                                       inventoryId: value?.inventoryId);
                                   controller.uncheckedListItemVariant[index] =
                                       value;
-                                  controller.absorbing.value = false;
+                                  controller.inAsyncCall = false;
                                 },
-                                items: controller.cartItem.value!.varientList!
+                                items: controller.cartItem!.varientList!
                                     .map((VarientList value) {
                                   return DropdownMenuItem(
                                       value: value,
@@ -1253,7 +1402,7 @@ class MyCartView extends GetView<MyCartController> {
                                   },
                                   itemBuilder: (BuildContext context) {
                                     return controller
-                                        .cartItem.value!.varientList!
+                                        .cartItem!.varientList!
                                         .map((VarientList value) {
                                       return PopupMenuItem<VarientList>(
                                         value: value,
@@ -1273,9 +1422,11 @@ class MyCartView extends GetView<MyCartController> {
         ),
       );
 
-  Widget uncheckedItemSizeTextView({required int index}) => Text(
+  Widget uncheckedItemSizeTextView({required int index}) =>
+      Text(
         "Size ",
-        style: Theme.of(Get.context!)
+        style: Theme
+            .of(Get.context!)
             .textTheme
             .headline3
             ?.copyWith(fontWeight: FontWeight.w300),
@@ -1284,112 +1435,148 @@ class MyCartView extends GetView<MyCartController> {
   Widget uncheckedItemSizeUnitTextView({required int index}) {
     String string = '';
     if (controller.uncheckedListItemVariant1.isEmpty) {
-      controller.uncheckedListItemVariant1.value =
+      controller.uncheckedListItemVariant1 =
           controller.uncheckedListItemVariant;
       for (int i = 0;
-          i < controller.unCheckedCartItemList[index].selectedSize!.length &&
-              i < 5;
-          i++) {
+      i < controller.unCheckedCartItemList[index].selectedSize!.length &&
+          i < 5;
+      i++) {
         string += controller.unCheckedCartItemList[index].selectedSize![i];
       }
     } else {
       if (controller.uncheckedListItemVariant1[index].variantAbbreviation ==
           controller.uncheckedListItemVariant[index].variantAbbreviation) {
         for (int i = 0;
-            i <
-                    controller.uncheckedListItemVariant[index]
-                        .variantAbbreviation.length &&
-                i < 5;
-            i++) {
+        i <
+            controller.uncheckedListItemVariant[index]
+                .variantAbbreviation.length &&
+            i < 5;
+        i++) {
           string +=
-              controller.uncheckedListItemVariant[index].variantAbbreviation[i];
+          controller.uncheckedListItemVariant[index].variantAbbreviation[i];
         }
       }
     }
     return Text(
       string ?? "",
-      style: Theme.of(Get.context!).textTheme.headline2?.copyWith(
-            fontSize: 12.px,
-          ),
+      style: Theme
+          .of(Get.context!)
+          .textTheme
+          .headline2
+          ?.copyWith(
+        fontSize: 12.px,
+      ),
       maxLines: 1,
     );
   }
 
-  Widget uncheckedItemSizeDownIconView({required int index}) => Icon(
+  Widget uncheckedItemSizeDownIconView({required int index}) =>
+      Icon(
         Icons.keyboard_arrow_down_rounded,
-        color: Theme.of(Get.context!).colorScheme.onSurface,
+        color: Theme
+            .of(Get.context!)
+            .colorScheme
+            .onSurface,
         size: 20.px,
       );
 
-  Widget uncheckedItemQuantityView({required int index}) => SizedBox(
-      height: 3.5.h,
-      // width: 44.px,
-      child: UnicornOutline(
-        radius: 2.px,
-        gradient: CommonWidgets.commonLinearGradientView(),
-        strokeWidth: 1.px,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            uncheckedItemSubtractButtonView(index: index),
-            uncheckedItemQuantityCountTextView(index: index),
-            uncheckedItemAddButtonView(index: index),
-          ],
-        ),
-      ));
+  Widget uncheckedItemQuantityView({required int index}) =>
+      SizedBox(
+          height: 3.5.h,
+          // width: 44.px,
+          child: UnicornOutline(
+            radius: 2.px,
+            gradient: CommonWidgets.commonLinearGradientView(),
+            strokeWidth: 1.px,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                uncheckedItemSubtractButtonView(index: index),
+                uncheckedItemQuantityCountTextView(index: index),
+                uncheckedItemAddButtonView(index: index),
+              ],
+            ),
+          ));
 
-  Widget outOfStockTextView({String? value}) => Text(
+  Widget outOfStockTextView({String? value}) =>
+      Text(
         "Out of stock",
-        style: Theme.of(Get.context!)
+        style: Theme
+            .of(Get.context!)
             .textTheme
             .headline3
             ?.copyWith(fontSize: 14.px, color: MyColorsDark().error),
       );
 
-  Widget uncheckedItemSubtractButtonView({required int index}) => SizedBox(
+  Widget uncheckedItemSubtractButtonView({required int index}) =>
+      SizedBox(
         height: 28.px,
         width: 32.px,
         child: InkWell(
-          onTap: () => controller.unCheckedListItemQuantity[index] != 1
+          onTap: () =>
+          controller.unCheckedListItemQuantity[index] != 1
               ? controller.clickOnUncheckedItemDownIcon(index: index)
               : null,
           child: uncheckedItemDecreaseQuantityOfItemView(index: index),
         ),
       );
 
-  Widget uncheckedItemDecreaseQuantityOfItemView({required int index}) => Icon(
+  Widget uncheckedItemDecreaseQuantityOfItemView({required int index}) =>
+      Icon(
         Icons.keyboard_arrow_down_outlined,
         size: 16.px,
         color: controller.unCheckedListItemQuantity[index] != 1
-            ? Theme.of(Get.context!).colorScheme.onSurface
-            : Theme.of(Get.context!).colorScheme.onSurface.withOpacity(0.2),
+            ? Theme
+            .of(Get.context!)
+            .colorScheme
+            .onSurface
+            : Theme
+            .of(Get.context!)
+            .colorScheme
+            .onSurface
+            .withOpacity(0.2),
       );
 
-  Widget uncheckedItemQuantityCountTextView({required int index}) => Text(
+  Widget uncheckedItemQuantityCountTextView({required int index}) =>
+      Text(
         controller.unCheckedListItemQuantity[index].toString(),
-        style: Theme.of(Get.context!).textTheme.headline2?.copyWith(
-              fontSize: 12.px,
-            ),
+        style: Theme
+            .of(Get.context!)
+            .textTheme
+            .headline2
+            ?.copyWith(
+          fontSize: 12.px,
+        ),
       );
 
-  Widget uncheckedItemAddButtonView({required int index}) => SizedBox(
+  Widget uncheckedItemAddButtonView({required int index}) =>
+      SizedBox(
         height: 28.px,
         width: 32.px,
         child: InkWell(
-            onTap: () => controller.unCheckedListItemQuantity[index] <
-                    int.parse(controller.unCheckedListItemAvalibility[index])
+            onTap: () =>
+            controller.unCheckedListItemQuantity[index] <
+                int.parse(controller.unCheckedListItemAvailability[index])
                 ? controller.clickOnUncheckedItemUpIcon(index: index)
                 : null,
             child: uncheckedItemIncreaseQuantityOfItemView(index: index)),
       );
 
-  Widget uncheckedItemIncreaseQuantityOfItemView({required int index}) => Icon(
+  Widget uncheckedItemIncreaseQuantityOfItemView({required int index}) =>
+      Icon(
         Icons.keyboard_arrow_up_rounded,
         size: 16.px,
         color: controller.unCheckedListItemQuantity[index] <
-                int.parse(controller.unCheckedListItemAvalibility[index])
-            ? Theme.of(Get.context!).colorScheme.onSurface
-            : Theme.of(Get.context!).colorScheme.onSurface.withOpacity(0.2),
+            int.parse(controller.unCheckedListItemAvailability[index])
+            ? Theme
+            .of(Get.context!)
+            .colorScheme
+            .onSurface
+            : Theme
+            .of(Get.context!)
+            .colorScheme
+            .onSurface
+            .withOpacity(0.2),
       );
 
   Widget uncheckedItemDeleteItemFromCartView({required int index}) {
@@ -1403,7 +1590,8 @@ class MyCartView extends GetView<MyCartController> {
         child: uncheckedItemDeleteIconView());
   }
 
-  Widget uncheckedItemDeleteIconView() => SizedBox(
+  Widget uncheckedItemDeleteIconView() =>
+      SizedBox(
         height: 28.px,
         width: 28.px,
         child: UnicornOutline(
@@ -1412,7 +1600,10 @@ class MyCartView extends GetView<MyCartController> {
           gradient: CommonWidgets.commonLinearGradientView(),
           child: Icon(
             Icons.delete_outline_rounded,
-            color: Theme.of(Get.context!).colorScheme.onSurface,
+            color: Theme
+                .of(Get.context!)
+                .colorScheme
+                .onSurface,
             size: 18.px,
           ),
         ),
@@ -1427,9 +1618,10 @@ class MyCartView extends GetView<MyCartController> {
         child: Ink(
           color: Colors.transparent,
           child: InkWell(
-            onTap: () => controller.clickOnUnFilledCheckBox(
-                index: index,
-                cartUuid: controller.unCheckedCartItemList[index].uuid),
+            onTap: () =>
+                controller.clickOnUnFilledCheckBox(
+                    index: index,
+                    cartUuid: controller.unCheckedCartItemList[index].uuid),
             borderRadius: BorderRadius.circular(8.px),
             child: Container(
               height: 20.px,
@@ -1456,7 +1648,10 @@ class MyCartView extends GetView<MyCartController> {
       CommonWidgets.myOutlinedButton(
         radius: 5.px,
         text: Text('Continue Shopping',
-            style: Theme.of(Get.context!).textTheme.subtitle1),
+            style: Theme
+                .of(Get.context!)
+                .textTheme
+                .subtitle1),
         onPressed: () => controller.clickOnContinueShopping(context: context),
         height: 42.px,
         margin: EdgeInsets.symmetric(horizontal: Zconstant.margin16),

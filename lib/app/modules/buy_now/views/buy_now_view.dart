@@ -15,82 +15,106 @@ class BuyNowView extends GetView<BuyNowController> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => ModalProgress(
-          inAsyncCall: controller.absorbing.value,
-          child: GestureDetector(
-            onTap: () => MyCommonMethods.unFocsKeyBoard(),
-            child: Scaffold(
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-              appBar: const MyCustomContainer().myAppBar(
-                text: 'Buy Now',
-                isIcon: true,
-                backIconOnPressed: () => controller.clickOnBackButton(),
-              ),
-              body: Obx(() {
-                if (controller.getProductByInventoryApiModal.value != null) {
-                  if (controller.productDetail.value != null) {
-                    return ListView(
-                      physics: const BouncingScrollPhysics(),
-                      children: [
-                        Column(
+    return Obx(
+      () => ModalProgress(
+        inAsyncCall: controller.inAsyncCall.value,
+        child: GestureDetector(
+          onTap: () => MyCommonMethods.unFocsKeyBoard(),
+          child: Scaffold(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            appBar: const MyCustomContainer().myAppBar(
+              text: 'Buy Now',
+              isIcon: true,
+              backIconOnPressed: () => controller.clickOnBackButton(),
+            ),
+            body: Obx(
+              () {
+                controller.count.value;
+                if (CommonMethods.isConnect.value) {
+                  if (controller.getProductByInventoryApiModal != null &&
+                      controller.responseCode == 200) {
+                    if (controller.productDetail != null) {
+                      return CommonWidgets.commonRefreshIndicator(
+                        onRefresh: () => controller.onRefresh(),
+                        child: ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
                           children: [
-                            Padding(
-                              padding: EdgeInsets.only(
-                                  left: 4.w, bottom: 10.px, right: 4.w),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  if (controller.addressDetail.value != null)
-                                    deliverToTextView(),
-                                  SizedBox(height: 4.px),
-                                  if (controller.addressDetail.value != null)
-                                    CommonWidgets.profileMenuDash(),
-                                  SizedBox(height: 4.px),
-                                  controller.addressDetail.value != null
-                                      ? addressView(context: context)
-                                      : Padding(
-                                          padding: EdgeInsets.symmetric(
-                                              vertical: 0.5.h),
-                                          child: addAddressButtonView(
-                                              context: context),
-                                        ),
-                                ],
-                              ),
+                            Column(
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      left: 4.w, bottom: 10.px, right: 4.w),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      if (controller.addressDetail != null)
+                                        deliverToTextView(),
+                                      SizedBox(height: 4.px),
+                                      if (controller.addressDetail != null)
+                                        CommonWidgets.profileMenuDash(),
+                                      SizedBox(height: 4.px),
+                                      controller.addressDetail != null
+                                          ? addressView(context: context)
+                                          : Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                  vertical: 0.5.h),
+                                              child: addAddressButtonView(
+                                                  context: context),
+                                            ),
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 4.w),
+                                  child: itemDetailsView(context),
+                                ),
+                                Center(
+                                  child: applyCouponView(context),
+                                ),
+                                SizedBox(height: 20.px),
+                                //if (!controller.isCouponRange.value)
+                                //couponRangeText(),
+                                SizedBox(height: 10.px),
+                                Padding(
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 5.w),
+                                  child: CommonWidgets.profileMenuDash(),
+                                ),
+                                SizedBox(height: 27.px),
+                                itemBillView(),
+                                SizedBox(height: 35.px),
+                                proceedToPaymentButton(context: context),
+                              ],
                             ),
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 4.w),
-                              child: itemDetailsView(context),
-                            ),
-                            Center(
-                              child: applyCouponView(context),
-                            ),
-                            SizedBox(height: 20.px),
-                            if(!controller.isCouponRange.value)
-                            couponRangeText(),
-                            SizedBox(height: 10.px),
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 5.w),
-                              child: CommonWidgets.profileMenuDash(),
-                            ),
-                            SizedBox(height: 27.px),
-                            itemBillView(),
-                            SizedBox(height: 35.px),
-                            proceedToPaymentButton(context: context),
+                            SizedBox(height: 8.h),
                           ],
                         ),
-                        SizedBox(height: 8.h),
-                      ],
-                    );
+                      );
+                    } else {
+                      return Center(
+                          child: addAddressButtonView(context: context));
+                    }
                   } else {
-                    return CommonWidgets.noDataTextView();
+                    if (controller.responseCode == 0) {
+                      return const SizedBox();
+                    }
+                    return CommonWidgets.commonSomethingWentWrongImage(
+                      onRefresh: () => controller.onRefresh(),
+                    );
                   }
                 } else {
-                  return const SizedBox();
+                  return CommonWidgets.commonNoInternetImage(
+                    onRefresh: () => controller.onRefresh(),
+                  );
                 }
-              }),
+              },
             ),
           ),
-        ),);
+        ),
+      ),
+    );
   }
 
   Widget deliverToTextView() {
@@ -109,8 +133,7 @@ class BuyNowView extends GetView<BuyNowController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              personNameTextView(
-                  value: controller.addressDetail.value?.name ?? ""),
+              personNameTextView(value: controller.addressDetail?.name ?? ""),
               addressDetailView(),
             ],
           ),
@@ -132,11 +155,11 @@ class BuyNowView extends GetView<BuyNowController> {
       );
 
   Widget addressDetailView() => Text(
-        "${controller.addressDetail.value?.houseNo}"
-        " ${controller.addressDetail.value?.colony}"
-        " ${controller.addressDetail.value?.city}"
-        " ${controller.addressDetail.value?.state}"
-        " ${controller.addressDetail.value?.pinCode}",
+        "${controller.addressDetail?.houseNo}"
+        " ${controller.addressDetail?.colony}"
+        " ${controller.addressDetail?.city}"
+        " ${controller.addressDetail?.state}"
+        " ${controller.addressDetail?.pinCode}",
         style:
             Theme.of(Get.context!).textTheme.caption?.copyWith(fontSize: 12.px),
       );
@@ -196,14 +219,11 @@ class BuyNowView extends GetView<BuyNowController> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (controller.productDetail.value?.thumbnailImage !=
-                              null &&
-                          controller
-                              .productDetail.value!.thumbnailImage!.isNotEmpty)
+                      if (controller.productDetail?.thumbnailImage != null &&
+                          controller.productDetail!.thumbnailImage!.isNotEmpty)
                         itemImageView(
-                            path: controller
-                                    .productDetail.value?.thumbnailImage ??
-                                ""),
+                            path:
+                                controller.productDetail?.thumbnailImage ?? ""),
                     ],
                   ),
                 ),
@@ -214,66 +234,53 @@ class BuyNowView extends GetView<BuyNowController> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(height: 0.5.h),
-                      if (controller.productDetail.value?.brandName != null &&
-                          controller.productDetail.value?.productName != null)
+                      if (controller.productDetail?.brandName != null &&
+                          controller.productDetail?.productName != null)
                         itemDescriptionTextView(
-                            value:
-                                "${controller.productDetail.value?.brandName} "
-                                "${controller.productDetail.value?.productName}"),
+                            value: "${controller.productDetail?.brandName} "
+                                "${controller.productDetail?.productName}"),
                       SizedBox(height: 0.75.h),
                       itemPriceView(),
                       SizedBox(height: 0.75.h),
                       Row(
                         children: [
-                          if (controller.productDetail.value?.colorName !=
-                                      null &&
-                                  controller.productDetail.value!.colorName!
-                                      .isNotEmpty ||
-                              controller.productDetail.value!.colorCode!
-                                      .isNotEmpty &&
-                                  controller.productDetail.value!.colorCode !=
-                                      null)
+                          if (controller.productDetail?.colorName != null &&
+                                  controller
+                                      .productDetail!.colorName!.isNotEmpty ||
+                              controller.productDetail!.colorCode!.isNotEmpty &&
+                                  controller.productDetail!.colorCode != null)
                             itemColorTextView(
-                                value:
-                                    controller.productDetail.value?.colorName,
+                                value: controller.productDetail?.colorName,
                                 colorCode: int.parse(controller
-                                    .productDetail.value!.colorCode
+                                    .productDetail!.colorCode
                                     .toString()
                                     .replaceAll("#", "0xff"))),
-                          if (controller.productDetail.value?.colorName !=
-                                      null &&
-                                  controller.productDetail.value!.colorName!
-                                      .isNotEmpty ||
-                              controller.productDetail.value!.colorCode!
-                                      .isNotEmpty &&
-                                  controller.productDetail.value!.colorCode !=
-                                      null)
+                          if (controller.productDetail?.colorName != null &&
+                                  controller
+                                      .productDetail!.colorName!.isNotEmpty ||
+                              controller.productDetail!.colorCode!.isNotEmpty &&
+                                  controller.productDetail!.colorCode != null)
                             SizedBox(width: 1.75.w),
-                          if (controller.productDetail.value
-                                      ?.variantAbbreviation !=
+                          if (controller.productDetail?.variantAbbreviation !=
                                   null &&
-                              controller.productDetail.value!
-                                  .variantAbbreviation!.isNotEmpty)
+                              controller.productDetail!.variantAbbreviation!
+                                  .isNotEmpty)
                             itemSizeTextView(
                                 value: controller
-                                    .productDetail.value?.variantAbbreviation),
+                                    .productDetail?.variantAbbreviation),
                         ],
                       ),
                       SizedBox(height: 1.h),
                       Row(
                         children: [
-                          if (controller.productDetail.value?.availability !=
-                              null)
+                          if (controller.productDetail?.availability != null)
                             subtractButtonView(),
-                          if (controller.productDetail.value?.availability !=
-                              null)
+                          if (controller.productDetail?.availability != null)
                             SizedBox(width: 2.w),
                           totalItemQuantityView(),
-                          if (controller.productDetail.value?.availability !=
-                              null)
+                          if (controller.productDetail?.availability != null)
                             SizedBox(width: 2.w),
-                          if (controller.productDetail.value?.availability !=
-                              null)
+                          if (controller.productDetail?.availability != null)
                             addButtonView(),
                         ],
                       ),
@@ -325,30 +332,29 @@ class BuyNowView extends GetView<BuyNowController> {
       );
 
   Widget itemPriceView(/*{required int index}*/) {
-    if (controller.productDetail.value?.isOffer != null &&
-        controller.productDetail.value?.isOffer == "1") {
+    if (controller.productDetail?.isOffer != null &&
+        controller.productDetail?.isOffer == "1") {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          if (controller.productDetail.value?.offerPrice != null)
+          if (controller.productDetail?.offerPrice != null)
             itemPriceTextView(
-                value: controller.productDetail.value?.offerPrice ?? ""),
-          if (controller.productDetail.value?.offerPrice != null)
+                value: controller.productDetail?.offerPrice ?? ""),
+          if (controller.productDetail?.offerPrice != null)
             SizedBox(height: 4.px),
           Row(
             children: [
-              if (controller.productDetail.value?.sellPrice != null)
+              if (controller.productDetail?.sellPrice != null)
                 Flexible(
                   child: itemOriginalPriceTextView(
-                      value: controller.productDetail.value?.sellPrice ?? ""),
+                      value: controller.productDetail?.sellPrice ?? ""),
                 ),
               SizedBox(height: 4.px),
-              if (controller.productDetail.value?.percentageDis != null)
+              if (controller.productDetail?.percentageDis != null)
                 Flexible(
                   child: itemHowManyPercentOffTextView(
-                      value:
-                          controller.productDetail.value?.percentageDis ?? ""),
+                      value: controller.productDetail?.percentageDis ?? ""),
                 )
             ],
           )
@@ -356,11 +362,10 @@ class BuyNowView extends GetView<BuyNowController> {
       );
     } else {
       print(
-          "controller.productDetail.value?.sellPrice:::::::::::::::::::::::${controller.productDetail.value?.sellPrice}");
+          "controller.productDetail?.sellPrice:::::::::::::::::::::::${controller.productDetail?.sellPrice}");
       return Row(
         children: [
-          itemPriceTextView(
-              value: controller.productDetail.value?.sellPrice ?? ""),
+          itemPriceTextView(value: controller.productDetail?.sellPrice ?? ""),
         ],
       );
     }
@@ -505,11 +510,11 @@ class BuyNowView extends GetView<BuyNowController> {
 
   Widget addButtonView() => elevatedButtonForItemList(
       onPressed: () => (controller.itemQuantity.value <
-              int.parse(controller.productDetail.value!.availability!))
+              int.parse(controller.productDetail!.availability!))
           ? controller.clickOnIncreaseQuantityButton()
           : null,
       color: (controller.itemQuantity.value <
-              int.parse(controller.productDetail.value!.availability!))
+              int.parse(controller.productDetail!.availability!))
           ? Theme.of(Get.context!).colorScheme.onSurface
           : Theme.of(Get.context!).colorScheme.onSurface.withOpacity(0.2),
       child: increaseQuantityOfItemView());
@@ -517,7 +522,7 @@ class BuyNowView extends GetView<BuyNowController> {
   Widget increaseQuantityOfItemView() => Icon(
         Icons.add,
         color: (controller.itemQuantity.value <
-                int.parse(controller.productDetail.value!.availability!))
+                int.parse(controller.productDetail!.availability!))
             ? Theme.of(Get.context!).colorScheme.onSurface
             : Theme.of(Get.context!).colorScheme.onSurface.withOpacity(0.2),
         size: 22.px,
@@ -717,7 +722,6 @@ class BuyNowView extends GetView<BuyNowController> {
       : const SizedBox();
 
   Widget couponRangeText() => (controller.discountPrice.value == 0.0)
-      ? gradientText(
-          text: 'Total price should be between coupon range')
+      ? gradientText(text: 'Total price should be between coupon range')
       : const SizedBox();
 }

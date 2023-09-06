@@ -13,6 +13,7 @@ import 'package:zerocart/app/modules/registration/controllers/registration_contr
 import 'package:zerocart/app/routes/app_pages.dart';
 
 import '../../../common_methods/common_methods.dart';
+import '../../navigator_bottom_bar/controllers/navigator_bottom_bar_controller.dart';
 
 class VerificationController extends GetxController {
   final absorbing = false.obs;
@@ -117,6 +118,8 @@ class VerificationController extends GetxController {
       await MyCommonMethods.setString(key: ApiKeyConstant.stateId, value: '');
       await MyCommonMethods.setString(key: UserDataKeyConstant.selectedCity, value: '');
       await MyCommonMethods.setString(key: ApiKeyConstant.cityId, value: '');
+      selectedIndex.value = 0;
+      Get.deleteAll();
       Get.offAllNamed(Routes.SPLASH);
     } else {
       /*  MyCommonControllers.findEditProfileController();

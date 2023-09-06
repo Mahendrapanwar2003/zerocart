@@ -23,14 +23,15 @@ class CategoryProductController extends CommonMethods {
   List<ColorsList> colorsList = [];
   List<Products> products = [];
   Map<String, dynamic> queryParameters = {};
-  String? categoryId;
-  String? isChatOption;
-  String? categoryName;
+
+  String? categoryName = Get.parameters['categoryName'];
+  String? isChatOption = Get.parameters['isChatOption'];
+  String? categoryId = Get.parameters['categoryId'];
+  String? searchPageValue = Get.parameters['searchPage'];
+  String? appBarTitleFromSearchPage =
+      Get.parameters['appBarTitleFromSearchPage'];
   String limit = "10";
   int offset = 0;
-
-  String? searchPageValue;
-  String? appBarTitleFromSearchPage;
 
   List filterDataList = [];
   Map<String, dynamic> filterDataMap = {};
@@ -43,11 +44,6 @@ class CategoryProductController extends CommonMethods {
   @override
   Future<void> onInit() async {
     super.onInit();
-    categoryName = Get.parameters['categoryName'];
-    isChatOption = Get.parameters['isChatOption'];
-    categoryId = Get.parameters['categoryId'];
-    searchPageValue = Get.parameters['searchPage'];
-    appBarTitleFromSearchPage = Get.parameters['appBarTitleFromSearchPage'];
     onReload();
     inAsyncCall.value = true;
     if (await MyCommonMethods.internetConnectionCheckerMethod()) {
@@ -133,7 +129,7 @@ class CategoryProductController extends CommonMethods {
         queryParameters: queryParameters,
         authorization: authorization,
         baseUri: ApiConstUri.baseUrlForGetMethod,
-        endPointUri: ApiConstUri.endPointGetAllProductListApi);
+        endPointUri: ApiConstUri.endPointSearchRecentProductApi);
     responseCode = response?.statusCode ?? 0;
     if (response != null) {
       if (await CommonMethods.checkResponse(response: response)) {
@@ -175,10 +171,12 @@ class CategoryProductController extends CommonMethods {
     isChatOption = isChat;
     this.categoryId = categoryId;
     if ((categoryId != null && categoryId.isNotEmpty) &&
-        (filterData != null && filterData.isNotEmpty)) {
+        ((filterData != null && filterData.isNotEmpty) ||
+            (filterDataJson != null && filterDataJson!.isNotEmpty))) {
       queryParameters = {
         ApiKeyConstant.categoryId: categoryId,
-        ApiKeyConstant.filters: filterData,
+        ApiKeyConstant.filters:
+            filterDataMap.isNotEmpty ? filterDataJson : filterData,
         ApiKeyConstant.limit: limit.toString(),
         ApiKeyConstant.offset: offset.toString()
       };
@@ -258,6 +256,7 @@ class CategoryProductController extends CommonMethods {
   }
 
   Future<void> clickOnFilterOptionListButton({required int index}) async {
+    inAsyncCall.value = true;
     increment();
     filterDataJson = null;
     List filterKeyList = filterDataMap.keys.toList();
@@ -269,6 +268,7 @@ class CategoryProductController extends CommonMethods {
     await callCategoryProductApi(
         categoryId: categoryId,
         filterData: filterDataMap.isNotEmpty ? filterDataJson : null);
+    inAsyncCall.value = false;
   }
 }
 //old code onInit

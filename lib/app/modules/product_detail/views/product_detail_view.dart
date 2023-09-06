@@ -13,6 +13,7 @@ import 'package:zerocart/app/custom/custom_gradient_text.dart';
 import 'package:zerocart/app/custom/custom_outline_button.dart';
 import 'package:zerocart/app/custom/scroll_splash_gone.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
+import '../../../../model_progress_bar/model_progress_bar.dart';
 import '../../../common_widgets/common_widgets.dart';
 import '../controllers/product_detail_controller.dart';
 
@@ -23,164 +24,184 @@ class ProductDetailView extends GetView<ProductDetailController> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () => controller.onWillPop(context: context),
-      child: Scaffold(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        appBar: const MyCustomContainer().myAppBar(
-            text: 'Product Detail',
-            backIconOnPressed: () => controller.clickOnBackButton(),
-            isIcon: true),
-        body: Obx(() => AbsorbPointer(
-              absorbing: controller.absorbing.value,
-              child: Obx(
-                () {
+      child: Obx(() {
+        controller.count.value;
+        return ModalProgress(
+          inAsyncCall: controller.inAsyncCall.value,
+          child: Scaffold(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            appBar: const MyCustomContainer().myAppBar(
+                text: 'Product Detail',
+                backIconOnPressed: () => controller.clickOnBackButton(),
+                isIcon: true),
+            body: Obx(() {
+              controller.count.value;
+              return Obx(
+                    () {
+                  controller.count.value;
                   if (CommonMethods.isConnect.value) {
-                    if (controller.getProductDetailsModel.value != null) {
-                      if ((controller.productDetail.value != null &&
-                              controller.initialIndexOfInventoryArray.value !=
-                                  -1) &&
-                          (controller.listOfInventoryArr.value != null &&
-                              controller
-                                  .listOfInventoryArr.value!.isNotEmpty)) {
-                        return ScrollConfiguration(
-                          behavior: MyBehavior(),
-                          child: ListView(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            children: [
-                              //CommonWidgets.mySizeBox(height: 18.h),
-                              Stack(
-                                alignment: Alignment.topRight,
-                                children: [
-                                  bannerImageView(context: context),
-                                  //addToWishListHeartIconView(context: context),
-                                  //backButtonView(context),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: Zconstant.margin,
-                                        vertical: 2.h),
-                                    child: Column(
-                                      children: [
-                                        productInfo(),
-                                        if (controller.isVariant.value != "1")
-                                          SizedBox(height: 8.px),
-                                        productSize(),
-                                        SizedBox(height: 10.px),
-                                        (controller.inventoryArr.value!
-                                                        .availability !=
-                                                    null &&
-                                                controller.inventoryArr.value!
-                                                    .availability!.isNotEmpty &&
-                                                controller.inventoryArr.value!
-                                                    .availability!= '0')
-                                            ? Column(
+                    if (controller.getProductDetailsModel != null &&
+                        controller.responseCode == 200) {
+                      if ((controller.productDetail != null &&
+                          controller.initialIndexOfInventoryArray.value !=
+                              -1) &&
+                          (controller.listOfInventoryArr.isNotEmpty)) {
+                        return CommonWidgets.commonRefreshIndicator(
+                          onRefresh: () => controller.onRefresh(),
+                          child: ScrollConfiguration(
+                            behavior: MyBehavior(),
+                            child: ListView(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              children: [
+                                //CommonWidgets.mySizeBox(height: 18.h),
+                                Stack(
+                                  alignment: Alignment.topRight,
+                                  children: [
+                                    bannerImageView(context: context),
+                                    //addToWishListHeartIconView(context: context),
+                                    //backButtonView(context),
+                                  ],
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: Zconstant.margin,
+                                          vertical: 2.h),
+                                      child: Column(
+                                        children: [
+                                          productInfo(),
+                                          if (controller.isVariant.value != "1")
+                                            SizedBox(height: 8.px),
+                                          productSize(),
+                                          SizedBox(height: 10.px),
+                                          (controller.inventoryArr!
+                                              .availability !=
+                                              null &&
+                                              controller.inventoryArr!
+                                                  .availability!.isNotEmpty &&
+                                              controller.inventoryArr!
+                                                  .availability !=
+                                                  '0')
+                                              ? Column(
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment:
+                                                MainAxisAlignment
+                                                    .spaceAround,
                                                 children: [
-                                                  Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceAround,
-                                                    children: [
-                                                      Expanded(
-                                                          child:
-                                                              addToCartButton(
-                                                                  context:
-                                                                      context)),
-                                                      SizedBox(width: 16.px),
-                                                      if (controller
-                                                                  .productDetail
-                                                                  .value!
-                                                                  .vendorType !=
-                                                              null &&
-                                                          controller
-                                                              .productDetail
-                                                              .value!
-                                                              .vendorType!
-                                                              .isNotEmpty)
-                                                        Expanded(
-                                                          child:
-                                                              buyNowOrCustomizeButton(
-                                                                  buttonText: controller
-                                                                              .productDetail
-                                                                              .value!
-                                                                              .vendorType
-                                                                              .toString() ==
-                                                                          'Tailor'
-                                                                      ? 'Customize'
-                                                                      : controller
-                                                                              .isViewToOutfitRoomVisible
-                                                                              .value
-                                                                          ? 'View Outfit'
-                                                                          : 'Add to Outfit'),
-                                                        ),
-                                                    ],
-                                                  ),
-                                                  SizedBox(height: 1.h),
-                                                  buyNowOrCustomizeButton(
-                                                      buttonText: "Buy Now"),
-                                                ],
-                                              )
-                                            : Row(
-                                                children: [
-                                                  outOfStockTextView(),
+                                                  Expanded(
+                                                      child:
+                                                      addToCartButton(
+                                                          context:
+                                                          context)),
+                                                  SizedBox(width: 16.px),
+                                                  if (controller
+                                                      .productDetail!
+                                                      .vendorType !=
+                                                      null &&
+                                                      controller
+                                                          .productDetail!
+                                                          .vendorType!
+                                                          .isNotEmpty)
+                                                    Expanded(
+                                                      child:
+                                                      buyNowOrCustomizeButton(
+                                                          buttonText: controller
+                                                              .productDetail!
+                                                              .vendorType
+                                                              .toString() ==
+                                                              'Tailor'
+                                                              ? 'Customize'
+                                                              : controller
+                                                              .isViewToOutfitRoomVisible
+                                                              .value
+                                                              ? 'View Outfit'
+                                                              : 'Add to Outfit'),
+                                                    ),
                                                 ],
                                               ),
-                                        // addToWishlistButton(context: context),
-                                        SizedBox(height: 4.px),
-                                        productAndSellerDescription(),
-                                        SizedBox(height: 4.px),
-                                        reviewsAndRatings(context: context),
-                                      ],
+                                              SizedBox(height: 1.h),
+                                              buyNowOrCustomizeButton(
+                                                  buttonText: "Buy Now"),
+                                            ],
+                                          )
+                                              : Row(
+                                            children: [
+                                              outOfStockTextView(),
+                                            ],
+                                          ),
+                                          // addToWishlistButton(context: context),
+                                          SizedBox(height: 4.px),
+                                          productAndSellerDescription(),
+                                          SizedBox(height: 4.px),
+                                          reviewsAndRatings(context: context),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  (controller.getProductApiModel.value != null)
-                                      ? (controller.recentProductsList !=
-                                                  null &&
-                                              controller.recentProductsList!
-                                                  .isNotEmpty)
-                                          ? Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Padding(
-                                                  padding: EdgeInsets.symmetric(
-                                                      horizontal:
-                                                          Zconstant.margin),
-                                                  child:
-                                                      youMayAlsoLikeTextView(),
-                                                ),
-                                                SizedBox(height: 1.h),
-                                                relatedProductsList(),
-                                              ],
-                                            )
-                                          : CommonWidgets.noDataTextView(
-                                              text: '')
-                                      : controller
-                                              .getProductDetailRecentApiValue
-                                              .value
-                                          ? CommonWidgets.progressBarView()
-                                          : const SizedBox()
-                                ],
-                              ),
-                              SizedBox(height: 6.h),
-                            ],
+                                    (controller.getProductApiModel != null)
+                                        ? (controller
+                                        .recentProductsList.isNotEmpty)
+                                        ? Column(
+                                      crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                      children: [
+                                        Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal:
+                                              Zconstant.margin),
+                                          child:
+                                          youMayAlsoLikeTextView(),
+                                        ),
+                                        SizedBox(height: 1.h),
+                                        relatedProductsList(),
+                                      ],
+                                    )
+                                        : CommonWidgets.noDataTextView(
+                                        text: '')
+                                        : controller
+                                        .getProductDetailRecentApiValue
+                                        .value
+                                        ? CommonWidgets.progressBarView()
+                                        : const SizedBox()
+                                  ],
+                                ),
+                                SizedBox(height: 6.h),
+                              ],
+                            ),
                           ),
                         );
                       } else {
-                        return CommonWidgets.noDataTextView();
+                        if ((controller.productDetail == null &&
+                            controller.initialIndexOfInventoryArray.value ==
+                                -1) &&
+                            (controller.listOfInventoryArr.isEmpty)) {
+                          return const SizedBox();
+                        }
+                        return CommonWidgets.commonNoDataFoundImage(
+                          onRefresh: () => controller.onRefresh(),
+                        );
                       }
                     } else {
-                      return CommonWidgets.progressBarView();
+                      if (controller.responseCode == 0) {
+                        return const SizedBox();
+                      }
+                      return CommonWidgets.commonSomethingWentWrongImage(
+                        onRefresh: () => controller.onRefresh(),
+                      );
                     }
                   } else {
-                    return CommonWidgets.progressBarView();
+                    return CommonWidgets.commonNoInternetImage(
+                      onRefresh: () => controller.onRefresh(),
+                    );
                   }
                 },
-              ),
-            )),
-      ),
+              );
+            }),
+          ),
+        );
+      }),
     );
   }
 
@@ -320,11 +341,11 @@ class ProductDetailView extends GetView<ProductDetailController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (controller.productDetail.value?.brandName != null &&
-                  controller.productDetail.value!.brandName!.isNotEmpty)
+              if (controller.productDetail?.brandName != null &&
+                  controller.productDetail!.brandName!.isNotEmpty)
                 brandNameTextView(),
-              if (controller.productDetail.value?.productName != null &&
-                  controller.productDetail.value!.productName!.isNotEmpty)
+              if (controller.productDetail?.productName != null &&
+                  controller.productDetail!.productName!.isNotEmpty)
                 brandProductNameTextView(),
               SizedBox(height: 2.px),
               if (controller.isColor.value == "1") colorsView()
@@ -341,7 +362,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
   }
 
   Widget brandNameTextView() => Text(
-        controller.productDetail.value!.brandName!,
+        controller.productDetail!.brandName!,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: Theme.of(Get.context!).textTheme.headline3?.copyWith(
@@ -353,7 +374,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
       );
 
   Widget brandProductNameTextView() => Text(
-        controller.productDetail.value!.productName!,
+        controller.productDetail!.productName!,
         style: Theme.of(Get.context!)
             .textTheme
             .subtitle1
@@ -392,8 +413,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
 
   Widget listOfColor() => MyListView(
         listOfData: (index) {
-          InventoryArr inventoryArr =
-              controller.listOfInventoryArr.value![index];
+          InventoryArr inventoryArr = controller.listOfInventoryArr[index];
           if (inventoryArr.colorCode == null &&
               inventoryArr.colorCode!.isEmpty) {
             return const SizedBox();
@@ -420,7 +440,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
           return const SizedBox();
         },
         physics: const ScrollPhysics(),
-        itemCount: controller.listOfInventoryArr.value!.length,
+        itemCount: controller.listOfInventoryArr.length,
         shrinkWrap: true,
         isVertical: false,
       );
@@ -435,9 +455,9 @@ class ProductDetailView extends GetView<ProductDetailController> {
             if (controller.sellPrice.value.isNotEmpty)
               itemPriceTextView(gradientText: controller.sellPrice.value),
             SizedBox(height: .5.h),
-            if ((controller.productDetail.value?.totalReview != null &&
-                    controller.productDetail.value!.totalReview!.isNotEmpty) &&
-                controller.productDetail.value?.totalReview != "0")
+            if ((controller.productDetail?.totalReview != null &&
+                    controller.productDetail!.totalReview!.isNotEmpty) &&
+                controller.productDetail?.totalReview != "0")
               reviewsTextView(),
           ],
         );
@@ -461,8 +481,8 @@ class ProductDetailView extends GetView<ProductDetailController> {
               ],
             ),
             SizedBox(height: 4.px),
-            if (controller.productDetail.value?.totalReview != null &&
-                controller.productDetail.value!.totalReview!.isNotEmpty)
+            if (controller.productDetail?.totalReview != null &&
+                controller.productDetail!.totalReview!.isNotEmpty)
               reviewsTextView(),
           ],
         );
@@ -548,7 +568,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
 
   Widget ratingTextView() => Flexible(
         child: Text(
-          double.parse(controller.productDetail.value!.totalRating.toString())
+          double.parse(controller.productDetail!.totalRating.toString())
               .toStringAsFixed(1)
               .toString(),
           style: Theme.of(Get.context!)
@@ -561,17 +581,17 @@ class ProductDetailView extends GetView<ProductDetailController> {
   Widget reviewsTextView() => Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          if ((controller.productDetail.value?.totalRating != null &&
-                  controller.productDetail.value!.totalRating!.isNotEmpty) &&
-              controller.productDetail.value?.totalRating != "0.0")
+          if ((controller.productDetail?.totalRating != null &&
+                  controller.productDetail!.totalRating!.isNotEmpty) &&
+              controller.productDetail?.totalRating != "0.0")
             ratingElevatedButtonView(),
-          if ((controller.productDetail.value?.totalRating != null &&
-                  controller.productDetail.value!.totalRating!.isNotEmpty) &&
-              controller.productDetail.value?.totalRating != "0.0")
+          if ((controller.productDetail?.totalRating != null &&
+                  controller.productDetail!.totalRating!.isNotEmpty) &&
+              controller.productDetail?.totalRating != "0.0")
             SizedBox(width: 4.px),
           Flexible(
             child: Text(
-              "${controller.productDetail.value?.totalReview}",
+              "${controller.productDetail?.totalReview}",
               textAlign: TextAlign.start,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -603,9 +623,8 @@ class ProductDetailView extends GetView<ProductDetailController> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 sizeTextView(),
-                (controller.productDetail.value?.brandChartImg != null &&
-                        controller
-                            .productDetail.value!.brandChartImg!.isNotEmpty)
+                (controller.productDetail?.brandChartImg != null &&
+                        controller.productDetail!.brandChartImg!.isNotEmpty)
                     ? textButton(
                         text: 'Size Chart',
                         onPressed: () =>
@@ -621,15 +640,15 @@ class ProductDetailView extends GetView<ProductDetailController> {
                 if (controller.isVariant.value == "1")
                   Expanded(child: listOfSizeView()),
                 if (controller.isVariant.value == "1")
-                  if (controller.variant.value?.isCustom.toString() == '1')
+                  if (controller.variant?.isCustom.toString() == '1')
                     SizedBox(width: 4.px),
-                if (controller.variant.value?.isCustom.toString() == '1')
+                if (controller.variant?.isCustom.toString() == '1')
                   customButton(buttonText: 'Custom')
                 /* if (controller.isVariant.value == "1")
-                  if (controller.productDetail.value!.vendorType.toString() ==
+                  if (controller.productDetail!.vendorType.toString() ==
                       'Tailor')
                     SizedBox(width: 4.px),
-                if (controller.productDetail.value!.vendorType.toString() ==
+                if (controller.productDetail!.vendorType.toString() ==
                     'Tailor')
                   customButton(buttonText: 'Custom')*/
               ],
@@ -648,14 +667,13 @@ class ProductDetailView extends GetView<ProductDetailController> {
 
   Widget listOfSizeView() {
     if (controller.isVariant.value == "1" && controller.isColor.value == "0") {
-      if (controller.listOfInventoryArr.value != null &&
-          controller.listOfInventoryArr.value!.isNotEmpty) {
+      if (controller.listOfInventoryArr.isNotEmpty) {
         return MyListView(
             listOfData: (index) {
               return Obx(
                 () {
                   InventoryArr inventoryArr =
-                      controller.listOfInventoryArr.value![index];
+                      controller.listOfInventoryArr[index];
                   if (inventoryArr.variantAbbreviation == null &&
                       inventoryArr.variantAbbreviation!.isEmpty) {
                     return const SizedBox();
@@ -681,20 +699,19 @@ class ProductDetailView extends GetView<ProductDetailController> {
               );
             },
             physics: const ClampingScrollPhysics(),
-            itemCount: controller.listOfInventoryArr.value!.length,
+            itemCount: controller.listOfInventoryArr.length,
             shrinkWrap: true,
             isVertical: false);
       } else {
         return const SizedBox();
       }
     } else {
-      if (controller.listOfVariant.value != null &&
-          controller.listOfVariant.value!.isNotEmpty) {
+      if (controller.listOfVariant.isNotEmpty) {
         return MyListView(
             listOfData: (index) {
               return Obx(
                 () {
-                  VarientList variant = controller.listOfVariant.value![index];
+                  VarientList variant = controller.listOfVariant[index];
                   if (variant.variantAbbreviation == null &&
                       variant.variantAbbreviation!.isEmpty) {
                     return const SizedBox();
@@ -719,7 +736,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
               );
             },
             physics: const ClampingScrollPhysics(),
-            itemCount: controller.listOfVariant.value!.length,
+            itemCount: controller.listOfVariant.length,
             shrinkWrap: true,
             isVertical: false);
       } else {
@@ -781,10 +798,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
           height: 42.px,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5.px),
-            gradient: controller.addToCartButtonStateId.value !=
-                    AddToCartButtonStateId.done
-                ? CommonWidgets.commonLinearGradientView()
-                : null,
+            gradient: CommonWidgets.commonLinearGradientView(),
           ),
           child: controller.isViewToCartVisible.value
               ? addAndViewToCartButton(
@@ -821,16 +835,11 @@ class ProductDetailView extends GetView<ProductDetailController> {
       margin: EdgeInsets.zero,
       text: Obx(() {
         controller.count.value;
-        return controller.isAddToCartValue.value
-            ? Text(
+        return Text(
                 buttonText,
                 style: Theme.of(Get.context!).textTheme.subtitle1?.copyWith(
                     fontSize: 14.px, color: MyColorsLight().secondary),
-              )
-            : SizedBox(
-                width: 30.px,
-                height: 30.px,
-                child: CommonWidgets.buttonProgressBarView());
+              );
       }),
       borderRadius: 5.px,
       onPressed: () => (buttonText == 'Add To Cart')
@@ -973,35 +982,34 @@ class ProductDetailView extends GetView<ProductDetailController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (controller.bestReview.value != null)
+        if (controller.bestReview != null)
           productAndSellerDescriptionTextView(text: 'Reviews & Ratings:'),
-        if ((controller.reviewList.value != null &&
-                controller.reviewList.value!.isNotEmpty) &&
-            controller.reviewList.value!.length > 1)
+        if ((controller.reviewList.isNotEmpty) &&
+            controller.reviewList.length > 1)
           SizedBox(height: 4.px),
         Row(
           children: [
-            if ((controller.productDetail.value?.totalRating != null &&
-                    controller.productDetail.value!.totalRating!.isNotEmpty) &&
-                controller.productDetail.value?.totalRating != "0.0")
+            if ((controller.productDetail?.totalRating != null &&
+                    controller.productDetail!.totalRating!.isNotEmpty) &&
+                controller.productDetail?.totalRating != "0.0")
               Text(
-                "${double.parse(controller.productDetail.value!.totalRating.toString()).toStringAsFixed(1).toString()}/5",
+                "${double.parse(controller.productDetail!.totalRating.toString()).toStringAsFixed(1).toString()}/5",
                 style: Theme.of(Get.context!)
                     .textTheme
                     .subtitle1
                     ?.copyWith(fontSize: 14.px),
               ),
-            if (controller.productDetail.value?.totalRating != null &&
-                controller.productDetail.value?.totalRating != "0.0")
+            if (controller.productDetail?.totalRating != null &&
+                controller.productDetail?.totalRating != "0.0")
               SizedBox(width: 10.px),
-            if (controller.productDetail.value?.totalReview != null &&
-                controller.productDetail.value?.totalReview != "0")
+            if (controller.productDetail?.totalReview != null &&
+                controller.productDetail?.totalReview != "0")
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   overAllRatingTextView(),
                   Text(
-                    "${controller.productDetail.value?.totalReview} Ratings",
+                    "${controller.productDetail?.totalReview} Ratings",
                     maxLines: 1,
                     style: Theme.of(Get.context!)
                         .textTheme
@@ -1012,18 +1020,15 @@ class ProductDetailView extends GetView<ProductDetailController> {
               ),
           ],
         ),
-        if (controller.bestReview.value != null) SizedBox(height: 4.px),
-        if (controller.bestReview.value != null)
-          CommonWidgets.profileMenuDash(),
-        if (controller.bestReview.value != null) SizedBox(height: 4.px),
-        if (controller.bestReview.value != null) bestReviewView(),
-        if (controller.bestReview.value != null) SizedBox(height: 4.px),
-        if (controller.bestReview.value != null)
-          CommonWidgets.profileMenuDash(),
-        if (controller.bestReview.value != null) SizedBox(height: 4.px),
-        if ((controller.reviewList.value != null &&
-                controller.reviewList.value!.isNotEmpty) &&
-            controller.reviewList.value!.length > 1)
+        if (controller.bestReview != null) SizedBox(height: 4.px),
+        if (controller.bestReview != null) CommonWidgets.profileMenuDash(),
+        if (controller.bestReview != null) SizedBox(height: 4.px),
+        if (controller.bestReview != null) bestReviewView(),
+        if (controller.bestReview != null) SizedBox(height: 4.px),
+        if (controller.bestReview != null) CommonWidgets.profileMenuDash(),
+        if (controller.bestReview != null) SizedBox(height: 4.px),
+        if ((controller.reviewList.isNotEmpty) &&
+            controller.reviewList.length > 1)
           viewAllReviewsButtonView(context: context),
       ],
     );
@@ -1033,15 +1038,14 @@ class ProductDetailView extends GetView<ProductDetailController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if ((controller.bestReview.value?.rating != null &&
-                controller.bestReview.value!.rating!.isNotEmpty) &&
-            (controller.bestReview.value?.rating != "0" &&
-                controller.bestReview.value?.rating != "0.0"))
+        if ((controller.bestReview?.rating != null &&
+                controller.bestReview!.rating!.isNotEmpty) &&
+            (controller.bestReview?.rating != "0" &&
+                controller.bestReview?.rating != "0.0"))
           Row(
             children: [
               RatingBar.builder(
-                initialRating:
-                    double.parse(controller.bestReview.value!.rating!),
+                initialRating: double.parse(controller.bestReview!.rating!),
                 minRating: 0,
                 itemSize: 20.px,
                 direction: Axis.horizontal,
@@ -1056,20 +1060,20 @@ class ProductDetailView extends GetView<ProductDetailController> {
             ],
           ),
         SizedBox(height: 1.4.h),
-        if (controller.bestReview.value?.review != null &&
-            controller.bestReview.value!.review!.isNotEmpty)
+        if (controller.bestReview?.review != null &&
+            controller.bestReview!.review!.isNotEmpty)
           bestReviewDescriptionText(),
-        if (controller.bestReview.value?.review != null &&
-            controller.bestReview.value!.review!.isNotEmpty)
+        if (controller.bestReview?.review != null &&
+            controller.bestReview!.review!.isNotEmpty)
           SizedBox(height: 1.h),
-        if (controller.bestReview.value?.reviewFile != null &&
-            controller.bestReview.value!.reviewFile!.isNotEmpty)
+        if (controller.bestReview?.reviewFile != null &&
+            controller.bestReview!.reviewFile!.isNotEmpty)
           customerReviewImagesList(),
-        if (controller.bestReview.value?.reviewFile != null &&
-            controller.bestReview.value!.reviewFile!.isNotEmpty)
+        if (controller.bestReview?.reviewFile != null &&
+            controller.bestReview!.reviewFile!.isNotEmpty)
           SizedBox(height: 1.h),
-        if (controller.bestReview.value?.customerName != null &&
-            controller.bestReview.value!.customerName!.isNotEmpty)
+        if (controller.bestReview?.customerName != null &&
+            controller.bestReview!.customerName!.isNotEmpty)
           bestReviewCustomerNameText(),
       ],
     );
@@ -1082,7 +1086,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
   }
 
   Widget bestReviewDescriptionText() => Text(
-        "${controller.bestReview.value!.review}",
+        "${controller.bestReview!.review}",
         style: Theme.of(Get.context!)
             .textTheme
             .subtitle1
@@ -1094,8 +1098,11 @@ class ProductDetailView extends GetView<ProductDetailController> {
       children: [
         Image.network(
           CommonMethods.imageUrl(
-            url: controller.bestReview.value!.reviewFile.toString(),
+            url: controller.bestReview!.reviewFile.toString(),
           ),
+          errorBuilder: (context, error, stackTrace){
+            return SizedBox();
+          },
         ),
       ],
     );
@@ -1106,7 +1113,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
             .textTheme
             .subtitle1
             ?.copyWith(fontSize: 14.px),
-        "${controller.bestReview.value?.customerName} ${controller.dateTime?.day ?? ""}-${controller.dateTime?.month ?? ""}-${controller.dateTime?.year ?? ""}",
+        "${controller.bestReview?.customerName} ${controller.dateTime?.day ?? ""}-${controller.dateTime?.month ?? ""}-${controller.dateTime?.year ?? ""}",
       );
 
   Widget viewAllReviewsButtonView({required BuildContext context}) => InkWell(
@@ -1115,7 +1122,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 2.px, vertical: 4.px),
           child: Text(
-            "View All ${controller.reviewList.value!.length} Reviews",
+            "View All ${controller.reviewList.length} Reviews",
             style: Theme.of(Get.context!)
                 .textTheme
                 .subtitle1
@@ -1169,7 +1176,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
                 padding: EdgeInsets.symmetric(horizontal: 3.w),
                 child: InkWell(
                   onTap: () => controller.clickOnRelatedProduct(
-                      productId: controller.recentProductsList![index].productId
+                      productId: controller.recentProductsList[index].productId
                           .toString()),
                   child: Container(
                     width: 40.w,
@@ -1193,10 +1200,10 @@ class ProductDetailView extends GetView<ProductDetailController> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            if (controller.recentProductsList![index]
+                            if (controller.recentProductsList[index]
                                         .thumbnailImage !=
                                     null &&
-                                controller.recentProductsList![index]
+                                controller.recentProductsList[index]
                                     .thumbnailImage!.isNotEmpty)
                               relatedProductImageView(index: index),
                             SizedBox(height: 8.px),
@@ -1205,16 +1212,16 @@ class ProductDetailView extends GetView<ProductDetailController> {
                               relatedProductColorListView(index: index),*/
                             // SizedBox(height: 1.4.h),
                             if (controller
-                                        .recentProductsList![index].brandName !=
+                                        .recentProductsList[index].brandName !=
                                     null &&
-                                controller.recentProductsList![index].brandName!
+                                controller.recentProductsList[index].brandName!
                                     .isNotEmpty)
                               relatedProductBrandNameTextView(index: index),
                             SizedBox(height: .5.h),
-                            if (controller.recentProductsList![index]
+                            if (controller.recentProductsList[index]
                                         .productName !=
                                     null &&
-                                controller.recentProductsList![index]
+                                controller.recentProductsList[index]
                                     .productName!.isNotEmpty)
                               relatedProductNameTextView(index: index),
                             SizedBox(height: .6.h),
@@ -1232,8 +1239,8 @@ class ProductDetailView extends GetView<ProductDetailController> {
   }
 
   Widget relatedProductImageView({required int index}) =>
-      controller.recentProductsList![index].thumbnailImage != null &&
-              controller.recentProductsList![index].thumbnailImage
+      controller.recentProductsList[index].thumbnailImage != null &&
+              controller.recentProductsList[index].thumbnailImage
                   .toString()
                   .isNotEmpty
           ? Image.network(
@@ -1242,7 +1249,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
                 return CommonWidgets.commonShimmerViewForImage();
               },
               CommonMethods.imageUrl(
-                  url: controller.recentProductsList![index].thumbnailImage
+                  url: controller.recentProductsList[index].thumbnailImage
                       .toString()),
               fit: BoxFit.fill,
               height: 150.px,
@@ -1295,7 +1302,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
 */
 
   Widget relatedProductBrandNameTextView({required int index}) => Text(
-        controller.recentProductsList![index].brandName.toString(),
+        controller.recentProductsList[index].brandName.toString(),
         textAlign: TextAlign.center,
         style: Theme.of(Get.context!)
             .textTheme
@@ -1304,7 +1311,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
       );
 
   Widget relatedProductNameTextView({required int index}) =>
-      Text(controller.recentProductsList![index].productName.toString(),
+      Text(controller.recentProductsList[index].productName.toString(),
           textAlign: TextAlign.center,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
@@ -1322,23 +1329,23 @@ class ProductDetailView extends GetView<ProductDetailController> {
       );
 
   Widget relatedProductPriceView({required int index}) {
-    if ((controller.recentProductsList![index].isOffer != null &&
-        controller.recentProductsList![index].isOffer != 0)) {
+    if ((controller.recentProductsList[index].isOffer != null &&
+        controller.recentProductsList[index].isOffer != 0)) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (controller.recentProductsList![index].offerPrice != null &&
-              controller.recentProductsList![index].offerPrice != 0)
+          if (controller.recentProductsList[index].offerPrice != null &&
+              controller.recentProductsList[index].offerPrice != 0)
             Flexible(
               flex: 2,
               child: relatedProductPriceTextView(
                   index: index,
-                  text: controller.recentProductsList![index].offerPrice
+                  text: controller.recentProductsList[index].offerPrice
                       .toString()),
             ),
           SizedBox(width: .5.w),
-          if (controller.recentProductsList![index].productPrice != null &&
-              controller.recentProductsList![index].productPrice != 0)
+          if (controller.recentProductsList[index].productPrice != null &&
+              controller.recentProductsList[index].productPrice != 0)
             Flexible(
               child: relatedProductOfferPriceTextView(index: index),
             ),
@@ -1354,13 +1361,13 @@ class ProductDetailView extends GetView<ProductDetailController> {
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (controller.recentProductsList![index].productPrice != null &&
-              controller.recentProductsList![index].productPrice != 0)
+          if (controller.recentProductsList[index].productPrice != null &&
+              controller.recentProductsList[index].productPrice != 0)
             Flexible(
               flex: 2,
               child: relatedProductPriceTextView(
                   index: index,
-                  text: controller.recentProductsList![index].productPrice
+                  text: controller.recentProductsList[index].productPrice
                       .toString()),
             ),
         ],
@@ -1369,7 +1376,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
   }
 
   Widget relatedProductOfferPriceTextView({required int index}) => Text(
-        "$curr${controller.recentProductsList![index].productPrice.toString()}",
+        "$curr${controller.recentProductsList[index].productPrice.toString()}",
         maxLines: 1,
         style: Theme.of(Get.context!).textTheme.headline3?.copyWith(
             fontSize: 8.px,
@@ -1574,15 +1581,15 @@ class ProductDetailView extends GetView<ProductDetailController> {
             backIconOnPressed: () => controller.clickOnBackButton(),
             isIcon: true),
         body: Obx(() => AbsorbPointer(
-              absorbing: controller.absorbing.value,
+              inAsyncCall: controller.inAsyncCall.value,
               child: Obx(
                 () {
                   if (CommonMethods.isConnect.value) {
-                    if (controller.getProductDetailsModel.value != null) {
-                      if (controller.productDetail.value != null &&
-                          (controller.listOfInventoryArr.value != null &&
+                    if (controller.getProductDetailsModel!= null) {
+                      if (controller.productDetail != null &&
+                          (controller.listOfInventoryArr != null &&
                               controller
-                                  .listOfInventoryArr.value!.isNotEmpty)) {
+                                  .listOfInventoryArr!.isNotEmpty)) {
                         return ScrollConfiguration(
                           behavior: MyBehavior(),
                           child: ListView(
@@ -1610,10 +1617,10 @@ class ProductDetailView extends GetView<ProductDetailController> {
                                           SizedBox(height: 8.px),
                                         productSize(),
                                         SizedBox(height: 10.px),
-                                        (controller.productDetail.value!
+                                        (controller.productDetail!
                                                         .inStock !=
                                                     null &&
-                                                controller.productDetail.value!
+                                                controller.productDetail!
                                                     .inStock!.isNotEmpty)
                                             ? Column(
                                                 children: [
@@ -1629,8 +1636,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
                                                                       context)),
                                                       SizedBox(width: 16.px),
                                                       if (controller
-                                                                  .productDetail
-                                                                  .value!
+                                                                  .productDetail!
                                                                   .vendorType !=
                                                               null &&
                                                           controller
@@ -1854,11 +1860,11 @@ class ProductDetailView extends GetView<ProductDetailController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (controller.productDetail.value?.brandName != null &&
-                  controller.productDetail.value!.brandName!.isNotEmpty)
+              if (controller.productDetail?.brandName != null &&
+                  controller.productDetail!.brandName!.isNotEmpty)
                 brandNameTextView(),
-              if (controller.productDetail.value?.productName != null &&
-                  controller.productDetail.value!.productName!.isNotEmpty)
+              if (controller.productDetail?.productName != null &&
+                  controller.productDetail!.productName!.isNotEmpty)
                 brandProductNameTextView(),
               SizedBox(height: 2.px),
               if (controller.isColor.value == "1")
@@ -1876,7 +1882,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
   }
 
   Widget brandNameTextView() => Text(
-        controller.productDetail.value!.brandName!,
+        controller.productDetail!.brandName!,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: Theme.of(Get.context!).textTheme.headline3?.copyWith(
@@ -1888,7 +1894,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
       );
 
   Widget brandProductNameTextView() => Text(
-        controller.productDetail.value!.productName!,
+        controller.productDetail!.productName!,
         style: Theme.of(Get.context!)
             .textTheme
             .subtitle1
@@ -1928,7 +1934,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
   Widget listOfColor() => MyListView(
         listOfData: (index) {
           InventoryArr inventoryArr =
-              controller.listOfInventoryArr.value![index];
+              controller.listOfInventoryArr![index];
           if (inventoryArr.colorCode != null &&
               inventoryArr.colorCode!.isNotEmpty) {
             String color = inventoryArr.colorCode ?? "";
@@ -1954,7 +1960,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
           }
         },
         physics: const ScrollPhysics(),
-        itemCount: controller.listOfInventoryArr.value!.length,
+        itemCount: controller.listOfInventoryArr!.length,
         shrinkWrap: true,
         isVertical: false,
       );
@@ -1969,9 +1975,9 @@ class ProductDetailView extends GetView<ProductDetailController> {
             if (controller.sellPrice.value.isNotEmpty)
               itemPriceTextView(gradientText: controller.sellPrice.value),
             SizedBox(height: .5.h),
-            if ((controller.productDetail.value?.totalReview != null &&
-                    controller.productDetail.value!.totalReview!.isNotEmpty) &&
-                controller.productDetail.value?.totalReview != "0")
+            if ((controller.productDetail?.totalReview != null &&
+                    controller.productDetail!.totalReview!.isNotEmpty) &&
+                controller.productDetail?.totalReview != "0")
               reviewsTextView(),
           ],
         );
@@ -1995,8 +2001,8 @@ class ProductDetailView extends GetView<ProductDetailController> {
               ],
             ),
             SizedBox(height: 4.px),
-            if (controller.productDetail.value?.totalReview != null &&
-                controller.productDetail.value!.totalReview!.isNotEmpty)
+            if (controller.productDetail?.totalReview != null &&
+                controller.productDetail!.totalReview!.isNotEmpty)
               reviewsTextView(),
           ],
         );
@@ -2082,7 +2088,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
 
   Widget ratingTextView() => Flexible(
         child: Text(
-          double.parse(controller.productDetail.value!.totalRating.toString())
+          double.parse(controller.productDetail!.totalRating.toString())
               .toStringAsFixed(1)
               .toString(),
           style: Theme.of(Get.context!)
@@ -2095,17 +2101,17 @@ class ProductDetailView extends GetView<ProductDetailController> {
   Widget reviewsTextView() => Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          if ((controller.productDetail.value?.totalRating != null &&
-                  controller.productDetail.value!.totalRating!.isNotEmpty) &&
-              controller.productDetail.value?.totalRating != "0.0")
+          if ((controller.productDetail?.totalRating != null &&
+                  controller.productDetail!.totalRating!.isNotEmpty) &&
+              controller.productDetail?.totalRating != "0.0")
             ratingElevatedButtonView(),
-          if ((controller.productDetail.value?.totalRating != null &&
-                  controller.productDetail.value!.totalRating!.isNotEmpty) &&
-              controller.productDetail.value?.totalRating != "0.0")
+          if ((controller.productDetail?.totalRating != null &&
+                  controller.productDetail!.totalRating!.isNotEmpty) &&
+              controller.productDetail?.totalRating != "0.0")
             SizedBox(width: 4.px),
           Flexible(
             child: Text(
-              "${controller.productDetail.value?.totalReview}",
+              "${controller.productDetail?.totalReview}",
               textAlign: TextAlign.start,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -2137,7 +2143,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 sizeTextView(),
-                (controller.productDetail.value?.brandChartImg != null &&
+                (controller.productDetail?.brandChartImg != null &&
                         controller
                             .productDetail.value!.brandChartImg!.isNotEmpty)
                     ? textButton(
@@ -2161,10 +2167,10 @@ class ProductDetailView extends GetView<ProductDetailController> {
                   customButton(buttonText: 'Custom')
                 */
 /* if (controller.isVariant.value == "1")
-                  if (controller.productDetail.value!.vendorType.toString() ==
+                  if (controller.productDetail!.vendorType.toString() ==
                       'Tailor')
                     SizedBox(width: 4.px),
-                if (controller.productDetail.value!.vendorType.toString() ==
+                if (controller.productDetail!.vendorType.toString() ==
                     'Tailor')
                   customButton(buttonText: 'Custom')*/ /*
 
@@ -2186,14 +2192,14 @@ class ProductDetailView extends GetView<ProductDetailController> {
     */
 /* if (controller.isVariant.value == "1" && controller.isColor.value == "0") {*/ /*
 
-    if (controller.listOfInventoryArr.value != null &&
-        controller.listOfInventoryArr.value!.isNotEmpty) {
+    if (controller.listOfInventoryArr != null &&
+        controller.listOfInventoryArr!.isNotEmpty) {
       return MyListView(
           listOfData: (index) {
             return Obx(
               () {
                 InventoryArr inventoryArr =
-                    controller.listOfInventoryArr.value![index];
+                    controller.listOfInventoryArr![index];
                 if (inventoryArr.variantAbbreviation != null &&
                     inventoryArr.variantAbbreviation!.isNotEmpty) {
                   String listOfSize = inventoryArr.variantAbbreviation!;
@@ -2235,7 +2241,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
             );
           },
           physics: const ClampingScrollPhysics(),
-          itemCount: controller.listOfInventoryArr.value!.length,
+          itemCount: controller.listOfInventoryArr!.length,
           shrinkWrap: true,
           isVertical: false);
     } else {
@@ -2244,13 +2250,13 @@ class ProductDetailView extends GetView<ProductDetailController> {
     //}
     */
 /*else {
-      if (controller.listOfVariant.value != null &&
-          controller.listOfVariant.value!.isNotEmpty) {
+      if (controller.listOfVariant != null &&
+          controller.listOfVariant!.isNotEmpty) {
         return MyListView(
             listOfData: (index) {
               return Obx(
                 () {
-                  VarientList variant = controller.listOfVariant.value![index];
+                  VarientList variant = controller.listOfVariant![index];
                   if (variant.variantAbbreviation == null &&
                       variant.variantAbbreviation!.isEmpty) {
                     return const SizedBox();
@@ -2295,7 +2301,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
               );
             },
             physics: const ClampingScrollPhysics(),
-            itemCount: controller.listOfVariant.value!.length,
+            itemCount: controller.listOfVariant!.length,
             shrinkWrap: true,
             isVertical: false);
       } else {
@@ -2547,35 +2553,35 @@ class ProductDetailView extends GetView<ProductDetailController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (controller.bestReview.value != null)
+        if (controller.bestReview != null)
           productAndSellerDescriptionTextView(text: 'Reviews & Ratings:'),
-        if ((controller.reviewList.value != null &&
-                controller.reviewList.value!.isNotEmpty) &&
-            controller.reviewList.value!.length > 1)
+        if ((controller.reviewList != null &&
+                controller.reviewList!.isNotEmpty) &&
+            controller.reviewList!.length > 1)
           SizedBox(height: 4.px),
         Row(
           children: [
-            if ((controller.productDetail.value?.totalRating != null &&
-                    controller.productDetail.value!.totalRating!.isNotEmpty) &&
-                controller.productDetail.value?.totalRating != "0.0")
+            if ((controller.productDetail?.totalRating != null &&
+                    controller.productDetail!.totalRating!.isNotEmpty) &&
+                controller.productDetail?.totalRating != "0.0")
               Text(
-                "${double.parse(controller.productDetail.value!.totalRating.toString()).toStringAsFixed(1).toString()}/5",
+                "${double.parse(controller.productDetail!.totalRating.toString()).toStringAsFixed(1).toString()}/5",
                 style: Theme.of(Get.context!)
                     .textTheme
                     .subtitle1
                     ?.copyWith(fontSize: 14.px),
               ),
-            if (controller.productDetail.value?.totalRating != null &&
-                controller.productDetail.value?.totalRating != "0.0")
+            if (controller.productDetail?.totalRating != null &&
+                controller.productDetail?.totalRating != "0.0")
               SizedBox(width: 10.px),
-            if (controller.productDetail.value?.totalReview != null &&
-                controller.productDetail.value?.totalReview != "0")
+            if (controller.productDetail?.totalReview != null &&
+                controller.productDetail?.totalReview != "0")
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   overAllRatingTextView(),
                   Text(
-                    "${controller.productDetail.value?.totalReview} Ratings",
+                    "${controller.productDetail?.totalReview} Ratings",
                     maxLines: 1,
                     style: Theme.of(Get.context!)
                         .textTheme
@@ -2586,18 +2592,18 @@ class ProductDetailView extends GetView<ProductDetailController> {
               ),
           ],
         ),
-        if (controller.bestReview.value != null) SizedBox(height: 4.px),
-        if (controller.bestReview.value != null)
+        if (controller.bestReview != null) SizedBox(height: 4.px),
+        if (controller.bestReview != null)
           CommonWidgets.profileMenuDash(),
-        if (controller.bestReview.value != null) SizedBox(height: 4.px),
-        if (controller.bestReview.value != null) bestReviewView(),
-        if (controller.bestReview.value != null) SizedBox(height: 4.px),
-        if (controller.bestReview.value != null)
+        if (controller.bestReview != null) SizedBox(height: 4.px),
+        if (controller.bestReview != null) bestReviewView(),
+        if (controller.bestReview != null) SizedBox(height: 4.px),
+        if (controller.bestReview != null)
           CommonWidgets.profileMenuDash(),
-        if (controller.bestReview.value != null) SizedBox(height: 4.px),
-        if ((controller.reviewList.value != null &&
-                controller.reviewList.value!.isNotEmpty) &&
-            controller.reviewList.value!.length > 1)
+        if (controller.bestReview != null) SizedBox(height: 4.px),
+        if ((controller.reviewList != null &&
+                controller.reviewList!.isNotEmpty) &&
+            controller.reviewList!.length > 1)
           viewAllReviewsButtonView(context: context),
       ],
     );
@@ -2607,15 +2613,15 @@ class ProductDetailView extends GetView<ProductDetailController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if ((controller.bestReview.value?.rating != null &&
-                controller.bestReview.value!.rating!.isNotEmpty) &&
-            (controller.bestReview.value?.rating != "0" &&
-                controller.bestReview.value?.rating != "0.0"))
+        if ((controller.bestReview?.rating != null &&
+                controller.bestReview!.rating!.isNotEmpty) &&
+            (controller.bestReview?.rating != "0" &&
+                controller.bestReview?.rating != "0.0"))
           Row(
             children: [
               RatingBar.builder(
                 initialRating:
-                    double.parse(controller.bestReview.value!.rating!),
+                    double.parse(controller.bestReview!.rating!),
                 minRating: 0,
                 itemSize: 20.px,
                 direction: Axis.horizontal,
@@ -2630,20 +2636,20 @@ class ProductDetailView extends GetView<ProductDetailController> {
             ],
           ),
         SizedBox(height: 1.4.h),
-        if (controller.bestReview.value?.review != null &&
-            controller.bestReview.value!.review!.isNotEmpty)
+        if (controller.bestReview?.review != null &&
+            controller.bestReview!.review!.isNotEmpty)
           bestReviewDescriptionText(),
-        if (controller.bestReview.value?.review != null &&
-            controller.bestReview.value!.review!.isNotEmpty)
+        if (controller.bestReview?.review != null &&
+            controller.bestReview!.review!.isNotEmpty)
           SizedBox(height: 1.h),
-        if (controller.bestReview.value?.reviewFile != null &&
-            controller.bestReview.value!.reviewFile!.isNotEmpty)
+        if (controller.bestReview?.reviewFile != null &&
+            controller.bestReview!.reviewFile!.isNotEmpty)
           customerReviewImagesList(),
-        if (controller.bestReview.value?.reviewFile != null &&
-            controller.bestReview.value!.reviewFile!.isNotEmpty)
+        if (controller.bestReview?.reviewFile != null &&
+            controller.bestReview!.reviewFile!.isNotEmpty)
           SizedBox(height: 1.h),
-        if (controller.bestReview.value?.customerName != null &&
-            controller.bestReview.value!.customerName!.isNotEmpty)
+        if (controller.bestReview?.customerName != null &&
+            controller.bestReview!.customerName!.isNotEmpty)
           bestReviewCustomerNameText(),
       ],
     );
@@ -2656,7 +2662,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
   }
 
   Widget bestReviewDescriptionText() => Text(
-        "${controller.bestReview.value!.review}",
+        "${controller.bestReview!.review}",
         style: Theme.of(Get.context!)
             .textTheme
             .subtitle1
@@ -2668,7 +2674,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
       children: [
         Image.network(
           CommonMethods.imageUrl(
-            url: controller.bestReview.value!.reviewFile.toString(),
+            url: controller.bestReview!.reviewFile.toString(),
           ),
         ),
       ],
@@ -2680,7 +2686,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
             .textTheme
             .subtitle1
             ?.copyWith(fontSize: 14.px),
-        "${controller.bestReview.value?.customerName} ${controller.dateTime?.day ?? ""}-${controller.dateTime?.month ?? ""}-${controller.dateTime?.year ?? ""}",
+        "${controller.bestReview?.customerName} ${controller.dateTime?.day ?? ""}-${controller.dateTime?.month ?? ""}-${controller.dateTime?.year ?? ""}",
       );
 
   Widget viewAllReviewsButtonView({required BuildContext context}) => InkWell(
@@ -2689,7 +2695,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 2.px, vertical: 4.px),
           child: Text(
-            "View All ${controller.reviewList.value!.length} Reviews",
+            "View All ${controller.reviewList!.length} Reviews",
             style: Theme.of(Get.context!)
                 .textTheme
                 .subtitle1

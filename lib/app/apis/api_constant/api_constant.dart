@@ -118,15 +118,15 @@ class ApiConstUri {
   static const endPointGetProductDetailApi2 = "/get_similar_products";
 
   static const endPointGetAllFashionCategoryListApi =
-      "$baseUrl/getAllFashionCategoryListApi";
+      "${baseUrl}getAllFashionCategoryListApi";
 
-  static const endPointGetAllBrandListApi = "$baseUrl/getAllBrandListApi";
+  static const endPointGetAllBrandListApi = "${baseUrl}getAllBrandListApi";
 
   static const endPointGetDefaultProductListApi =
       "${baseUrl}getDefaultProductListApi";
 
   static const endPointGetCancelReasonListApi =
-      "$baseUrl/getCancelReasonListApi";
+      "${baseUrl}getCancelReasonListApi";
 
   static const endPointGetProductSuggestion = "/getProductSuggestion";
 
@@ -297,7 +297,7 @@ class ApiKeyConstant {
 
   static var orderItemId = "orderItemId";
 
-  static var userReason = "userReascon";
+  static var userReason = "userReason";
 
   static var userComment = "userComment";
 }

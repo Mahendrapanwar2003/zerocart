@@ -1,37 +1,52 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ui_library/ui_library.dart';
 import 'package:zerocart/app/apis/api_modals/get_categories_modal.dart';
 import 'package:zerocart/app/apis/api_modals/search_product_suggestion_model.dart';
 import 'package:zerocart/app/routes/app_pages.dart';
-import '../../../apis/common_apis/common_apis.dart';
+import '../../../apis/api_constant/api_constant.dart';
+import 'package:zerocart/app/common_methods/common_methods.dart';
+import 'package:http/http.dart' as http;
 
-class SearchItemController extends GetxController {
+class SearchItemController extends CommonMethods {
   final count = 0.obs;
   bool isSearch = Get.arguments;
   final searchController = TextEditingController();
+
+  int responseCode = 0;
+  int load = 0;
   final inAsyncCall = false.obs;
+  final isLastPage = false.obs;
 
-  SharedPreferences? sPrs;
-
-  final categoriesModal = Rxn<GetCategories>();
+  GetCategories? categoriesModal;
   List<Categories> listOfCategories = [];
-  final categoryObject = Rxn<Categories>();
+  Categories? categoryObject;
 
-  final searchProductSuggestionModel = Rxn<SearchProductSuggestionModel>();
+  SearchProductSuggestionModel? searchProductSuggestionModel;
   List<Suggestion> suggestionList = [];
   Map<String, dynamic> bodyParamsForSearchProductSuggestionApi = {};
 
   Timer? searchOnStoppedTyping;
 
+  Map<String, dynamic> queryParameters = {};
+  String limit = '10';
+  int offset = 0;
+
   @override
   Future<void> onInit() async {
     super.onInit();
+    onReload();
     inAsyncCall.value = true;
-    await getCategories();
-    await getSearchProductSuggestionListApi();
+    try {
+      await getCategories();
+      await getSearchProductSuggestionListApi();
+    } catch (e) {
+      responseCode = 100;
+      MyCommonMethods.showSnackBar(
+          message: "Something went wrong", context: Get.context!);
+    }
     inAsyncCall.value = false;
   }
 
@@ -45,13 +60,57 @@ class SearchItemController extends GetxController {
     super.onClose();
   }
 
+  void onReload() {
+    connectivity.onConnectivityChanged.listen((event) async {
+      if (await MyCommonMethods.internetConnectionCheckerMethod()) {
+        if (load == 0) {
+          load = 1;
+          await onInit();
+        }
+      } else {
+        load = 0;
+      }
+    });
+  }
+
   void increment() => count.value++;
 
   Future<void> getCategories() async {
-    categoriesModal.value = await CommonApis.getCategoryApi();
-    if (categoriesModal.value != null) {
-      listOfCategories = categoriesModal.value!.categories ?? [];
+    queryParameters.clear();
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
+    queryParameters = {
+      ApiKeyConstant.limit: limit.toString(),
+      ApiKeyConstant.offset: offset.toString(),
+    };
+    http.Response? response = await MyHttp.getMethodForParams(
+        context: Get.context!,
+        queryParameters: queryParameters,
+        authorization: authorization,
+        baseUri: ApiConstUri.baseUrlForGetMethod,
+        endPointUri: ApiConstUri.endPointGetCategoryApi);
+    responseCode = response?.statusCode ?? 0;
+    if (response != null) {
+      if (await CommonMethods.checkResponse(response: response)) {
+        categoriesModal = GetCategories.fromJson(jsonDecode(response.body));
+        if (offset == 0) {
+          listOfCategories.clear();
+        }
+        if (categoriesModal != null) {
+          if (categoriesModal?.categories != null &&
+              categoriesModal!.categories!.isNotEmpty) {
+            isLastPage.value = false;
+            categoriesModal?.categories?.forEach((element) {
+              listOfCategories.add(element);
+            });
+          } else {
+            isLastPage.value = true;
+          }
+        }
+      }
     }
+    increment();
   }
 
   Future<void> getSearchProductSuggestionListApi({
@@ -60,8 +119,7 @@ class SearchItemController extends GetxController {
   }) async {
     bodyParamsForSearchProductSuggestionApi.clear();
     if (wantEmpty) {
-      searchProductSuggestionModel.value = null;
-      suggestionList.clear();
+      searchProductSuggestionModel = null;
       suggestionList.clear();
     }
     if (wantSearchFilter) {
@@ -69,15 +127,29 @@ class SearchItemController extends GetxController {
         'searchString': searchController.value.text.toString().trim(),
       };
     }
-    searchProductSuggestionModel.value =
-        await CommonApis.getSearchProductListSuggestionApi(
-            queryParameters: bodyParamsForSearchProductSuggestionApi);
-    if (searchProductSuggestionModel.value != null) {
-      if (searchProductSuggestionModel.value?.suggestion != null &&
-          searchProductSuggestionModel.value!.suggestion!.isNotEmpty) {
-        suggestionList = searchProductSuggestionModel.value?.suggestion ?? [];
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
+    http.Response? response = await MyHttp.getMethodForParams(
+        baseUri: ApiConstUri.baseUrlForGetMethod,
+        endPointUri: ApiConstUri.endPointGetProductSuggestion,
+        queryParameters: bodyParamsForSearchProductSuggestionApi,
+        authorization: authorization,
+        context: Get.context!);
+    responseCode = response?.statusCode ?? 0;
+    if (response != null) {
+      if (await CommonMethods.checkResponse(response: response)) {
+        searchProductSuggestionModel =
+            SearchProductSuggestionModel.fromJson(jsonDecode(response.body));
+        if (searchProductSuggestionModel != null) {
+          if (searchProductSuggestionModel?.suggestion != null &&
+              searchProductSuggestionModel!.suggestion!.isNotEmpty) {
+            suggestionList = searchProductSuggestionModel?.suggestion ?? [];
+          }
+        }
       }
     }
+    increment();
   }
 
   Future<void> clickOnSearchedListIem({required int index}) async {
@@ -113,5 +185,9 @@ class SearchItemController extends GetxController {
 
   void clickOnArrowIcon({required int index}) {
     searchController.text = suggestionList[index].resName ?? "";
+  }
+
+  onRefresh() async {
+    await onInit();
   }
 }

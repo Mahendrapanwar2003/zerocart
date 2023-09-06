@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ui_library/ui_library.dart';
@@ -14,7 +16,10 @@ import 'package:http/http.dart' as http;
 
 class MyCartController extends CommonMethods {
   bool wantBackButton = Get.arguments ?? false;
-  final absorbing = false.obs;
+  final inAsyncCall = false.obs;
+  int responseCode = 0;
+  int load = 0;
+  final isLastPage = false.obs;
   final proceedToPaymentAbsorbing = false.obs;
   final isClickOnApplyCoupon = false.obs;
   final isClickOnProceedToCheckOut = false.obs;
@@ -30,20 +35,20 @@ class MyCartController extends CommonMethods {
   GetLatLong? getLatLong;
   Map<String, dynamic> queryParametersForGetCartApi = {};
 
-  final getCartDetailsModel = Rxn<GetCartDetailsModel?>();
-  final cartItemList = Rxn<List<CartItemList>?>();
-  final checkedCarItemList = [].obs;
-  final checkedListItemQuantity = [].obs;
-  final checkedListItemAvalibility = [].obs;
-  final unCheckedListItemAvalibility = [].obs;
-  final checkedListItemVariant = [].obs;
-  final checkedListItemVariant1 = [].obs;
-  final unCheckedCartItemList = [].obs;
-  final unCheckedListItemQuantity = [].obs;
-  final uncheckedListItemVariant = [].obs;
-  final uncheckedListItemVariant1 = [].obs;
-  final cartItem = Rxn<CartItemList>();
-  final addressDetail = Rxn<AddressDetail?>();
+  GetCartDetailsModel? getCartDetailsModel;
+  List<CartItemList> cartItemList = [];
+  List checkedCarItemList = [];
+  List checkedListItemQuantity = [];
+  List checkedListItemAvailability = [];
+  List unCheckedListItemAvailability = [];
+  List checkedListItemVariant = [];
+  List checkedListItemVariant1 = [];
+  List unCheckedCartItemList = [];
+  List unCheckedListItemQuantity = [];
+  List uncheckedListItemVariant = [];
+  List uncheckedListItemVariant1 = [];
+  CartItemList? cartItem;
+  AddressDetail? addressDetail;
   Map<String, dynamic> bodyParamsForRemoveCartItemApi = {};
   Map<String, dynamic> bodyParamsForCartItemSelectionApi = {};
   Map<String, dynamic> bodyParamsForManageCartApi = {};
@@ -52,9 +57,9 @@ class MyCartController extends CommonMethods {
   final discountPrice = 0.0.obs;
   final deliveryPrice = 0.0.obs;
   final totalPrice = 0.0.obs;
-  final getApplyCouponModal = Rxn<GetApplyCouponModal?>();
+  GetApplyCouponModal? getApplyCouponModal;
   final applyCouponController = TextEditingController();
-  final applyCouponResult = Rxn<Result?>();
+  Result? applyCouponResult;
   Map<String, dynamic> bodyParametersForApplyCouponApi = {};
 
   String? paymentType;
@@ -67,13 +72,19 @@ class MyCartController extends CommonMethods {
   @override
   Future<void> onInit() async {
     super.onInit();
-    onConnectivityChange();
-  }
-
-  @override
-  Future<void> onReady() async {
-    super.onReady();
-    await getCartDetailsModelApiCalling();
+    responseCode = 0;
+    onReload();
+    inAsyncCall.value = true;
+    if (await MyCommonMethods.internetConnectionCheckerMethod()) {
+      try {
+        await getCartDetailsModelApiCalling();
+      } catch (e) {
+        MyCommonMethods.showSnackBar(
+            message: "Something went wrong", context: Get.context!);
+        responseCode = 100;
+      }
+    }
+    inAsyncCall.value = false;
   }
 
   @override
@@ -81,114 +92,130 @@ class MyCartController extends CommonMethods {
     super.onClose();
   }
 
-  void onConnectivityChange() {
+  void onReload() {
     connectivity.onConnectivityChanged.listen((event) async {
       if (await MyCommonMethods.internetConnectionCheckerMethod()) {
-        if (getCartDetailsModel.value == null) {
+        if (load == 0) {
+          load = 1;
+          //offset = 0;
           await onInit();
         }
-      } else {}
+      } else {
+        load = 0;
+      }
     });
   }
 
   void increment() => count.value++;
 
-  Future<void> getCartDetailsModelApiCalling({
-    bool wantEmpty = true,
-  }) async {
-    absorbing.value = true;
-    if (await MyCommonMethods.internetConnectionCheckerMethod()) {
-      if (wantEmpty) {
-        setEmpty();
-      }
-      getCartDetailsModel.value = await CommonApis.getCartDetailsApi(
-          queryParameters: queryParametersForGetCartApi);
-      if (getCartDetailsModel.value != null) {
-        if (getCartDetailsModel.value?.addressDetail != null) {
-          addressDetail.value = getCartDetailsModel.value?.addressDetail;
-        }
-        if (getCartDetailsModel.value?.totalDeliveryCharge != null) {
-          discountPrice.value = double.parse(getCartDetailsModel
-              .value!.totalDeliveryCharge!
-              .toDouble()
-              .toString());
-        }
-        if (getCartDetailsModel.value!.cartItemList != null &&
-            getCartDetailsModel.value!.cartItemList!.isNotEmpty) {
-          cartItemList.value = getCartDetailsModel.value?.cartItemList;
-          cartItemList.value?.forEach((element) {
-            if (element.availability != null && element.availability != "0") {
-              if (element.userSelection != null &&
-                  element.userSelection == "1") {
-                if (element.varientList != null &&
-                    element.varientList!.isNotEmpty) {
-                  checkedListItemVariant.add(element.varientList![0]);
-                } else {
-                  checkedListItemVariant.add(null);
-                }
-                checkedCarItemList.add(element);
-                checkedListItemQuantity.add(int.parse(element.cartQty!));
-                for (int i = 1; i <= int.parse(element.cartQty!); i++) {
-                  if (element.isOffer != null && element.isOffer == "1") {
-                    if (element.sellPrice != null &&
-                        element.offerPrice != null) {
-                      sellPrice.value = double.parse(
+  Future<void> getCartDetailsModelApiCalling() async {
+    setEmpty();
+      Map<String, String> authorization = {};
+      String? token =
+      await MyCommonMethods.getString(key: ApiKeyConstant.token);
+      authorization = {"Authorization": token!};
+      http.Response? response = await MyHttp.getMethodForParams(
+          context: Get.context!,
+          queryParameters: queryParametersForGetCartApi,
+          authorization: authorization,
+          baseUri: ApiConstUri.baseUrlForGetMethod,
+          endPointUri: ApiConstUri.endPointGetCartDetailsApi);
+      responseCode = response?.statusCode ?? 0;
+      if (response != null) {
+        if (await CommonMethods.checkResponse(response: response)) {
+          getCartDetailsModel = GetCartDetailsModel.fromJson(jsonDecode(response.body));
+          /*if (offset == 0) {
+            products.clear();
+          }*/
+          if (getCartDetailsModel != null) {
+            if (getCartDetailsModel?.addressDetail != null) {
+              addressDetail = getCartDetailsModel?.addressDetail;
+            }
+            if (getCartDetailsModel?.totalDeliveryCharge != null) {
+              discountPrice.value = double.parse(getCartDetailsModel!.totalDeliveryCharge!
+                  .toDouble()
+                  .toString());
+            }
+            if (getCartDetailsModel!.cartItemList != null &&
+                getCartDetailsModel!.cartItemList!.isNotEmpty) {
+              cartItemList = getCartDetailsModel!.cartItemList!;
+              cartItemList.forEach((element) {
+                if (element.availability != null && element.availability != "0") {
+                  if (element.userSelection != null &&
+                      element.userSelection == "1") {
+                    if (element.varientList != null &&
+                        element.varientList!.isNotEmpty) {
+                      checkedListItemVariant.add(element.varientList![0]);
+                    } else {
+                      checkedListItemVariant.add(null);
+                    }
+                    checkedCarItemList.add(element);
+                    checkedListItemQuantity.add(int.parse(element.cartQty!));
+                    for (int i = 1; i <= int.parse(element.cartQty!); i++) {
+                      if (element.isOffer != null && element.isOffer == "1") {
+                        if (element.sellPrice != null &&
+                            element.offerPrice != null) {
+                          sellPrice.value = double.parse(
                               double.parse(element.sellPrice!)
                                   .toDouble()
                                   .toStringAsFixed(2)) +
-                          sellPrice.value;
-                      discountPrice.value = (double.parse(
-                                  double.parse(element.sellPrice!)
-                                      .toDouble()
-                                      .toStringAsFixed(2)) -
+                              sellPrice.value;
+                          discountPrice.value = (double.parse(
+                              double.parse(element.sellPrice!)
+                                  .toDouble()
+                                  .toStringAsFixed(2)) -
                               double.parse(double.parse(element.offerPrice!)
                                   .toDouble()
                                   .toStringAsFixed(2))) +
-                          discountPrice.value;
-                    }
-                  } else {
-                    if (element.sellPrice != null &&
-                        element.sellPrice!.isNotEmpty) {
-                      sellPrice.value = double.parse(
+                              discountPrice.value;
+                        }
+                      } else {
+                        if (element.sellPrice != null &&
+                            element.sellPrice!.isNotEmpty) {
+                          sellPrice.value = double.parse(
                               double.parse(element.sellPrice!)
                                   .toDouble()
                                   .toStringAsFixed(2)) +
-                          sellPrice.value;
+                              sellPrice.value;
+                        }
+                      }
                     }
+                    checkedListItemAvailability.add(element.availability);
+                  } else {
+                    if (element.varientList != null &&
+                        element.varientList!.isNotEmpty) {
+                      uncheckedListItemVariant.add(element.varientList![0]);
+                    } else {
+                      uncheckedListItemVariant.add(null);
+                    }
+                    unCheckedListItemQuantity.add(int.parse(element.cartQty!));
+                    unCheckedCartItemList.add(element);
+                    unCheckedListItemAvailability.add(element.availability);
                   }
-                }
-                checkedListItemAvalibility.add(element.availability);
-              } else {
-                if (element.varientList != null &&
-                    element.varientList!.isNotEmpty) {
-                  uncheckedListItemVariant.add(element.varientList![0]);
                 } else {
-                  uncheckedListItemVariant.add(null);
+                  if (element.varientList != null &&
+                      element.varientList!.isNotEmpty) {
+                    uncheckedListItemVariant.add(element.varientList![0]);
+                  } else {
+                    uncheckedListItemVariant.add(null);
+                  }
+                  unCheckedListItemQuantity.add(int.parse(element.cartQty!));
+                  unCheckedCartItemList.add(element);
+                  unCheckedListItemAvailability.add(element.availability);
                 }
-                unCheckedListItemQuantity.add(int.parse(element.cartQty!));
-                unCheckedCartItemList.add(element);
-                unCheckedListItemAvalibility.add(element.availability);
-              }
-            } else {
-              if (element.varientList != null &&
-                  element.varientList!.isNotEmpty) {
-                uncheckedListItemVariant.add(element.varientList![0]);
-              } else {
-                uncheckedListItemVariant.add(null);
-              }
-              unCheckedListItemQuantity.add(int.parse(element.cartQty!));
-              unCheckedCartItemList.add(element);
-              unCheckedListItemAvalibility.add(element.availability);
+              });
             }
-          });
+            else {
+              isLastPage.value = true;
+            }
+          }
         }
       }
-    }
-    absorbing.value = false;
+      increment();
   }
 
   void setEmpty() {
-    getCartDetailsModel.value = null;
+    getCartDetailsModel = null;
     checkedCarItemList.clear();
     unCheckedCartItemList.clear();
     sellPrice.value = 0.0;
@@ -197,8 +224,8 @@ class MyCartController extends CommonMethods {
     deliveryPrice.value = 0.0;
     checkedListItemQuantity.clear();
     unCheckedListItemQuantity.clear();
-    checkedListItemAvalibility.clear();
-    unCheckedListItemAvalibility.clear();
+    checkedListItemAvailability.clear();
+    unCheckedListItemAvailability.clear();
   }
 
   Future<http.Response?> removeCartItemApiCalling({String? cartUuid}) async {
@@ -241,57 +268,57 @@ class MyCartController extends CommonMethods {
       ApiKeyConstant.inventoryId: '0',
       ApiKeyConstant.quantity: '0',
     };
-    getApplyCouponModal.value = await CommonApis.applyCouponApi(
+    getApplyCouponModal = await CommonApis.applyCouponApi(
         bodyParams: bodyParametersForApplyCouponApi);
-    if (getApplyCouponModal.value != null) {
-      absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
+    if (getApplyCouponModal != null) {
+      inAsyncCall.value = CommonMethods.changeTheAbsorbingValueTrue();
       isApplyCoupon.value = false;
-      if (getApplyCouponModal.value?.result != null) {
-        applyCouponResult.value = getApplyCouponModal.value?.result;
-        if (applyCouponResult.value?.totalPrice != null &&
-            applyCouponResult.value?.couponDisPrice != null) {
+      if (getApplyCouponModal?.result != null) {
+        applyCouponResult = getApplyCouponModal?.result;
+        if (applyCouponResult?.totalPrice != null &&
+            applyCouponResult?.couponDisPrice != null) {
           discountPrice.value =
-          (double.parse(int.parse(applyCouponResult.value!.discount!)
+          (double.parse(int.parse(applyCouponResult!.discount!)
               .toDouble()
               .toString()));
           totalPrice.value = double.parse(
-              int.parse(applyCouponResult.value!.totalPrice!)
+              int.parse(applyCouponResult!.totalPrice!)
                   .toDouble()
                   .toString()) -
-              double.parse(int.parse(applyCouponResult.value!.discount!)
+              double.parse(int.parse(applyCouponResult!.discount!)
                   .toDouble()
                   .toString());
           sellPrice.value = double.parse(
-              int.parse(applyCouponResult.value!.totalPrice!)
+              int.parse(applyCouponResult!.totalPrice!)
                   .toDouble()
                   .toString());
           isCouponRange.value= true;
           /*  discountPrice.value = itemQuantity.value * double.parse(
-              int.parse(applyCouponResult.value!.discount!)
+              int.parse(applyCouponResult!.discount!)
                   .toDouble()
                   .toString()) + (double.parse(productDetail.value!.sellPrice.toString()) -
               double.parse(productDetail.value!.offerPrice.toString()));*/
           /*discountPrice.value = (discountPrice.value +
-              double.parse(int.parse(applyCouponResult.value!.totalPrice!)
+              double.parse(int.parse(applyCouponResult!.totalPrice!)
                   .toDouble()
                   .toString()) -
-              double.parse(int.parse(applyCouponResult.value!.couponDisPrice!)
+              double.parse(int.parse(applyCouponResult!.couponDisPrice!)
                   .toDouble()
                   .toString()));
           totalPrice.value = */ /*itemQuantity.value **/ /*
-              double.parse(int.parse(applyCouponResult.value!.couponDisPrice!)
+              double.parse(int.parse(applyCouponResult!.couponDisPrice!)
                   .toDouble()
                   .toString());*/
         }
       }
-      absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();
+      inAsyncCall.value = CommonMethods.changeTheAbsorbingValueFalse();
     } else {
-      totalPrice.value = sellPrice.value;
-      sellPrice.value = sellPrice.value;
-      discountPrice.value = 0.0;
+      /*totalPrice.value = sellPrice.value;
+      sellPrice.value = sellPrice.value;*/
+      //discountPrice.value = discountPriceCopy;
       applyCouponController.text = '';
       isApplyCoupon.value = true;
-      isCouponRange.value= false;
+      isCouponRange.value = false;
     }
   }
 
@@ -328,18 +355,18 @@ class MyCartController extends CommonMethods {
   Future<void> clickOnChangeAddressButton(
       {required BuildContext context}) async {
     MyCommonMethods.unFocsKeyBoard();
-    absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueTrue();
     await Get.toNamed(Routes.ADDRESS);
     await getCartDetailsModelApiCalling();
-    absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueFalse();
   }
 
   Future<void> clickOnAddAddressButton({required BuildContext context}) async {
     MyCommonMethods.unFocsKeyBoard();
-    absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueTrue();
     await Get.toNamed(Routes.ADDRESS);
     await getCartDetailsModelApiCalling();
-    absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueFalse();
   }
 
   void clickedOnReadyToCheckOutListParticularItem({required int index}) {}
@@ -347,35 +374,35 @@ class MyCartController extends CommonMethods {
   Future<void> clickOnFilledCheckedBox(
       {required int index, String? cartUuid}) async {
     MyCommonMethods.unFocsKeyBoard();
-    absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueTrue();
     http.Response? response = await cartItemSelectionApiCalling(
         userSelection: '0', cartUuid: cartUuid);
     if (response != null) {
       unCheckedListItemQuantity.add(checkedListItemQuantity[index]);
       uncheckedListItemVariant.add(checkedListItemVariant[index]);
       checkedListItemVariant.removeAt(index);
-      cartItem.value = checkedCarItemList[index];
+      cartItem = checkedCarItemList[index];
       for (int i = 1; i <= checkedListItemQuantity[index]; i++) {
-        if (cartItem.value?.isOffer != null && cartItem.value?.isOffer == "1") {
-          if (cartItem.value?.sellPrice != null &&
-              cartItem.value?.offerPrice != null) {
+        if (cartItem?.isOffer != null && cartItem?.isOffer == "1") {
+          if (cartItem?.sellPrice != null &&
+              cartItem?.offerPrice != null) {
             sellPrice.value = sellPrice.value -
-                double.parse(double.parse(cartItem.value!.sellPrice!)
+                double.parse(double.parse(cartItem!.sellPrice!)
                     .toDouble()
                     .toStringAsFixed(2));
             discountPrice.value = discountPrice.value -
-                (double.parse(double.parse(cartItem.value!.sellPrice!)
+                (double.parse(double.parse(cartItem!.sellPrice!)
                         .toDouble()
                         .toStringAsFixed(2)) -
-                    double.parse(double.parse(cartItem.value!.offerPrice!)
+                    double.parse(double.parse(cartItem!.offerPrice!)
                         .toDouble()
                         .toStringAsFixed(2)));
           }
         } else {
-          if (cartItem.value!.sellPrice != null &&
-              cartItem.value!.sellPrice!.isNotEmpty) {
+          if (cartItem!.sellPrice != null &&
+              cartItem!.sellPrice!.isNotEmpty) {
             sellPrice.value = sellPrice.value -
-                double.parse(double.parse(cartItem.value!.sellPrice!)
+                double.parse(double.parse(cartItem!.sellPrice!)
                     .toDouble()
                     .toStringAsFixed(2));
           }
@@ -384,19 +411,19 @@ class MyCartController extends CommonMethods {
       if (!isApplyCoupon.value) {
         clickOnApplyCouponButtonView();
       }
-      unCheckedListItemAvalibility.add(checkedListItemAvalibility[index]);
-      checkedListItemAvalibility.removeAt(index);
+      unCheckedListItemAvailability.add(checkedListItemAvailability[index]);
+      checkedListItemAvailability.removeAt(index);
       checkedListItemQuantity.removeAt(index);
       checkedCarItemList.removeAt(index);
-      unCheckedCartItemList.add(cartItem.value);
+      unCheckedCartItemList.add(cartItem);
     }
-    absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueFalse();
   }
 
   Future<void> clickOnReadyToCheckOutItemDownIcon({required int index}) async {
     MyCommonMethods.unFocsKeyBoard();
     CartItemList cart = checkedCarItemList[index];
-    absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueTrue();
     http.Response? response;
     if (checkedListItemVariant[index] != null) {
       response = await manageCartApiCalling(
@@ -437,13 +464,13 @@ class MyCartController extends CommonMethods {
     }
     isApplyCoupon.value = true;
     //onInit();
-    absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueFalse();
   }
 
   Future<void> clickOnReadyToCheckOutItemUpIcon({required int index}) async {
     MyCommonMethods.unFocsKeyBoard();
     CartItemList cart = checkedCarItemList[index];
-    absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueTrue();
     http.Response? response;
     if (checkedListItemVariant[index] != null) {
       response = await manageCartApiCalling(
@@ -484,7 +511,7 @@ class MyCartController extends CommonMethods {
     }
     isApplyCoupon.value = true;
     //onInit();
-    absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueFalse();
   }
 
 
@@ -495,7 +522,7 @@ class MyCartController extends CommonMethods {
   Future<void> clickOnReadyToCheckOutItemUpIcon({required int index}) async {
     MyCommonMethods.unFocsKeyBoard();
     CartItemList cart = checkedCarItemList[index];
-    absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueTrue();
     http.Response? response;
     if (checkedListItemVariant[index] != null) {
       response = await manageCartApiCalling(
@@ -531,50 +558,50 @@ class MyCartController extends CommonMethods {
       }
       checkedListItemQuantity[index]++;
     }
-    absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueFalse();
   }
 */
 
   Future<void> clickOnReadyToCheckOutItemDeleteIcon(
       {required int itemIndex, String? cartUuid}) async {
     MyCommonMethods.unFocsKeyBoard();
-    absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueTrue();
     http.Response? response =
         await removeCartItemApiCalling(cartUuid: cartUuid);
     if (response != null) {
-      cartItem.value = checkedCarItemList[itemIndex];
+      cartItem = checkedCarItemList[itemIndex];
       for (int i = 1; i <= checkedListItemQuantity[itemIndex]; i++) {
-        if (cartItem.value?.isOffer != null && cartItem.value?.isOffer == "1") {
-          if (cartItem.value?.sellPrice != null &&
-              cartItem.value?.offerPrice != null) {
+        if (cartItem?.isOffer != null && cartItem?.isOffer == "1") {
+          if (cartItem?.sellPrice != null &&
+              cartItem?.offerPrice != null) {
             sellPrice.value = sellPrice.value -
-                double.parse(double.parse(cartItem.value!.sellPrice!)
+                double.parse(double.parse(cartItem!.sellPrice!)
                     .toDouble()
                     .toStringAsFixed(2));
             discountPrice.value = discountPrice.value -
-                (double.parse(double.parse(cartItem.value!.sellPrice!)
+                (double.parse(double.parse(cartItem!.sellPrice!)
                         .toDouble()
                         .toStringAsFixed(2)) -
-                    double.parse(double.parse(cartItem.value!.offerPrice!)
+                    double.parse(double.parse(cartItem!.offerPrice!)
                         .toDouble()
                         .toStringAsFixed(2)));
           }
         } else {
-          if (cartItem.value!.sellPrice != null &&
-              cartItem.value!.sellPrice!.isNotEmpty) {
+          if (cartItem!.sellPrice != null &&
+              cartItem!.sellPrice!.isNotEmpty) {
             sellPrice.value = sellPrice.value -
-                double.parse(double.parse(cartItem.value!.sellPrice!)
+                double.parse(double.parse(cartItem!.sellPrice!)
                     .toDouble()
                     .toStringAsFixed(2));
           }
         }
       }
-      checkedListItemAvalibility.removeAt(itemIndex);
+      checkedListItemAvailability.removeAt(itemIndex);
       checkedListItemQuantity.removeAt(itemIndex);
       checkedCarItemList.removeAt(itemIndex);
       checkedListItemVariant.removeAt(itemIndex);
     }
-    absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueFalse();
   }
 
   void clickedOnUncheckedListParticularItem({required int index}) {}
@@ -582,7 +609,7 @@ class MyCartController extends CommonMethods {
   Future<void> clickOnUnFilledCheckBox(
       {required int index, String? cartUuid}) async {
     MyCommonMethods.unFocsKeyBoard();
-    absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueTrue();
     http.Response? response = await cartItemSelectionApiCalling(
         userSelection: '1', cartUuid: cartUuid);
     if (response != null) {
@@ -590,28 +617,28 @@ class MyCartController extends CommonMethods {
       checkedListItemVariant.add(uncheckedListItemVariant[index]);
       uncheckedListItemVariant.removeAt(index);
 
-      cartItem.value = unCheckedCartItemList[index];
+      cartItem = unCheckedCartItemList[index];
       for (int i = 1; i <= unCheckedListItemQuantity[index]; i++) {
-        if (cartItem.value?.isOffer != null && cartItem.value?.isOffer == "1") {
-          if (cartItem.value?.sellPrice != null &&
-              cartItem.value?.offerPrice != null) {
+        if (cartItem?.isOffer != null && cartItem?.isOffer == "1") {
+          if (cartItem?.sellPrice != null &&
+              cartItem?.offerPrice != null) {
             sellPrice.value = sellPrice.value +
-                double.parse(double.parse(cartItem.value!.sellPrice!)
+                double.parse(double.parse(cartItem!.sellPrice!)
                     .toDouble()
                     .toStringAsFixed(2));
             discountPrice.value = discountPrice.value +
-                (double.parse(double.parse(cartItem.value!.sellPrice!)
+                (double.parse(double.parse(cartItem!.sellPrice!)
                         .toDouble()
                         .toStringAsFixed(2)) -
-                    double.parse(double.parse(cartItem.value!.offerPrice!)
+                    double.parse(double.parse(cartItem!.offerPrice!)
                         .toDouble()
                         .toStringAsFixed(2)));
           }
         } else {
-          if (cartItem.value!.sellPrice != null &&
-              cartItem.value!.sellPrice!.isNotEmpty) {
+          if (cartItem!.sellPrice != null &&
+              cartItem!.sellPrice!.isNotEmpty) {
             sellPrice.value = sellPrice.value +
-                double.parse(double.parse(cartItem.value!.sellPrice!)
+                double.parse(double.parse(cartItem!.sellPrice!)
                     .toDouble()
                     .toStringAsFixed(2));
           }
@@ -620,13 +647,13 @@ class MyCartController extends CommonMethods {
       if (!isApplyCoupon.value) {
         clickOnApplyCouponButtonView();
       }
-      checkedListItemAvalibility.add(unCheckedListItemAvalibility[index]);
-      unCheckedListItemAvalibility.removeAt(index);
+      checkedListItemAvailability.add(unCheckedListItemAvailability[index]);
+      unCheckedListItemAvailability.removeAt(index);
       unCheckedListItemQuantity.removeAt(index);
       unCheckedCartItemList.removeAt(index);
-      checkedCarItemList.add(cartItem.value);
+      checkedCarItemList.add(cartItem);
     }
-    absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueFalse();
   }
 
   void clickOnUncheckedItemSizeUnit({required int itemIndex}) {}
@@ -634,7 +661,7 @@ class MyCartController extends CommonMethods {
   Future<void> clickOnUncheckedItemDownIcon({required int index}) async {
     MyCommonMethods.unFocsKeyBoard();
     CartItemList cart = unCheckedCartItemList[index];
-    absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueTrue();
     http.Response? response;
     if (uncheckedListItemVariant[index] != null) {
       response = await manageCartApiCalling(
@@ -650,13 +677,13 @@ class MyCartController extends CommonMethods {
     if (response != null) {
       unCheckedListItemQuantity[index]--;
     }
-    absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueFalse();
   }
 
   Future<void> clickOnUncheckedItemUpIcon({required int index}) async {
     MyCommonMethods.unFocsKeyBoard();
     CartItemList cart = unCheckedCartItemList[index];
-    absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueTrue();
     http.Response? response;
     if (uncheckedListItemVariant[index] != null) {
       response = await manageCartApiCalling(
@@ -672,22 +699,22 @@ class MyCartController extends CommonMethods {
     if (response != null) {
       unCheckedListItemQuantity[index]++;
     }
-    absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueFalse();
   }
 
   Future<void> clickOnUncheckedItemDeleteIcon(
       {required int itemIndex, String? cartUuid}) async {
     MyCommonMethods.unFocsKeyBoard();
-    absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueTrue();
     http.Response? response =
         await removeCartItemApiCalling(cartUuid: cartUuid);
     if (response != null) {
       unCheckedCartItemList.remove(unCheckedCartItemList[itemIndex]);
-      unCheckedListItemAvalibility.removeAt(itemIndex);
+      unCheckedListItemAvailability.removeAt(itemIndex);
       uncheckedListItemVariant.removeAt(itemIndex);
       unCheckedListItemQuantity.removeAt(itemIndex);
     }
-    absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueFalse();
   }
 
   void clickOnContinueShopping({required BuildContext context}) {
@@ -702,7 +729,7 @@ class MyCartController extends CommonMethods {
 /* proceed payment or apply coupon working*/
   void clickOnProceedToPaymentButton({required BuildContext context}) {
     MyCommonMethods.unFocsKeyBoard();
-    if (addressDetail.value != null) {
+    if (addressDetail != null) {
       showModalBottomSheet(
         isDismissible: true,
         backgroundColor: MyColorsLight().secondary,
@@ -723,22 +750,22 @@ class MyCartController extends CommonMethods {
 
   Future<void> clickOnApplyCouponButtonView() async {
     MyCommonMethods.unFocsKeyBoard();
-    absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueTrue();
     await applyCouponApi();
-    absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueFalse();
   }
 
   clickOnRemoveCouponButtonView() async {
     MyCommonMethods.unFocsKeyBoard();
-    absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueTrue();
     await onInit();
     applyCouponController.text = '';
     isApplyCoupon.value = true;
-    absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueFalse();
   }
 
   Future<void> clickOnProceedToCheckout() async {
-    absorbing.value = CommonMethods.changeTheAbsorbingValueTrue();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueTrue();
     isClickOnProceedToCheckOut.value = true;
     bool isSuccess = false;
     var userMeasurement = await MyCommonMethods.getString(key: "measurement");
@@ -791,7 +818,7 @@ class MyCartController extends CommonMethods {
       );
     }
     isSuccess = false;
-    absorbing.value = CommonMethods.changeTheAbsorbingValueFalse();
+    inAsyncCall.value = CommonMethods.changeTheAbsorbingValueFalse();
     isClickOnProceedToCheckOut.value = false;
     proceedToPaymentAbsorbing.value =
         CommonMethods.changeTheAbsorbingValueFalse();
@@ -800,4 +827,9 @@ class MyCartController extends CommonMethods {
   void readyToCheckOutClickOnSizeButton({required int index}) {}
 
   void readyToCheckOutClickOnSizeIndexButton() {}
+
+
+  onRefresh() async {
+    await onInit();
+  }
 }

@@ -1,5 +1,6 @@
+import 'dart:convert';
 import 'dart:io';
-
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -13,10 +14,12 @@ import 'package:zerocart/app/apis/api_modals/user_data_modal.dart';
 import 'package:zerocart/app/apis/common_apis/common_apis.dart';
 import 'package:zerocart/app/common_methods/common_methods.dart';
 import 'package:zerocart/app/common_widgets/alert_dialog.dart';
-import 'package:zerocart/app/common_widgets/common_widgets.dart';
 import 'package:zerocart/app/modules/outfit_room/controllers/outfit_room_controller.dart';
 import 'package:zerocart/app/routes/app_pages.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
+import 'package:http/http.dart' as http;
+
+import '../../../../notification.dart';
 
 class HomeController extends CommonMethods {
   final count = 0.obs;
@@ -25,24 +28,35 @@ class HomeController extends CommonMethods {
   final walletAmount = ''.obs;
   final notificationCount = ''.obs;
   String? customerId;
+
+  int responseCode = 0;
+  int load = 0;
   final inAsyncCall = false.obs;
+  final isLastPage = false.obs;
+
   bool isLocationDialog = true;
   final height = MediaQuery.of(Get.context!).viewPadding.top.obs;
 
   GetLatLong? getLatLong;
-  final userDataLocal = Rxn<UserData?>();
+  UserData? userDataLocal;
 
-  final getBanner = Rxn<GetBanner?>();
+  GetBanner? getBanner;
   List<Banners>? listOfBanner;
   List<dynamic> bannerImageList = [];
 
-  final getProductApiModel = Rxn<RecentProduct>();
-  List<HomeProducts> recentProductsList=[];
-  List<HomeProducts> topTrendingProductsList=[];
-  List<HomeProducts> topTrendingProductsList2=[];
+  DashboardDetailModel? dashboardDetailModel;
 
-  final getProductListDefaultForHomeModel = Rxn<GetProductListForHome>();
-  List<ProductList> productListDefault =[];
+  RecentProduct? recentProductsModel;
+  List<HomeProducts> recentProductsList = [];
+
+  RecentProduct? topTrendingProductsModel;
+  List<HomeProducts> topTrendingProductsList = [];
+
+  RecentProduct? topTrendingProducts2Model;
+  List<HomeProducts> topTrendingProductsList2 = [];
+
+  GetProductListForHome? getProductListDefaultForHomeModel;
+  List<ProductList> productListDefault = [];
 
   Map<String, dynamic> queryParametersForRecentProductApi = {};
 
@@ -50,39 +64,54 @@ class HomeController extends CommonMethods {
 
   Map<String, dynamic> bodyParamsForUpdateFcmIdApi = {};
 
-  final isShimmer=false.obs;
-
-  //TODO This Code Comment By Aman
-  /*final getRecentProductApiModel=Rxn<GetRecentProductApiModel>();
-  List<RecentSearchList>? recentSearchList ;
-
-  final getTopTrendingProductApiModel=Rxn<TopTrendingApiModal>();
-  List<TrendingList>? trendingList ;*/
-
+  //final isShimmer = false.obs;
 
   @override
   Future<void> onInit() async {
     super.onInit();
-    inAsyncCall.value=true;
-    if(await MyCommonMethods.internetConnectionCheckerMethod())
-      {
+    notificationGet();
+    setEmpty();
+    await MyCommonMethods.setString(
+        key: ApiKeyConstant.isSlider, value: ApiKeyConstant.isSlider);
+    onReload();
+    inAsyncCall.value = true;
+    try {
+      getLatLong = await MyLocation.getUserLatLong(context: Get.context!);
+      customerId =
+          await MyCommonMethods.getString(key: ApiKeyConstant.customerId);
+      if (getLatLong != null) {
+        await callingApi();
+      } else {
+        isLocationDialog = false;
+        locationAlertDialog();
+        inAsyncCall.value = false;
+      }
+    } catch (e) {
+      responseCode = 100;
+      MyCommonMethods.showSnackBar(
+          message: "Something went wrong", context: Get.context!);
+    }
+    inAsyncCall.value = false;
+/*
 
-        getLatLong = await MyLocation.getUserLatLong(context: Get.context!);
-        customerId = await MyCommonMethods.getString(key: ApiKeyConstant.customerId);
-        if (getLatLong != null) {
-          await homeControllerOnInIt();
-        } else {
-          isLocationDialog = false;
-          locationAlertDialog();
-          inAsyncCall.value=false;
-        }
+
+    inAsyncCall.value = true;
+    if (await MyCommonMethods.internetConnectionCheckerMethod()) {
+      getLatLong = await MyLocation.getUserLatLong(context: Get.context!);
+      customerId = await MyCommonMethods.getString(key: ApiKeyConstant.customerId);
+      if (getLatLong != null) {
+        await homeControllerOnInIt();
+      } else {
+        isLocationDialog = false;
+        locationAlertDialog();
+        inAsyncCall.value = false;
       }
-    else
-      {
-        MyCommonMethods.showSnackBar(message: "Check your internet connection!", context: Get.context!);
-        inAsyncCall.value=false;
-      }
-    onConnectivityChange();
+    } else {
+      MyCommonMethods.showSnackBar(
+          message: "Check your internet connection!", context: Get.context!);
+      inAsyncCall.value = false;
+    }
+    onConnectivityChange();*/
   }
 
   @override
@@ -97,38 +126,43 @@ class HomeController extends CommonMethods {
 
   void increment() => count.value++;
 
-  Future<void> homeControllerOnInIt({bool wantEmpty = true}) async {
-      if (wantEmpty) {
-        setEmpty();
+  void onReload() {
+    connectivity.onConnectivityChanged.listen((event) async {
+      if (await MyCommonMethods.internetConnectionCheckerMethod()) {
+        if (load == 0) {
+          load = 1;
+          await onInit();
+        }
+      } else {
+        load = 0;
       }
-      await MyCommonMethods.setString(key: ApiKeyConstant.isSlider, value: ApiKeyConstant.isSlider);
-      await callingApi();
+    });
   }
 
   void setEmpty() {
-    userDataLocal.value = null;
-    getProductApiModel.value = null;
+    userDataLocal = null;
+    recentProductsModel = null;
+    topTrendingProductsModel = null;
+    topTrendingProducts2Model = null;
     listOfBanner = null;
-    getBanner.value = null;
+    getBanner = null;
     listOfBanner?.clear();
     bannerImageList.clear();
     recentProductsList.clear();
     topTrendingProductsList.clear();
     topTrendingProductsList2.clear();
+    productListDefault.clear();
   }
 
   Future<void> callingApi() async {
-    isShimmer.value=true;
     await getUserProfileApiCalling();
     await getUserData();
     await getNotificationCount();
     await getBannerApiCalling();
     await getDefaultProductListApi();
-    inAsyncCall.value=false;
     await getRecentProduct();
     await getTopTrendingProduct();
     await getTopTrendingProduct2();
-    isShimmer.value=false;
     updateFcmIdApiCalling();
   }
 
@@ -136,74 +170,163 @@ class HomeController extends CommonMethods {
     String? fcmId = await MyFirebaseSignIn.getUserFcmId(context: Get.context!);
     if (fcmId != null && fcmId != "") {
       bodyParamsForUpdateFcmIdApi = {ApiKeyConstant.fcmId: fcmId};
-      await CommonApis.updateFcmIdApi(bodyParams: bodyParamsForUpdateFcmIdApi);
+      http.Response? response = await CommonApis.updateFcmIdApi(
+          bodyParams: bodyParamsForUpdateFcmIdApi);
+      responseCode = response?.statusCode ?? 0;
+      if (response != null) {}
     }
+    increment();
   }
 
   Future<void> getBannerApiCalling() async {
-    getBanner.value = await CommonApis.getBannerApi();
-    if (getBanner.value != null) {
-      listOfBanner = getBanner.value?.banner;
-      listOfBanner?.forEach((element) {
-        bannerImageList.add(NetworkImage(
-          CommonMethods.imageUrl(url: element.bannerImage.toString()),
-        ));
-      });
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
+    http.Response? response = await MyHttp.getMethod(
+        url: ApiConstUri.endPointGetBannerApi,
+        token: authorization,
+        context: Get.context!);
+    responseCode = response?.statusCode ?? 0;
+    if (response != null) {
+      if (await CommonMethods.checkResponse(response: response)) {
+        getBanner = GetBanner.fromJson(jsonDecode(response.body));
+        if (getBanner != null) {
+          listOfBanner = getBanner?.banner;
+          listOfBanner?.forEach((element) {
+            bannerImageList.add(NetworkImage(
+              CommonMethods.imageUrl(url: element.bannerImage.toString()),
+            ));
+          });
+        }
+      }
     }
+    increment();
   }
 
   Future<void> getNotificationCount() async {
-    DashboardDetailModel? dashboardDetailModel =
-        await CommonApis.dashboardDetailApi();
-    if (dashboardDetailModel != null) {
-      if (dashboardDetailModel.notificationCount != null &&
-          dashboardDetailModel.notificationCount!.isNotEmpty) {
-        notificationCount.value = dashboardDetailModel.notificationCount!;
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
+    http.Response? response = await MyHttp.getMethod(
+        url: ApiConstUri.endPointDashboardDetailApi,
+        token: authorization,
+        context: Get.context!);
+    responseCode = response?.statusCode ?? 0;
+    if (response != null) {
+      if (await CommonMethods.checkResponse(response: response)) {
+        dashboardDetailModel =
+            DashboardDetailModel.fromJson(jsonDecode(response.body));
+        if (dashboardDetailModel != null) {
+          if (dashboardDetailModel!.notificationCount != null &&
+              dashboardDetailModel!.notificationCount!.isNotEmpty) {
+            notificationCount.value = dashboardDetailModel!.notificationCount!;
+          }
+        }
       }
     }
+    increment();
   }
 
   Future<void> getRecentProduct() async {
     queryParametersForRecentProductApi = {'cId': customerId.toString()};
-    getProductApiModel.value = await CommonApis.getRecentProductApi(
-        queryParameters: queryParametersForRecentProductApi);
-    if (getProductApiModel.value != null) {
-      if (getProductApiModel.value?.products != null &&
-          getProductApiModel.value!.products!.isNotEmpty) {
-        recentProductsList = getProductApiModel.value?.products??[];
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
+    http.Response? response = await MyHttp.getMethodForParams(
+        context: Get.context!,
+        queryParameters: queryParametersForRecentProductApi,
+        authorization: authorization,
+        baseUri: '172.188.16.156:8000',
+        endPointUri: ApiConstUri.endPointGetRecentProductApi);
+    //responseCode = response?.statusCode ?? 0;
+    if (response != null) {
+      if (await CommonMethods.checkResponse(response: response)) {
+        recentProductsModel = RecentProduct.fromJson(jsonDecode(response.body));
+        recentProductsModel = await CommonApis.getRecentProductApi(
+            queryParameters: queryParametersForRecentProductApi);
+        if (recentProductsModel != null) {
+          if (recentProductsModel?.products != null &&
+              recentProductsModel!.products!.isNotEmpty) {
+            recentProductsList = recentProductsModel?.products ?? [];
+          }
+        }
       }
     }
+    increment();
   }
 
   Future<void> getTopTrendingProduct() async {
-    getProductApiModel.value = await CommonApis.getTopTrendingProductApi(queryParameters: {'cId': customerId.toString()});
-    if (getProductApiModel.value != null) {
-      if (getProductApiModel.value?.products != null &&
-          getProductApiModel.value!.products!.isNotEmpty) {
-        topTrendingProductsList = getProductApiModel.value?.products??[];
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
+    http.Response? response = await MyHttp.getMethodForParams(
+        context: Get.context!,
+        queryParameters: {'cId': customerId.toString()},
+        authorization: authorization,
+        baseUri: '172.188.16.156:8000',
+        endPointUri: ApiConstUri.endPointGetTopTrendingProductApi);
+    //responseCode = response?.statusCode ?? 0;
+    if (response != null) {
+      if (await CommonMethods.checkResponse(response: response)) {
+        topTrendingProductsModel =
+            RecentProduct.fromJson(jsonDecode(response.body));
+        if (topTrendingProductsModel != null) {
+          if (topTrendingProductsModel?.products != null &&
+              topTrendingProductsModel!.products!.isNotEmpty) {
+            topTrendingProductsList = topTrendingProductsModel?.products ?? [];
+          }
+        }
       }
     }
+    increment();
   }
 
   Future<void> getTopTrendingProduct2() async {
-    getProductApiModel.value = await CommonApis.getTopTrendingProductApi2(
-        queryParameters: {'cId': customerId.toString()});
-    if (getProductApiModel.value != null) {
-      if (getProductApiModel.value?.products != null &&
-          getProductApiModel.value!.products!.isNotEmpty) {
-        topTrendingProductsList2 = getProductApiModel.value?.products??[];
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
+    http.Response? response = await MyHttp.getMethodForParams(
+        context: Get.context!,
+        queryParameters: {'cId': customerId.toString()},
+        authorization: authorization,
+        baseUri: '172.188.16.156:8000',
+        endPointUri: ApiConstUri.endPointGetTopTrendingProductApi2);
+    //responseCode = response?.statusCode ?? 0;
+    if (response != null) {
+      if (await CommonMethods.checkResponse(response: response)) {
+        topTrendingProducts2Model =
+            RecentProduct.fromJson(jsonDecode(response.body));
+        if (topTrendingProducts2Model != null) {
+          if (topTrendingProducts2Model?.products != null &&
+              topTrendingProducts2Model!.products!.isNotEmpty) {
+            topTrendingProductsList2 =
+                topTrendingProducts2Model?.products ?? [];
+          }
+        }
       }
     }
+    increment();
   }
 
   Future<void> getDefaultProductListApi() async {
-    getProductListDefaultForHomeModel.value = await CommonApis.getDefaultProductListApiForHome();
-    if (getProductListDefaultForHomeModel.value != null) {
-      if (getProductListDefaultForHomeModel.value?.productList  != null && getProductListDefaultForHomeModel.value!.productList !.isNotEmpty) {
-        productListDefault = getProductListDefaultForHomeModel.value?.productList ?? [];
-        print("productListDefault:::::::::::::::::::::::::::::::$productListDefault");
+    http.Response? response = await MyHttp.getMethod(
+        context: Get.context!,
+        url: ApiConstUri.endPointGetDefaultProductListApi);
+    //responseCode = response?.statusCode ?? 0;
+    if (response != null) {
+      if (await CommonMethods.checkResponse(response: response)) {
+        getProductListDefaultForHomeModel =
+            GetProductListForHome.fromJson(jsonDecode(response.body));
+        if (getProductListDefaultForHomeModel != null) {
+          if (getProductListDefaultForHomeModel?.productList != null &&
+              getProductListDefaultForHomeModel!.productList!.isNotEmpty) {
+            productListDefault =
+                getProductListDefaultForHomeModel?.productList ?? [];
+          }
+        }
       }
     }
+    increment();
   }
 
   onWillPop() {
@@ -236,12 +359,10 @@ class HomeController extends CommonMethods {
   void onConnectivityChange() {
     connectivity.onConnectivityChanged.listen((event) async {
       if (await MyCommonMethods.internetConnectionCheckerMethod()) {
-        if (getBanner.value == null) {
+        if (getBanner == null) {
           await onInit();
         }
-      } else {
-
-      }
+      } else {}
     });
   }
 
@@ -295,8 +416,12 @@ class HomeController extends CommonMethods {
   }
 
   Future<void> getUserData() async {
-    name.value = await MyCommonMethods.getString(key: UserDataKeyConstant.fullName) ?? "";
-    walletAmount.value = await MyCommonMethods.getString(key: UserDataKeyConstant.walletAmount) ?? "0.00";
+    name.value =
+        await MyCommonMethods.getString(key: UserDataKeyConstant.fullName) ??
+            "";
+    walletAmount.value = await MyCommonMethods.getString(
+            key: UserDataKeyConstant.walletAmount) ??
+        "0.00";
   }
 
   Future<void> clickOnCard({required String productId}) async {
@@ -306,26 +431,53 @@ class HomeController extends CommonMethods {
 
   Future<void> clickOnCustomizeButton({required BuildContext context}) async {
     await Get.delete<OutfitRoomController>();
-    Get.lazyPut<OutfitRoomController>(() => OutfitRoomController(),
+    Get.lazyPut<OutfitRoomController>(
+      () => OutfitRoomController(),
     );
-    Get.toNamed(Routes.OUTFIT_ROOM,arguments: 0.0);
+    Get.toNamed(Routes.OUTFIT_ROOM, arguments: 0.0);
   }
 
   Future<void> clickOnNotification() async {
     await Get.toNamed(Routes.NOTIFICATION);
-    inAsyncCall.value=true;
-    await homeControllerOnInIt();
+    await onInit();
   }
 
   Future<void> clickOnWalletCard() async {
     await Get.toNamed(Routes.ZEROCART_WALLET);
-    inAsyncCall.value=true;
-    await homeControllerOnInIt();
+    await onInit();
   }
 
   Future<void> clickOnSearchField({required bool isSearch}) async {
     await Get.toNamed(Routes.SEARCH_ITEM, arguments: isSearch);
-    inAsyncCall.value=true;
-    await homeControllerOnInIt();
+    await onInit();
+  }
+
+  onRefresh() async {
+    await onInit();
+  }
+
+  void notificationGet() {
+    ///gives you the message on which user taps and it opened the app from terminated state
+    FirebaseMessaging.instance.getInitialMessage().then((message) {
+      if (message != null) {
+        NotificationServiceForAndroid().sendNotification(
+            title: message.notification!.title!,
+            body: message.notification!.body!);
+      }
+    });
+    ///foreground work
+    FirebaseMessaging.onMessage.listen((message) {
+      if (message.notification != null) {
+        NotificationServiceForAndroid().sendNotification(
+            title: message.notification!.title!,
+            body: message.notification!.body!);
+      }
+    });
+    ///When the app is in background but opened and user taps on the notification
+    FirebaseMessaging.onMessageOpenedApp.listen((message) {
+      NotificationServiceForAndroid().sendNotification(
+          title: message.notification!.title!,
+          body: message.notification!.body!);
+    });
   }
 }

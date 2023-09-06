@@ -45,7 +45,7 @@ class SizeBottomSheet extends GetView<MyCartController> {
                   GridView.builder(
                     shrinkWrap: true,
                     itemCount: controller
-                        .cartItemList.value![index].varientList!.length,
+                        .cartItemList[index].varientList!.length,
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 6,
                       //mainAxisExtent: 2.px,
@@ -108,7 +108,7 @@ class SizeBottomSheet extends GetView<MyCartController> {
 
   Widget readyToCheckOutItemSizeIndexTextView({required int ind}) => Text(
         controller
-            .cartItemList.value![index].varientList![ind].variantAbbreviation
+            .cartItemList[index].varientList![ind].variantAbbreviation
             .toString(),
         style: Theme.of(Get.context!).textTheme.headline3?.copyWith(
             color: MyColorsLight().secondary, fontWeight: FontWeight.w300),
