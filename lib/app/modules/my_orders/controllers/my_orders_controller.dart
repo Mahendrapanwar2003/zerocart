@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:ui_library/ui_library.dart';
+import 'package:zerocart/my_responsive_sizer/src/extension.dart';
 import 'package:zerocart/app/apis/api_constant/api_constant.dart';
 import 'package:zerocart/app/apis/api_modals/get_order_list_modal.dart';
 import 'package:zerocart/app/common_methods/common_methods.dart';
@@ -14,6 +14,9 @@ import 'package:zerocart/app/modules/my_orders/views/orders_filter_bottom_sheet.
 import 'package:zerocart/app/modules/my_orders/views/tracking_bottomsheet.dart';
 import 'package:zerocart/app/routes/app_pages.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
+
+import '../../../../my_common_method/my_common_method.dart';
+import '../../../../my_http/my_http.dart';
 
 class MyOrdersController extends CommonMethods {
   final count = 0.obs;

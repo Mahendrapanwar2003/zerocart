@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ui_library/ui_library.dart';
+import 'package:zerocart/my_responsive_sizer/src/extension.dart';
 
 class MyAlertDialog extends StatelessWidget {
   final Widget? title;

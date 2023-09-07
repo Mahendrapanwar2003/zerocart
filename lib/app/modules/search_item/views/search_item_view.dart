@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ui_library/ui_library.dart';
+import 'package:zerocart/my_responsive_sizer/src/extension.dart';
 import 'package:zerocart/app/constant/zconstant.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
 import '../../../../model_progress_bar/model_progress_bar.dart';
+import '../../../../my_common_method/my_common_method.dart';
 import '../../../apis/api_modals/get_categories_modal.dart';
 import '../../../common_methods/common_methods.dart';
 import '../../../common_widgets/common_widgets.dart';

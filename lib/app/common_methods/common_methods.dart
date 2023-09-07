@@ -6,13 +6,15 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'dart:async';
-import 'package:ui_library/ui_library.dart';
 import 'package:zerocart/app/apis/api_constant/api_constant.dart';
 import 'package:zerocart/app/apis/api_modals/user_data_modal.dart';
 import 'package:zerocart/app/apis/common_apis/common_apis.dart';
-import 'package:zerocart/app/modules/home/controllers/home_controller.dart';
 import 'package:zerocart/app/modules/my_cart/controllers/my_cart_controller.dart';
 import 'package:zerocart/app/modules/zerocart_wallet/controllers/zerocart_wallet_controller.dart';
+
+import '../../my_common_method/my_common_method.dart';
+import '../../my_http/my_http.dart';
+import '../../status_code_constant/status_code_constant.dart';
 
 class CommonMethods extends GetxController {
   static final isConnect = false.obs;

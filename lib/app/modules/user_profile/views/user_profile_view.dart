@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ui_library/ui_library.dart';
+import 'package:zerocart/my_responsive_sizer/src/extension.dart';
 import 'package:zerocart/app/apis/api_constant/api_constant.dart';
 import 'package:zerocart/app/common_methods/common_methods.dart';
 import 'package:zerocart/app/constant/zconstant.dart';

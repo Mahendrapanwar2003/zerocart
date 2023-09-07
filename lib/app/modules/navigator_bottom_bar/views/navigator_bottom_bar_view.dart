@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:zerocart/app/modules/navigator_bottom_bar/controllers/navigator_bottom_bar_controller.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
 import 'dart:ui';
-import 'package:ui_library/ui_library.dart';
+import 'package:zerocart/my_responsive_sizer/src/extension.dart';
 import 'package:zerocart/app/common_widgets/common_widgets.dart';
 
 class NavigatorBottomBarView extends GetView<NavigatorBottomBarController> {

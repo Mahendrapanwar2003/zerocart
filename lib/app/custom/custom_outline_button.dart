@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ui_library/ui_library.dart';
+import 'package:zerocart/my_responsive_sizer/src/extension.dart';
 
 class CustomOutlineButton extends StatelessWidget {
   final _GradientPainter _painter;

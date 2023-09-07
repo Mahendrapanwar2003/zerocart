@@ -1,5 +1,6 @@
-import 'package:ui_library/ui_library.dart';
- String curr="Rs";
+ import 'package:zerocart/my_responsive_sizer/src/extension.dart';
+
+String curr="Rs";
 
 class Zconstant{
 

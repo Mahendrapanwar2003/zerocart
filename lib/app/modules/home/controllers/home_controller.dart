@@ -4,7 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ui_library/ui_library.dart';
+import 'package:zerocart/my_responsive_sizer/src/extension.dart';
 import 'package:zerocart/app/apis/api_constant/api_constant.dart';
 import 'package:zerocart/app/apis/api_modals/dashboard_detail_model.dart';
 import 'package:zerocart/app/apis/api_modals/get%20_recent_product_modal.dart';
@@ -19,6 +19,10 @@ import 'package:zerocart/app/routes/app_pages.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
 import 'package:http/http.dart' as http;
 
+import '../../../../my_common_method/my_common_method.dart';
+import '../../../../my_firebase/my_firebase.dart';
+import '../../../../my_http/my_http.dart';
+import '../../../../my_location/my_location.dart';
 import '../../../../notification.dart';
 
 class HomeController extends CommonMethods {

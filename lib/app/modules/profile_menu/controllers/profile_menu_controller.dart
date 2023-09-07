@@ -1,12 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ui_library/ui_library.dart';
+import 'package:zerocart/my_responsive_sizer/src/extension.dart';
 import 'package:zerocart/app/apis/api_constant/api_constant.dart';
 import 'package:zerocart/app/modules/home/controllers/home_controller.dart';
 import 'package:zerocart/app/modules/navigator_bottom_bar/controllers/navigator_bottom_bar_controller.dart';
 import 'package:zerocart/app/routes/app_pages.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
+import '../../../../my_common_method/my_common_method.dart';
 import '../../../common_widgets/alert_dialog.dart';
 
 class ProfileMenuController extends GetxController {

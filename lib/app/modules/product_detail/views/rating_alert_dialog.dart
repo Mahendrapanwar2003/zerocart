@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
-import 'package:ui_library/ui_library.dart';
+import 'package:zerocart/my_responsive_sizer/src/extension.dart';
 import 'package:zerocart/app/common_widgets/common_widgets.dart';
 import 'package:zerocart/app/modules/product_detail/controllers/product_detail_controller.dart';
 import 'package:zerocart/my_colors/my_colors.dart';

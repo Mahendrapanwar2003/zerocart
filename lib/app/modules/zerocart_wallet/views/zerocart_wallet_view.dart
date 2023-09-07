@@ -3,13 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:ui_library/ui_library.dart';
+import 'package:zerocart/my_responsive_sizer/src/extension.dart';
 import 'package:zerocart/app/common_methods/common_methods.dart';
 import 'package:zerocart/app/common_widgets/common_widgets.dart';
 import 'package:zerocart/app/custom/scroll_splash_gone.dart';
 import 'package:zerocart/load_more/load_more.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
 import '../../../../model_progress_bar/model_progress_bar.dart';
+import '../../../../my_common_method/my_common_method.dart';
 import '../../../constant/zconstant.dart';
 import '../controllers/zerocart_wallet_controller.dart';
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ui_library/ui_library.dart';
+import 'package:zerocart/my_responsive_sizer/src/extension.dart';
 import 'package:zerocart/app/common_methods/common_methods.dart';
 import 'package:zerocart/app/common_widgets/common_widgets.dart';
 import 'package:zerocart/app/custom/custom_appbar.dart';
@@ -8,6 +8,7 @@ import 'package:zerocart/app/custom/custom_gradient_text.dart';
 import 'package:zerocart/app/custom/custom_outline_button.dart';
 import 'package:zerocart/model_progress_bar/model_progress_bar.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
+import '../../../../my_common_method/my_common_method.dart';
 import '../controllers/buy_now_controller.dart';
 
 class BuyNowView extends GetView<BuyNowController> {

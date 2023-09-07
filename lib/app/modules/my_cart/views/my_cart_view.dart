@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ui_library/ui_library.dart';
+import 'package:zerocart/my_responsive_sizer/src/extension.dart';
 import 'package:zerocart/app/apis/api_modals/get_cart_details_model.dart';
 import 'package:zerocart/app/common_methods/common_methods.dart';
 import 'package:zerocart/app/common_widgets/common_widgets.dart';
@@ -11,6 +11,7 @@ import 'package:zerocart/app/custom/custom_gradient_text.dart';
 import 'package:zerocart/app/custom/my_dropdown_menu.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
 import '../../../../model_progress_bar/model_progress_bar.dart';
+import '../../../../my_common_method/my_common_method.dart';
 import '../controllers/my_cart_controller.dart';
 import 'package:http/http.dart' as http;
 

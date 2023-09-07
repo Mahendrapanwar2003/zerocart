@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'package:get/get.dart';
-import 'package:ui_library/ui_library.dart';
 import 'package:zerocart/app/apis/api_constant/api_constant.dart';
 import 'package:zerocart/app/apis/api_modals/user_data_modal.dart';
 import 'package:zerocart/app/apis/common_apis/common_apis.dart';
 import 'package:zerocart/app/common_methods/common_methods.dart';
 import 'package:zerocart/app/routes/app_pages.dart';
+
+import '../../../../my_common_method/my_common_method.dart';
+import '../../../../my_firebase/my_firebase.dart';
 
 class SplashController extends GetxController {
   final absorbing=false.obs;

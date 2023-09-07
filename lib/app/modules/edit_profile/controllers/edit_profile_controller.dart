@@ -3,8 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ui_library/my_date_picker/my_date_picker.dart';
-import 'package:ui_library/ui_library.dart';
+import 'package:zerocart/my_responsive_sizer/src/extension.dart';
 import 'package:zerocart/app/apis/api_constant/api_constant.dart';
 import 'package:zerocart/app/apis/api_modals/get_all_brand_list_api_model.dart';
 import 'package:zerocart/app/apis/api_modals/get_all_fashion_category_list_api_model.dart';
@@ -16,6 +15,11 @@ import 'package:zerocart/app/common_methods/common_methods.dart';
 import 'package:zerocart/app/common_widgets/alert_dialog.dart';
 import 'package:zerocart/app/common_widgets/common_widgets.dart';
 import 'package:http/http.dart' as http;
+
+import '../../../../my_common_method/my_common_method.dart';
+import '../../../../my_date_picker/my_date_picker.dart';
+import '../../../../my_http/my_http.dart';
+import '../../../../my_image_pic_crop/my_image_pic_crop.dart';
 
 class EditProfileController extends CommonMethods {
   int load = 0;

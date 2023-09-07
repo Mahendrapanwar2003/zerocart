@@ -1,12 +1,12 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ui_library/ui_library.dart';
 import 'package:zerocart/app/common_widgets/common_widgets.dart';
 import 'package:zerocart/app/custom/custom_gradient_text.dart';
 import 'package:zerocart/app/modules/home/controllers/home_controller.dart';
 import 'package:zerocart/app/routes/app_pages.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
+import 'package:zerocart/my_responsive_sizer/src/extension.dart';
 
 class MyCustomContainer extends GetView<HomeController> {
   const MyCustomContainer({super.key});

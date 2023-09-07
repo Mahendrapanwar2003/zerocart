@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
-import 'package:ui_library/ui_library.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
+import 'package:zerocart/my_responsive_sizer/src/extension.dart';
 import 'package:zerocart/my_text_style/my_text_style.dart';
 
 class MyThemeData {

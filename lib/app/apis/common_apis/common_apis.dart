@@ -2,40 +2,20 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:get/get_core/get_core.dart';
 import 'package:get/get_navigation/get_navigation.dart';
-import 'package:ui_library/ui_library.dart';
 import 'package:zerocart/app/apis/api_constant/api_constant.dart';
-import 'package:zerocart/app/apis/api_modals/dashboard_detail_model.dart';
 import 'package:zerocart/app/apis/api_modals/get%20_recent_product_modal.dart';
-import 'package:zerocart/app/apis/api_modals/get_addresses_modal.dart';
 import 'package:zerocart/app/apis/api_modals/get_all_brand_list_api_model.dart';
 import 'package:zerocart/app/apis/api_modals/get_all_fashion_category_list_api_model.dart';
 import 'package:zerocart/app/apis/api_modals/get_apply_coupon_modal.dart';
-import 'package:zerocart/app/apis/api_modals/get_banner_modal.dart';
-import 'package:zerocart/app/apis/api_modals/get_buy_now_modal.dart';
-import 'package:zerocart/app/apis/api_modals/get_cancel_order_reason_model.dart';
-import 'package:zerocart/app/apis/api_modals/get_cart_details_model.dart';
-import 'package:zerocart/app/apis/api_modals/get_categories_modal.dart';
 import 'package:zerocart/app/apis/api_modals/get_city_model.dart';
-import 'package:zerocart/app/apis/api_modals/get_customer_measurement_api_model.dart';
-import 'package:zerocart/app/apis/api_modals/get_filter_list_modal.dart';
-import 'package:zerocart/app/apis/api_modals/get_order_list_modal.dart';
-import 'package:zerocart/app/apis/api_modals/get_outfit_room_list_api_model.dart';
-import 'package:zerocart/app/apis/api_modals/get_product_detail_modal.dart';
-import 'package:zerocart/app/apis/api_modals/get_product_list_api_model.dart';
-import 'package:zerocart/app/apis/api_modals/get_product_list_home_model.dart';
 import 'package:zerocart/app/apis/api_modals/get_review_modal.dart';
 import 'package:zerocart/app/apis/api_modals/get_state_model.dart';
-import 'package:zerocart/app/apis/api_modals/get_wallet_history_modal.dart';
-import 'package:zerocart/app/apis/api_modals/get_wishlist_modal.dart';
-import 'package:zerocart/app/apis/api_modals/my_order_detail_model.dart';
-import 'package:zerocart/app/apis/api_modals/search_product_model.dart';
-import 'package:zerocart/app/apis/api_modals/search_product_suggestion_model.dart';
 import 'package:zerocart/app/apis/api_modals/user_data_modal.dart';
 import 'package:http/http.dart' as http;
 import 'package:zerocart/app/common_methods/common_methods.dart';
-import '../api_modals/get_connection_detail_modal.dart';
-import '../api_modals/get_connection_list_modal.dart';
-import '../api_modals/get_notification_api_model.dart';
+
+import '../../../my_common_method/my_common_method.dart';
+import '../../../my_http/my_http.dart';
 
 class CommonApis {
   static Future<UserData?> signInWithGoogle({

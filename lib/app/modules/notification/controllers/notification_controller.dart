@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'package:get/get.dart';
-import 'package:ui_library/ui_library.dart';
 import 'package:zerocart/app/apis/api_constant/api_constant.dart';
 import 'package:zerocart/app/apis/api_modals/get_notification_api_model.dart';
+import '../../../../my_common_method/my_common_method.dart';
+import '../../../../my_http/my_http.dart';
 import '../../../common_methods/common_methods.dart';
 import 'package:http/http.dart' as http;
 

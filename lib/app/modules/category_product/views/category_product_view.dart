@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ui_library/ui_library.dart';
+import 'package:zerocart/my_responsive_sizer/src/extension.dart';
 import 'package:zerocart/app/common_methods/common_methods.dart';
 import 'package:zerocart/app/custom/scroll_splash_gone.dart';
 import 'package:zerocart/model_progress_bar/model_progress_bar.dart';
 import '../../../../load_more/load_more.dart';
+import '../../../../my_list/my_list_view.dart';
 import '../../../common_widgets/common_widgets.dart';
 import '../../../constant/zconstant.dart';
 import '../../../custom/custom_outline_button.dart';

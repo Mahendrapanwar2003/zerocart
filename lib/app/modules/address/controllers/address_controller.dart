@@ -1,14 +1,15 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ui_library/ui_library.dart';
 import 'package:zerocart/app/apis/api_constant/api_constant.dart';
 import 'package:zerocart/app/apis/api_modals/get_addresses_modal.dart';
 import 'package:zerocart/app/apis/common_apis/common_apis.dart';
 import 'package:http/http.dart' as http;
 import 'package:zerocart/app/common_methods/common_methods.dart';
 import 'package:zerocart/app/routes/app_pages.dart';
+
+import '../../../../my_common_method/my_common_method.dart';
+import '../../../../my_http/my_http.dart';
 
 class AddressController extends CommonMethods {
   final count = 0.obs;

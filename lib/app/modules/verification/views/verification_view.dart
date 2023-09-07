@@ -2,11 +2,12 @@
 import 'package:get/get.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:timer_count_down/timer_count_down.dart';
-import 'package:ui_library/ui_library.dart';
+import 'package:zerocart/my_responsive_sizer/src/extension.dart';
 import 'package:zerocart/app/common_methods/common_methods.dart';
 import 'package:zerocart/app/common_widgets/common_widgets.dart';
 import 'package:zerocart/app/constant/zconstant.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
+import '../../../../my_common_method/my_common_method.dart';
 import '../controllers/verification_controller.dart';
 
 class VerificationView extends GetView<VerificationController> {

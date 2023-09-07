@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
-import 'package:ui_library/ui_library.dart';
+import 'package:zerocart/my_responsive_sizer/src/extension.dart';
 import 'package:zerocart/app/apis/api_modals/get_city_model.dart';
 import 'package:zerocart/app/apis/api_modals/get_state_model.dart';
 import 'package:zerocart/app/common_methods/common_methods.dart';
@@ -13,6 +13,7 @@ import 'package:zerocart/app/custom/scroll_splash_gone.dart';
 import 'package:zerocart/app/validator/form_validator.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
 import '../../../../model_progress_bar/model_progress_bar.dart';
+import '../../../../my_common_method/my_common_method.dart';
 import '../controllers/edit_profile_controller.dart';
 
 class EditProfileView extends GetView<EditProfileController> {

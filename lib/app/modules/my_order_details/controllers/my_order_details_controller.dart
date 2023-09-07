@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:ui_library/ui_library.dart';
+import 'package:zerocart/my_responsive_sizer/src/extension.dart';
 import 'package:zerocart/app/apis/api_constant/api_constant.dart';
 import 'package:zerocart/app/apis/api_modals/my_order_detail_model.dart';
 import 'package:zerocart/app/apis/common_apis/common_apis.dart';
@@ -15,6 +15,9 @@ import 'package:zerocart/app/modules/my_orders/views/tracking_bottomsheet.dart';
 import 'package:zerocart/app/routes/app_pages.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
 
+import '../../../../my_common_method/my_common_method.dart';
+import '../../../../my_http/my_http.dart';
+import '../../../../my_image_pic_crop/my_image_pic_crop.dart';
 import '../../../common_methods/common_methods.dart';
 import '../../../common_widgets/common_widgets.dart';
 

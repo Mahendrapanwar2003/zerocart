@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
-import 'package:ui_library/ui_library.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
+import 'package:zerocart/my_responsive_sizer/src/extension.dart';
 
 class MyTextThemeStyle {
   static TextStyle headline1(Color color, {String? fontFamily}) {

@@ -1,13 +1,16 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
-import 'package:ui_library/ui_library.dart';
+import 'package:zerocart/my_responsive_sizer/src/extension.dart';
 import 'package:zerocart/app/apis/api_constant/api_constant.dart';
 import 'package:zerocart/app/apis/api_modals/get_outfit_room_list_api_model.dart';
 import 'package:zerocart/app/apis/common_apis/common_apis.dart';
 import 'package:zerocart/app/common_methods/common_methods.dart';
 import 'package:zerocart/app/modules/my_cart/controllers/my_cart_controller.dart';
 import 'package:zerocart/app/modules/navigator_bottom_bar/controllers/navigator_bottom_bar_controller.dart';
+
+import '../../../../my_common_method/my_common_method.dart';
+import '../../../../my_http/my_http.dart';
 
 class OutfitRoomController extends CommonMethods {
   final count = 0.obs;

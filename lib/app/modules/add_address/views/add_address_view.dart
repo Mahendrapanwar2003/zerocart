@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:ui_library/ui_library.dart';
+import 'package:zerocart/my_responsive_sizer/src/extension.dart';
 import 'package:zerocart/app/common_widgets/common_widgets.dart';
 import 'package:zerocart/app/constant/zconstant.dart';
 import 'package:zerocart/app/custom/custom_appbar.dart';
 import 'package:zerocart/app/custom/custom_gradient_text.dart';
 import 'package:zerocart/app/validator/form_validator.dart';
 import 'package:zerocart/my_colors/my_colors.dart';
+import '../../../../my_common_method/my_common_method.dart';
 import '../controllers/add_address_controller.dart';
 
 class AddAddressView extends GetView<AddAddressController> {

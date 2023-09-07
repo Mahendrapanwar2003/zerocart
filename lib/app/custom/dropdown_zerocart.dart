@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ui_library/ui_library.dart';
+import 'package:zerocart/my_responsive_sizer/src/extension.dart';
 // ignore: depend_on_referenced_packages
 import 'package:zerocart/my_colors/my_colors.dart';
 

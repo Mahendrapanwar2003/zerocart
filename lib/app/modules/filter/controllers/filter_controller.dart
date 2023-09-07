@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ui_library/ui_library.dart';
 import 'package:zerocart/app/apis/api_constant/api_constant.dart';
 import 'package:zerocart/app/apis/api_modals/get_filter_list_modal.dart';
 import 'package:zerocart/app/common_methods/common_methods.dart';
 import 'package:zerocart/app/modules/category_product/controllers/category_product_controller.dart';
 import 'package:http/http.dart' as http;
+
+import '../../../../my_common_method/my_common_method.dart';
+import '../../../../my_http/my_http.dart';
 
 class FilterController extends CommonMethods {
   final count = 0.obs;
