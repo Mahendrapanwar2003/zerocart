@@ -274,8 +274,6 @@ class MyOrderDetailsController extends CommonMethods {
           ApiKeyConstant.rating: ratingCount.toString(),
           ApiKeyConstant.review: descriptionController.text.trim().toString(),
         };
-        print(
-            "bodyParamsForProductFeedbackApi::::${bodyParamsForProductFeedbackApi}");
         http.Response? response = await CommonApis.userProductFeedbackApi(
             imageList: selectedImageForRating,
             bodyParams: bodyParamsForProductFeedbackApi);

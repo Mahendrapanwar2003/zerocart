@@ -155,7 +155,7 @@ class HomeController extends CommonMethods {
   }
 
   Future<void> callingApi() async {
-    await getUserProfileApiCalling();
+    await getUserProfileApi();
     await getUserData();
     await getNotificationCount();
     await getBannerApiCalling();
@@ -164,6 +164,25 @@ class HomeController extends CommonMethods {
     await getTopTrendingProduct();
     await getTopTrendingProduct2();
     updateFcmIdApiCalling();
+  }
+
+  getUserProfileApi() async {
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
+    http.Response? response = await MyHttp.getMethod(
+        url: ApiConstUri.endPointGetUserDataApi,
+        token: authorization,
+        context: Get.context!);
+    responseCode = response?.statusCode ?? 0;
+    if (response != null) {
+      if (await CommonMethods.checkResponse(response: response)) {
+        userData = UserData.fromJson(jsonDecode(response.body));
+        if (userData != null) {
+          await CommonMethods.setUserData(userData: userData);
+        }
+      }
+    }
   }
 
   Future<void> updateFcmIdApiCalling() async {
@@ -465,6 +484,7 @@ class HomeController extends CommonMethods {
             body: message.notification!.body!);
       }
     });
+
     ///foreground work
     FirebaseMessaging.onMessage.listen((message) {
       if (message.notification != null) {
@@ -473,6 +493,7 @@ class HomeController extends CommonMethods {
             body: message.notification!.body!);
       }
     });
+
     ///When the app is in background but opened and user taps on the notification
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
       NotificationServiceForAndroid().sendNotification(

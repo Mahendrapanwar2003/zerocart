@@ -16,8 +16,6 @@ import 'package:zerocart/app/apis/api_modals/get_cancel_order_reason_model.dart'
 import 'package:zerocart/app/apis/api_modals/get_cart_details_model.dart';
 import 'package:zerocart/app/apis/api_modals/get_categories_modal.dart';
 import 'package:zerocart/app/apis/api_modals/get_city_model.dart';
-import 'package:zerocart/app/apis/api_modals/get_connection_detail_modal.dart';
-import 'package:zerocart/app/apis/api_modals/get_connection_list_modal.dart';
 import 'package:zerocart/app/apis/api_modals/get_customer_measurement_api_model.dart';
 import 'package:zerocart/app/apis/api_modals/get_filter_list_modal.dart';
 import 'package:zerocart/app/apis/api_modals/get_order_list_modal.dart';
@@ -35,6 +33,8 @@ import 'package:zerocart/app/apis/api_modals/search_product_suggestion_model.dar
 import 'package:zerocart/app/apis/api_modals/user_data_modal.dart';
 import 'package:http/http.dart' as http;
 import 'package:zerocart/app/common_methods/common_methods.dart';
+import '../api_modals/get_connection_detail_modal.dart';
+import '../api_modals/get_connection_list_modal.dart';
 import '../api_modals/get_notification_api_model.dart';
 
 class CommonApis {
@@ -363,7 +363,509 @@ class CommonApis {
     }
   }
 
-  static Future<DashboardDetailModel?> dashboardDetailApi() async {
+  static Future<http.Response?> userProductFeedbackApi({
+    required Map<String, dynamic> bodyParams,
+    required List<File> imageList,
+  }) async {
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    http.Response? response = await MyHttp.uploadMultipleImagesWithBody(
+      images: imageList,
+      uri: ApiConstUri.endPointUserProductFeedbackApi,
+      bodyParams: bodyParams,
+      context: Get.context!,
+      multipartRequestType: 'POST',
+      imageKey: ApiKeyConstant.reviewFile,
+      token: token ?? "",
+    );
+
+    if (response != null) {
+      if (await CommonMethods.checkResponse(
+          response: response,
+          wantShowFailResponse: true,
+          wantInternetFailResponse: true)) {
+        return response;
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  static Future<http.Response?> searchRecentProductApi({
+    required Map<String, dynamic> bodyParams,
+  }) async {
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
+    http.Response? response = await MyHttp.postMethod(
+      url: ApiConstUri.endPointSearchRecentProductApi,
+      bodyParams: bodyParams,
+      token: authorization,
+      context: Get.context!,
+    );
+    if (response != null) {
+      if (await CommonMethods.checkResponse(
+          response: response,
+          wantShowFailResponse: true,
+          wantInternetFailResponse: true)) {
+        return response;
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  static Future<http.Response?> manageCartApi({
+    required Map<String, dynamic> bodyParams,
+  }) async {
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
+    http.Response? response = await MyHttp.postMethod(
+      url: ApiConstUri.endPointManageCartApi,
+      bodyParams: bodyParams,
+      token: authorization,
+      context: Get.context!,
+    );
+    if (response != null) {
+      if (await CommonMethods.checkResponse(
+          response: response,
+          wantShowFailResponse: true,
+          wantInternetFailResponse: true)) {
+        return response;
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  static Future<http.Response?> removeCartItemApi({
+    required Map<String, dynamic> bodyParams,
+  }) async {
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
+    http.Response? response = await MyHttp.postMethod(
+      url: ApiConstUri.endPointRemoveCartItemApi,
+      bodyParams: bodyParams,
+      token: authorization,
+      context: Get.context!,
+    );
+    if (response != null) {
+      if (await CommonMethods.checkResponse(
+          response: response,
+          wantShowFailResponse: true,
+          wantInternetFailResponse: true)) {
+        return response;
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  static Future<http.Response?> cartItemSelectionApi({
+    required Map<String, dynamic> bodyParams,
+  }) async {
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
+    http.Response? response = await MyHttp.postMethod(
+      url: ApiConstUri.cartItemSelectionApi,
+      bodyParams: bodyParams,
+      token: authorization,
+      context: Get.context!,
+    );
+    if (response != null) {
+      if (await CommonMethods.checkResponse(
+          response: response,
+          wantShowFailResponse: true,
+          wantInternetFailResponse: true)) {
+        return response;
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  static Future<http.Response?> addToWishListApi({
+    required Map<String, dynamic> bodyParams,
+  }) async {
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
+    http.Response? response = await MyHttp.postMethod(
+      url: ApiConstUri.endPointAddToWishListApi,
+      bodyParams: bodyParams,
+      token: authorization,
+      context: Get.context!,
+    );
+    if (response != null) {
+      if (await CommonMethods.checkResponse(
+          response: response,
+          wantShowFailResponse: true,
+          wantInternetFailResponse: true)) {
+        return response;
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  static Future<http.Response?> removeWishlistItemApi({
+    required Map<String, dynamic> bodyParams,
+  }) async {
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
+    http.Response? response = await MyHttp.deleteMethod(
+      url: ApiConstUri.endPointRemoveWishlistItemApi,
+      bodyParams: bodyParams,
+      token: authorization,
+      context: Get.context!,
+    );
+    if (response != null) {
+      if (await CommonMethods.checkResponse(
+          response: response,
+          wantShowFailResponse: true,
+          wantInternetFailResponse: true)) {
+        return response;
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  static Future<GetApplyCouponModal?> applyCouponApi({
+    required Map<String, dynamic> bodyParams,
+  }) async {
+    GetApplyCouponModal? getApplyCouponModal;
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
+    http.Response? response = await MyHttp.postMethod(
+      url: ApiConstUri.endPointApplyCouponApi,
+      bodyParams: bodyParams,
+      token: authorization,
+      context: Get.context!,
+    );
+    if (response != null) {
+      if (await CommonMethods.checkResponse(
+          response: response,
+          wantShowFailResponse: true,
+          wantInternetFailResponse: true)) {
+        getApplyCouponModal =
+            GetApplyCouponModal.fromJson(jsonDecode(response.body));
+        return getApplyCouponModal;
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  static Future<http.Response?> placeOrderApi({
+    required Map<String, dynamic> bodyParams,
+  }) async {
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
+    http.Response? response = await MyHttp.postMethod(
+      url: ApiConstUri.endPointPlaceOrderApi,
+      bodyParams: bodyParams,
+      token: authorization,
+      context: Get.context!,
+    );
+    if (response != null) {
+      if (await CommonMethods.checkResponse(
+          response: response,
+          wantShowFailResponse: true,
+          wantInternetFailResponse: true)) {
+        return response;
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  static Future<GetProductReviewApiModel?> getProductReviewApi(
+      {required Map<String, dynamic> queryParameters}) async {
+    GetProductReviewApiModel? getProductReviewApiModel ;
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
+    http.Response? response = await MyHttp.getMethodForParams(
+        context: Get.context!,
+        queryParameters: queryParameters,
+        baseUri: ApiConstUri.baseUrlForGetMethod,
+        authorization: authorization,
+        endPointUri: ApiConstUri.endPointGetProductReviewApi);
+    if (response != null) {
+      if (await CommonMethods.checkResponse(response: response)) {
+        getProductReviewApiModel  = GetProductReviewApiModel.fromJson(jsonDecode(response.body));
+        return getProductReviewApiModel ;
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  static Future<http.Response?> addCustomerAddressApi({
+    required Map<String, dynamic> bodyParams,
+  }) async {
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
+    http.Response? response = await MyHttp.postMethod(
+      url: ApiConstUri.endPointAddCustomerAddressApi,
+      bodyParams: bodyParams,
+      token: authorization,
+      context: Get.context!,
+    );
+    if (response != null) {
+      if (await CommonMethods.checkResponse(
+          response: response,
+          wantShowFailResponse: true,
+          wantInternetFailResponse: true)) {
+        return response;
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  static Future<http.Response?> setCustomerDefaultAddressApi({
+    required Map<String, dynamic> bodyParams,
+  }) async {
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
+    http.Response? response = await MyHttp.postMethod(
+      url: ApiConstUri.endPointSetCustomerDefaultAddressApi,
+      bodyParams: bodyParams,
+      token: authorization,
+      context: Get.context!,
+    );
+    if (response != null) {
+      if (await CommonMethods.checkResponse(
+          response: response,
+          wantShowFailResponse: true,
+          wantInternetFailResponse: true)) {
+        return response;
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  static Future<http.Response?> deleteCustomerAddressApi({
+    required Map<String, dynamic> bodyParams,
+  }) async {
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
+    http.Response? response = await MyHttp.postMethod(
+      url: ApiConstUri.endPointDeleteCustomerAddressApi,
+      bodyParams: bodyParams,
+      token: authorization,
+      context: Get.context!,
+    );
+    if (response != null) {
+      if (await CommonMethods.checkResponse(
+          response: response,
+          wantShowFailResponse: true,
+          wantInternetFailResponse: true)) {
+        return response;
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  static Future<RecentProduct?> getRecentProductApi(
+      {required Map<String, dynamic> queryParameters}) async {
+    RecentProduct? recentProduct;
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
+    http.Response? response = await MyHttp.getMethodForParams(
+        context: Get.context!,
+        queryParameters: queryParameters,
+        authorization: authorization,
+        baseUri: '172.188.16.156:8000',
+        endPointUri: ApiConstUri.endPointGetRecentProductApi);
+    if (response != null) {
+      if (await CommonMethods.checkResponse(response: response)) {
+        recentProduct = RecentProduct.fromJson(jsonDecode(response.body));
+        return recentProduct;
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  static Future<RecentProduct?> getProductDetailRecentApi2(
+      {required Map<String, dynamic> queryParameters}) async {
+    RecentProduct? recentProduct;
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
+
+    http.Response? response = await MyHttp.getMethodForParams(
+        context: Get.context!,
+        queryParameters: queryParameters,
+        authorization: authorization,
+        baseUri: '172.188.16.156:8000',
+        endPointUri: ApiConstUri.endPointGetProductDetailApi2);
+    // ignore: unnecessary_null_comparison
+    if (response != null) {
+      if (await CommonMethods.checkResponse(response: response)) {
+        recentProduct = RecentProduct.fromJson(jsonDecode(response.body));
+        return recentProduct;
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  static Future<http.Response?> cancelOrderApi({
+    required Map<String, dynamic> bodyParams,
+  }) async {
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
+
+    http.Response? response = await MyHttp.postMethod(
+      url: ApiConstUri.endPointCancelOrderApi,
+      bodyParams: bodyParams,
+      token: authorization,
+      context: Get.context!,
+    );
+    if (response != null) {
+      if (await CommonMethods.checkResponse(
+          response: response,
+          wantShowFailResponse: true,
+          wantInternetFailResponse: true)) {
+        return response;
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+  static Future<http.Response?> walletTransactionApi({
+    required Map<String, dynamic> bodyParams,
+  }) async {
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
+    http.Response? response = await MyHttp.postMethod(
+      url: ApiConstUri.endPointWalletTransactionApi,
+      bodyParams: bodyParams,
+      token: authorization,
+      context: Get.context!,
+    );
+    if (response != null) {
+      if (await CommonMethods.checkResponse(
+          response: response,
+          wantShowFailResponse: true,
+          wantInternetFailResponse: true)) {
+        return response;
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+
+  static Future<http.Response?> addToOutfitRoomApi({
+    required Map<String, dynamic> bodyParams,
+  }) async {
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
+    http.Response? response = await MyHttp.postMethod(
+      url: ApiConstUri.endPointAddToOutfitRoomApi,
+      bodyParams: bodyParams,
+      token: authorization,
+      context: Get.context!,
+    );
+    if (response != null) {
+      if (await CommonMethods.checkResponse(
+          response: response,
+          wantShowFailResponse: true,
+          wantInternetFailResponse: true)) {
+        return response;
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  static Future<http.Response?> addOutfitToCartApi({
+    required Map<String, dynamic> bodyParams,
+  }) async {
+    Map<String, String> authorization = {};
+    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
+    authorization = {"Authorization": token!};
+    http.Response? response = await MyHttp.postMethod(
+      url: ApiConstUri.endPointAddOutfitToCartApi,
+      bodyParams: bodyParams,
+      token: authorization,
+      context: Get.context!,
+    );
+    if (response != null) {
+      if (await CommonMethods.checkResponse(
+          response: response,
+          wantShowFailResponse: true,
+          wantInternetFailResponse: true)) {
+        return response;
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+
+
+
+
+
+  /*static Future<DashboardDetailModel?> dashboardDetailApi() async {
     DashboardDetailModel? dashboardDetailModel;
     Map<String, String> authorization = {};
     String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
@@ -517,7 +1019,6 @@ class CommonApis {
     Map<String, String> authorization = {};
     String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
     authorization = {"Authorization": token!};
-
     http.Response? response = await MyHttp.getMethodForParams(
         context: Get.context!,
         queryParameters: queryParameters,
@@ -530,58 +1031,6 @@ class CommonApis {
         productDetailModel =
             GetProductDetailModel.fromJson(jsonDecode(response.body));
         return productDetailModel;
-      } else {
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
-
-  static Future<http.Response?> searchRecentProductApi({
-    required Map<String, dynamic> bodyParams,
-  }) async {
-    Map<String, String> authorization = {};
-    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
-    authorization = {"Authorization": token!};
-    http.Response? response = await MyHttp.postMethod(
-      url: ApiConstUri.endPointSearchRecentProductApi,
-      bodyParams: bodyParams,
-      token: authorization,
-      context: Get.context!,
-    );
-    if (response != null) {
-      if (await CommonMethods.checkResponse(
-          response: response,
-          wantShowFailResponse: true,
-          wantInternetFailResponse: true)) {
-        return response;
-      } else {
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
-
-  static Future<http.Response?> manageCartApi({
-    required Map<String, dynamic> bodyParams,
-  }) async {
-    Map<String, String> authorization = {};
-    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
-    authorization = {"Authorization": token!};
-    http.Response? response = await MyHttp.postMethod(
-      url: ApiConstUri.endPointManageCartApi,
-      bodyParams: bodyParams,
-      token: authorization,
-      context: Get.context!,
-    );
-    if (response != null) {
-      if (await CommonMethods.checkResponse(
-          response: response,
-          wantShowFailResponse: true,
-          wantInternetFailResponse: true)) {
-        return response;
       } else {
         return null;
       }
@@ -617,84 +1066,6 @@ class CommonApis {
     }
   }
 
-  static Future<http.Response?> removeCartItemApi({
-    required Map<String, dynamic> bodyParams,
-  }) async {
-    Map<String, String> authorization = {};
-    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
-    authorization = {"Authorization": token!};
-    http.Response? response = await MyHttp.postMethod(
-      url: ApiConstUri.endPointRemoveCartItemApi,
-      bodyParams: bodyParams,
-      token: authorization,
-      context: Get.context!,
-    );
-    if (response != null) {
-      if (await CommonMethods.checkResponse(
-          response: response,
-          wantShowFailResponse: true,
-          wantInternetFailResponse: true)) {
-        return response;
-      } else {
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
-
-  static Future<http.Response?> cartItemSelectionApi({
-    required Map<String, dynamic> bodyParams,
-  }) async {
-    Map<String, String> authorization = {};
-    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
-    authorization = {"Authorization": token!};
-    http.Response? response = await MyHttp.postMethod(
-      url: ApiConstUri.cartItemSelectionApi,
-      bodyParams: bodyParams,
-      token: authorization,
-      context: Get.context!,
-    );
-    if (response != null) {
-      if (await CommonMethods.checkResponse(
-          response: response,
-          wantShowFailResponse: true,
-          wantInternetFailResponse: true)) {
-        return response;
-      } else {
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
-
-  static Future<http.Response?> addToWishListApi({
-    required Map<String, dynamic> bodyParams,
-  }) async {
-    Map<String, String> authorization = {};
-    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
-    authorization = {"Authorization": token!};
-    http.Response? response = await MyHttp.postMethod(
-      url: ApiConstUri.endPointAddToWishListApi,
-      bodyParams: bodyParams,
-      token: authorization,
-      context: Get.context!,
-    );
-    if (response != null) {
-      if (await CommonMethods.checkResponse(
-          response: response,
-          wantShowFailResponse: true,
-          wantInternetFailResponse: true)) {
-        return response;
-      } else {
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
-
   static Future<GetWishlistModal?> getWishlistApi() async {
     GetWishlistModal? getWishlistModal;
     Map<String, String> authorization = {};
@@ -716,188 +1087,6 @@ class CommonApis {
     }
   }
 
-  static Future<http.Response?> removeWishlistItemApi({
-    required Map<String, dynamic> bodyParams,
-  }) async {
-    Map<String, String> authorization = {};
-    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
-    authorization = {"Authorization": token!};
-    http.Response? response = await MyHttp.deleteMethod(
-      url: ApiConstUri.endPointRemoveWishlistItemApi,
-      bodyParams: bodyParams,
-      token: authorization,
-      context: Get.context!,
-    );
-    if (response != null) {
-      if (await CommonMethods.checkResponse(
-          response: response,
-          wantShowFailResponse: true,
-          wantInternetFailResponse: true)) {
-        return response;
-      } else {
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
-
-  static Future<GetApplyCouponModal?> applyCouponApi({
-    required Map<String, dynamic> bodyParams,
-  }) async {
-    GetApplyCouponModal? getApplyCouponModal;
-    Map<String, String> authorization = {};
-    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
-    authorization = {"Authorization": token!};
-    http.Response? response = await MyHttp.postMethod(
-      url: ApiConstUri.endPointApplyCouponApi,
-      bodyParams: bodyParams,
-      token: authorization,
-      context: Get.context!,
-    );
-    if (response != null) {
-      if (await CommonMethods.checkResponse(
-          response: response,
-          wantShowFailResponse: true,
-          wantInternetFailResponse: true)) {
-        getApplyCouponModal =
-            GetApplyCouponModal.fromJson(jsonDecode(response.body));
-        return getApplyCouponModal;
-      } else {
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
-
-  static Future<http.Response?> placeOrderApi({
-    required Map<String, dynamic> bodyParams,
-  }) async {
-    Map<String, String> authorization = {};
-    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
-    authorization = {"Authorization": token!};
-    http.Response? response = await MyHttp.postMethod(
-      url: ApiConstUri.endPointPlaceOrderApi,
-      bodyParams: bodyParams,
-      token: authorization,
-      context: Get.context!,
-    );
-    if (response != null) {
-      if (await CommonMethods.checkResponse(
-          response: response,
-          wantShowFailResponse: true,
-          wantInternetFailResponse: true)) {
-        return response;
-      } else {
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
-
-  /*static Future<http.Response?> userProductFeedbackApi({
-    required Map<String, dynamic> bodyParams,
-  }) async {
-    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
-    http.Response? response = await MyHttp.multipartRequest(
-      url: ApiConstUri.endPointUserProductFeedbackApi,
-      bodyParams: bodyParams,
-      context: Get.context!,
-      multipartRequestType: 'POST',
-      userProfileImageKey: ApiKeyConstant.reviewFile,
-      token: token ?? "",
-    );
-    if (response != null) {
-      if (await CommonMethods.checkResponse(response: response)) {
-        return response;
-      } else {
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }*/
-
-  static Future<http.Response?> userProductFeedbackApi({
-    required Map<String, dynamic> bodyParams,
-    required List<File> imageList,
-  }) async {
-    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
-    http.Response? response = await MyHttp.uploadMultipleImagesWithBody(
-      images: imageList,
-      uri: ApiConstUri.endPointUserProductFeedbackApi,
-      bodyParams: bodyParams,
-      context: Get.context!,
-      multipartRequestType: 'POST',
-      imageKey: ApiKeyConstant.reviewFile,
-      token: token ?? "",
-    );
-
-    if (response != null) {
-      if (await CommonMethods.checkResponse(
-          response: response,
-          wantShowFailResponse: true,
-          wantInternetFailResponse: true)) {
-        return response;
-      } else {
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
-
-  static Future<GetProductReviewApiModel?> getProductReviewApi(
-      {required Map<String, dynamic> queryParameters}) async {
-    GetProductReviewApiModel? getProductReviewApiModel ;
-    Map<String, String> authorization = {};
-    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
-    authorization = {"Authorization": token!};
-    http.Response? response = await MyHttp.getMethodForParams(
-        context: Get.context!,
-        queryParameters: queryParameters,
-        baseUri: ApiConstUri.baseUrlForGetMethod,
-        authorization: authorization,
-        endPointUri: ApiConstUri.endPointGetProductReviewApi);
-    if (response != null) {
-      if (await CommonMethods.checkResponse(response: response)) {
-        getProductReviewApiModel  = GetProductReviewApiModel.fromJson(jsonDecode(response.body));
-        return getProductReviewApiModel ;
-      } else {
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
-
-  static Future<http.Response?> addCustomerAddressApi({
-    required Map<String, dynamic> bodyParams,
-  }) async {
-    Map<String, String> authorization = {};
-    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
-    authorization = {"Authorization": token!};
-    http.Response? response = await MyHttp.postMethod(
-      url: ApiConstUri.endPointAddCustomerAddressApi,
-      bodyParams: bodyParams,
-      token: authorization,
-      context: Get.context!,
-    );
-    if (response != null) {
-      if (await CommonMethods.checkResponse(
-          response: response,
-          wantShowFailResponse: true,
-          wantInternetFailResponse: true)) {
-        return response;
-      } else {
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
 
   static Future<GetCustomerAddresses?> getCustomerAddressApi(
       { required Map<String, dynamic> queryParameters,
@@ -925,57 +1114,6 @@ class CommonApis {
     }
   }
 
-  static Future<http.Response?> setCustomerDefaultAddressApi({
-    required Map<String, dynamic> bodyParams,
-  }) async {
-    Map<String, String> authorization = {};
-    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
-    authorization = {"Authorization": token!};
-    http.Response? response = await MyHttp.postMethod(
-      url: ApiConstUri.endPointSetCustomerDefaultAddressApi,
-      bodyParams: bodyParams,
-      token: authorization,
-      context: Get.context!,
-    );
-    if (response != null) {
-      if (await CommonMethods.checkResponse(
-          response: response,
-          wantShowFailResponse: true,
-          wantInternetFailResponse: true)) {
-        return response;
-      } else {
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
-
-  static Future<http.Response?> deleteCustomerAddressApi({
-    required Map<String, dynamic> bodyParams,
-  }) async {
-    Map<String, String> authorization = {};
-    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
-    authorization = {"Authorization": token!};
-    http.Response? response = await MyHttp.postMethod(
-      url: ApiConstUri.endPointDeleteCustomerAddressApi,
-      bodyParams: bodyParams,
-      token: authorization,
-      context: Get.context!,
-    );
-    if (response != null) {
-      if (await CommonMethods.checkResponse(
-          response: response,
-          wantShowFailResponse: true,
-          wantInternetFailResponse: true)) {
-        return response;
-      } else {
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
 
   static Future<http.Response?> userPrescriptionApi({File? image}) async {
     String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
@@ -1050,29 +1188,6 @@ class CommonApis {
     }
   }
 
-  static Future<RecentProduct?> getRecentProductApi(
-      {required Map<String, dynamic> queryParameters}) async {
-    RecentProduct? recentProduct;
-    Map<String, String> authorization = {};
-    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
-    authorization = {"Authorization": token!};
-    http.Response? response = await MyHttp.getMethodForParams(
-        context: Get.context!,
-        queryParameters: queryParameters,
-        authorization: authorization,
-        baseUri: '172.188.16.156:8000',
-        endPointUri: ApiConstUri.endPointGetRecentProductApi);
-    if (response != null) {
-      if (await CommonMethods.checkResponse(response: response)) {
-        recentProduct = RecentProduct.fromJson(jsonDecode(response.body));
-        return recentProduct;
-      } else {
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
 
   static Future<RecentProduct?> getTopTrendingProductApi({
     required Map<String, dynamic> queryParameters,
@@ -1114,32 +1229,6 @@ class CommonApis {
         authorization: authorization,
         baseUri: '172.188.16.156:8000',
         endPointUri: ApiConstUri.endPointGetTopTrendingProductApi2);
-    // ignore: unnecessary_null_comparison
-    if (response != null) {
-      if (await CommonMethods.checkResponse(response: response)) {
-        recentProduct = RecentProduct.fromJson(jsonDecode(response.body));
-        return recentProduct;
-      } else {
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
-
-  static Future<RecentProduct?> getProductDetailRecentApi2(
-      {required Map<String, dynamic> queryParameters}) async {
-    RecentProduct? recentProduct;
-    Map<String, String> authorization = {};
-    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
-    authorization = {"Authorization": token!};
-
-    http.Response? response = await MyHttp.getMethodForParams(
-        context: Get.context!,
-        queryParameters: queryParameters,
-        authorization: authorization,
-        baseUri: '172.188.16.156:8000',
-        endPointUri: ApiConstUri.endPointGetProductDetailApi2);
     // ignore: unnecessary_null_comparison
     if (response != null) {
       if (await CommonMethods.checkResponse(response: response)) {
@@ -1208,59 +1297,6 @@ class CommonApis {
     }
   }
 
-  //TODO This Code Comment By Aman
-  /* static Future<GetRecentProductApiModel?> getRecentProductApi() async {
-    GetRecentProductApiModel? getRecentProductApiModel;
-    Map<String, String> authorization = {};
-    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
-    authorization = {"Authorization": token!};
-    http.Response? response = await MyHttp.getMethod(
-        context: Get.context!,
-        token: authorization,
-        url: ApiConstUri.endPointGetRecentProductApi);
-    // ignore: unnecessary_null_comparison
-    if (response != null) {
-      if (await CommonMethods.checkResponse(response: response)) {
-        getRecentProductApiModel =
-            GetRecentProductApiModel.fromJson(jsonDecode(response.body));
-        return getRecentProductApiModel;
-      } else {
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
-
-   static Future<TopTrendingApiModal?> getTopTrendingProductApi({
-    required Map<String, dynamic> queryParameters,
-  }) async {
-    TopTrendingApiModal? topTrendingApiModal;
-    Map<String, String> authorization = {};
-    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
-    authorization = {"Authorization": token!};
-
-    http.Response? response = await MyHttp.getMethodForParams(
-        context: Get.context!,
-        queryParameters: queryParameters,
-        authorization: authorization,
-        baseUri: ApiConstUri.baseUrlForGetMethod,
-        endPointUri: ApiConstUri.endPointGetTopTrendingProductApi);
-    // ignore: unnecessary_null_comparison
-    if (response != null) {
-      if (await CommonMethods.checkResponse(response: response)) {
-        topTrendingApiModal =
-            TopTrendingApiModal.fromJson(jsonDecode(response.body));
-        return topTrendingApiModal;
-      } else {
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }*/
-
-  //TODO sapan
   static Future<GetProductByInventoryApiModal?> getProductByInventoryApi({
     required Map<String, dynamic> queryParameters,
   }) async {
@@ -1309,33 +1345,6 @@ class CommonApis {
         getOrderListApiModal =
             GetOrderListApiModal.fromJson(jsonDecode(response.body));
         return getOrderListApiModal;
-      } else {
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
-
-  static Future<http.Response?> cancelOrderApi({
-    required Map<String, dynamic> bodyParams,
-  }) async {
-    Map<String, String> authorization = {};
-    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
-    authorization = {"Authorization": token!};
-
-    http.Response? response = await MyHttp.postMethod(
-      url: ApiConstUri.endPointCancelOrderApi,
-      bodyParams: bodyParams,
-      token: authorization,
-      context: Get.context!,
-    );
-    if (response != null) {
-      if (await CommonMethods.checkResponse(
-          response: response,
-          wantShowFailResponse: true,
-          wantInternetFailResponse: true)) {
-        return response;
       } else {
         return null;
       }
@@ -1394,59 +1403,6 @@ class CommonApis {
     }
   }
 
-  static Future<http.Response?> walletTransactionApi({
-    required Map<String, dynamic> bodyParams,
-  }) async {
-    Map<String, String> authorization = {};
-    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
-    authorization = {"Authorization": token!};
-    http.Response? response = await MyHttp.postMethod(
-      url: ApiConstUri.endPointWalletTransactionApi,
-      bodyParams: bodyParams,
-      token: authorization,
-      context: Get.context!,
-    );
-    if (response != null) {
-      if (await CommonMethods.checkResponse(
-          response: response,
-          wantShowFailResponse: true,
-          wantInternetFailResponse: true)) {
-        return response;
-      } else {
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
-
-
-  static Future<http.Response?> addToOutfitRoomApi({
-    required Map<String, dynamic> bodyParams,
-  }) async {
-    Map<String, String> authorization = {};
-    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
-    authorization = {"Authorization": token!};
-    http.Response? response = await MyHttp.postMethod(
-      url: ApiConstUri.endPointAddToOutfitRoomApi,
-      bodyParams: bodyParams,
-      token: authorization,
-      context: Get.context!,
-    );
-    if (response != null) {
-      if (await CommonMethods.checkResponse(
-          response: response,
-          wantShowFailResponse: true,
-          wantInternetFailResponse: true)) {
-        return response;
-      } else {
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
-
   static Future<GetOutfitRoomListApiModel?> getOutfitRoomListApi() async {
     GetOutfitRoomListApiModel? getOutfitRoomListApiModel;
     String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
@@ -1467,33 +1423,6 @@ class CommonApis {
       return null;
     }
   }
-
-  static Future<http.Response?> addOutfitToCartApi({
-    required Map<String, dynamic> bodyParams,
-  }) async {
-    Map<String, String> authorization = {};
-    String? token = await MyCommonMethods.getString(key: ApiKeyConstant.token);
-    authorization = {"Authorization": token!};
-    http.Response? response = await MyHttp.postMethod(
-      url: ApiConstUri.endPointAddOutfitToCartApi,
-      bodyParams: bodyParams,
-      token: authorization,
-      context: Get.context!,
-    );
-    if (response != null) {
-      if (await CommonMethods.checkResponse(
-          response: response,
-          wantShowFailResponse: true,
-          wantInternetFailResponse: true)) {
-        return response;
-      } else {
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
-
 
   static Future<
       GetCustomerMeasurementApiModel?> getCustomerMeasurementApi() async {
@@ -1583,6 +1512,6 @@ class CommonApis {
     } else {
       return null;
     }
-  }
+  }*/
 
 }

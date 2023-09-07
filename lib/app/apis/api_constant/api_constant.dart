@@ -1,15 +1,11 @@
 class ApiConstUri {
-  static const baseUrl = 'http://zerocart.dollopinfotech.com/';
+  // static const baseUrl = 'http://zerocart.dollopinfotech.com/';
+  //
+  // static const baseUrlForGetMethod = 'zerocart.dollopinfotech.com';
 
-  static const baseUrlForGetMethod = 'zerocart.dollopinfotech.com';
+  static const  baseUrl ='http://zerocart.in/';
 
-  //static const endPointGetRecentProductApi="${baseUrl}getRecentProductApi";
-
-  //static const endPointGetTopTrendingProductApi="getTopTrendingProductApi";
-
-  // static const  baseUrl ='http://zerocart.in/';
-
-  // static const  baseUrlForGetMethod ='zerocart.in';
+  static const  baseUrlForGetMethod ='zerocart.in';
 
   static const endPointGoogleSignUpApi = '${baseUrl}customerSignupApi';
 

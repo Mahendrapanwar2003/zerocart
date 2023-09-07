@@ -53,54 +53,96 @@ class CommonWidgets {
       onRefresh: () async {
         await Future.delayed(const Duration(seconds: 1));
       },
-      child: CustomScrollView(
-        slivers: <Widget>[
-          /*SliverToBoxAdapter(
-            child: Container(color: Colors.red,),
+      child: SizedBox(
+        height: double.infinity,
+        child: Center(
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            shrinkWrap: true,
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Image.asset(Zconstant.imageNoInternetConnection),
+                  commonTitleForError(title: Zconstant.textNoInternetTitle),
+                  commonDisForError(dis: Zconstant.textNoInternetDis)
+                ],
+              ),
+            ],
           ),
-          */
-          SliverFillRemaining(
-            hasScrollBody: true,
-            child: Center(
-                child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Image.asset(Zconstant.imageNoInternetConnection),
-                commonTitleForError(title: Zconstant.textNoInternetTitle),
-                commonDisForError(dis: Zconstant.textNoInternetDis)
-              ],
-            )),
-          ),
-        ],
+        ),
       ),
     );
   }
+
+/*  CustomScrollView(
+  slivers: <Widget>[
+  */ /*SliverToBoxAdapter(
+            child: Container(color: Colors.red,),
+          ),
+          */ /*
+  SliverFillRemaining(
+  hasScrollBody: true,
+  child: Center(
+  child: Column(
+  mainAxisAlignment: MainAxisAlignment.center,
+  crossAxisAlignment: CrossAxisAlignment.center,
+  children: [
+  Image.asset(Zconstant.imageNoInternetConnection),
+  commonTitleForError(title: Zconstant.textNoInternetTitle),
+  commonDisForError(dis: Zconstant.textNoInternetDis)
+  ],
+  )),
+  ),
+  ],
+  ),*/
 
   static Widget commonNoDataFoundImage({required RefreshCallback onRefresh}) {
     return RefreshIndicator(
       onRefresh: () async {
         await Future.delayed(const Duration(seconds: 1));
       },
-      child: CustomScrollView(
-        slivers: <Widget>[
-          SliverFillRemaining(
-            hasScrollBody: true,
-            child: Center(
-                child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Image.asset(Zconstant.imageNoDataFound),
-                commonTitleForError(title: Zconstant.textNoDataTitle),
-                commonDisForError(dis: Zconstant.textNoDataDis)
-              ],
-            )),
+      child: SizedBox(
+        height: double.infinity,
+        child: Center(
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            shrinkWrap: true,
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Image.asset(Zconstant.imageNoDataFound),
+                  commonTitleForError(title: Zconstant.textNoDataTitle),
+                  commonDisForError(dis: Zconstant.textNoDataDis)
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
+
+/*  CustomScrollView(
+  slivers: <Widget>[
+  SliverFillRemaining(
+  hasScrollBody: true,
+  child: Center(
+  child: Column(
+  mainAxisAlignment: MainAxisAlignment.center,
+  crossAxisAlignment: CrossAxisAlignment.center,
+  children: [
+  Image.asset(Zconstant.imageNoDataFound),
+  commonTitleForError(title: Zconstant.textNoDataTitle),
+  commonDisForError(dis: Zconstant.textNoDataDis)
+  ],
+  )),
+  ),
+  ],
+  ),*/
 
   static Widget commonSomethingWentWrongImage(
       {required RefreshCallback onRefresh}) {
@@ -108,12 +150,14 @@ class CommonWidgets {
       onRefresh: () async {
         await Future.delayed(const Duration(seconds: 1));
       },
-      child: CustomScrollView(
-        slivers: <Widget>[
-          SliverFillRemaining(
-            hasScrollBody: true,
-            child: Center(
-              child: Column(
+      child: SizedBox(
+        height: double.infinity,
+        child: Center(
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            shrinkWrap: true,
+            children: [
+              Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -123,20 +167,42 @@ class CommonWidgets {
                   commonDisForError(dis: Zconstant.textSomethingWentWrongDis)
                 ],
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
+/*  CustomScrollView(
+  slivers: <Widget>[
+  SliverFillRemaining(
+  hasScrollBody: true,
+  child: Center(
+  child: Column(
+  mainAxisAlignment: MainAxisAlignment.center,
+  crossAxisAlignment: CrossAxisAlignment.center,
+  children: [
+  Image.asset(Zconstant.imageSomethingWentWrong),
+  commonTitleForError(
+  title: Zconstant.textSomethingWentWrongTitle),
+  commonDisForError(dis: Zconstant.textSomethingWentWrongDis)
+  ],
+  ),
+  ),
+  ),
+  ],
+  ),*/
   static Widget commonTitleForError({required String title}) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 15.px),
       child: Text(
         title,
         textAlign: TextAlign.center,
-        style: Theme.of(Get.context!).textTheme.displayLarge,
+        style: Theme.of(Get.context!)
+            .textTheme
+            .titleMedium
+            ?.copyWith(fontSize: 24.px),
       ),
     );
   }
